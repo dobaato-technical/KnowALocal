@@ -2,20 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================= */
+/* Root Variables (Fonts)        */
+/* ============================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ff-heading: "Intro Rust";
+  --ff-body: "Romman";
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================= */
+/* Base Styles                   */
+/* ============================= */
+
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-bg text-dark font-body antialiased;
+}
+
+/* ============================= */
+/* Typography System             */
+/* ============================= */
+
+h1 {
+  @apply font-heading font-bold text-primary;
+  font-size: clamp(36px, 4vw, 48px);
+}
+
+h2 {
+  @apply font-heading font-semibold text-primary;
+  font-size: clamp(28px, 3vw, 36px);
+}
+
+h3 {
+  @apply font-heading font-medium text-primary;
+  font-size: clamp(22px, 2.5vw, 28px);
+}
+
+.sub-heading {
+  @apply font-heading text-secondary tracking-wide;
+  font-size: clamp(18px, 2vw, 22px);
+}
+
+.description {
+  @apply font-body text-dark leading-relaxed;
+  font-size: 16px;
+}
+
+/* ============================= */
+/* Section Defaults              */
+/* ============================= */
+
+.section {
+  @apply px-4 md:px-8 lg:px-12 py-16 lg:py-20;
+  scroll-snap-align: start;
+}
+
+/* ============================= */
+/* Button System                 */
+/* ============================= */
+
+.btn-primary {
+  @apply bg-primary text-bg px-6 py-3 rounded-md
+  transition-transform duration-200 ease-out
+  hover:bg-accent hover:scale-105;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-bg px-6 py-3 rounded-md
+  transition-transform duration-200 ease-out
+  hover:scale-105;
 }

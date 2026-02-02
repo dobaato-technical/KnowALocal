@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "title": "Cape Forchu",
+    "image": "/LandingImages/cape-forchu.jpg",
+    "description": "A dramatic coastal lighthouse with rugged cliffs, ocean views, and unforgettable sunsets."
+  },
+  {
+    "id": 2,
+    "title": "Port Maitland Beach",
+    "image": "/LandingImages/port-maitland-beach.jpg",
+    "description": "A peaceful sandy beach perfect for long walks, fresh sea air, and quiet relaxation."
+  },
+  {
+    "id": 3,
+    "title": "Smuggler Cove",
+    "image": "/LandingImages/smuggler-cove.jpg",
+    "description": "A hidden coastal gem with rocky shores, calm waters, and a sense of untouched beauty."
+  },
+  {
+    "id": 4,
+    "title": "Lake Adventures",
+    "image": "/LandingImages/lake-adventures.jpg",
+    "description": "Enjoy outdoor thrills including mountain biking, kayaking, and paddle boarding in scenic surroundings."
+  },
+  {
+    "id": 5,
+    "title": "Beach Glass Collecting & Craft",
+    "image": "/LandingImages/beach-glass-collecting-&-craft.jpg",
+    "description": "Search the shoreline for colorful sea glass and turn your finds into handcrafted souvenirs."
+  },
+  {
+    "id": 6,
+    "title": "Beau Vendredi",
+    "image": "/LandingImages/les-beaux-vendredi.jpg",
+    "description": "A local favorite featuring fresh crab legs and relaxed Friday sunset dining experiences."
+  },
+  {
+    "id": 7,
+    "title": "Brier Island Whale Tours",
+    "image": "/LandingImages/brier-island-whale-tours.jpg",
+    "description": "Experience guided whale tours and the iconic Balancing Rock hike along dramatic coastal landscapes."
+  }
+]
