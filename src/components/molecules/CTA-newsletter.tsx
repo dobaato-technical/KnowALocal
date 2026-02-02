@@ -14,7 +14,7 @@ export default function CTANewsletter() {
           transition={{ duration: 0.5 }}
           className="font-heading font-bold text-2xl"
         >
-          Get Travel Inspiration in Your Inbox
+          Get Travel Inspiration in Your Inbox.
         </motion.h3>
 
         <p className="mt-4 text-dark/70 max-w-xl mx-auto">
