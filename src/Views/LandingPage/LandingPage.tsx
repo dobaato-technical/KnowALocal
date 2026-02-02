@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import FAQ from "./components/FAQ";
 
 /* ---------------- Dynamic Imports ---------------- */
 
@@ -60,8 +61,12 @@ export default function LandingPage() {
         <Tours />
       </section>
 
-      <section className="snap-start  section ">
+      <section className="snap-start ">
         <CTALocalExpert />
+      </section>
+
+      <section className="snap-start mt-28 ">
+        <FAQ />
       </section>
 
       <section className="snap-start  section ">

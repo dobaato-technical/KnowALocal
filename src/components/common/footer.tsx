@@ -13,7 +13,7 @@ const tours = [
 
 export default function Footer() {
   return (
-    <footer className="bg-dark text-bg mt-24">
+    <footer className="bg-dark text-bg rounded-2xl">
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Left: Logo + Description */}
@@ -74,8 +74,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-16 pt-6 border-t border-bg/20 text-sm text-center">
-          © {new Date().getFullYear()} Know A Local. All rights reserved.
-          @Dobaato
+          © {new Date().getFullYear()} Know A Local. | Crafted by Dobaato |
         </div>
       </div>
     </footer>
