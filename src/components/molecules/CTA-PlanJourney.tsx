@@ -6,10 +6,10 @@ import Image from "next/image";
 
 export default function CTAPlanJourney() {
   return (
-    <section className="relative py-28 overflow-hidden">
+    <section className="relative py-36 overflow-hidden">
       {/* Background Image */}
       <Image
-        src="/CTA-images/travel-to-canada.jpeg"
+        src="drive-images/Deep-Sky-Eye-Observatory-Hugh-Whitaker.jpg"
         alt="Travel Canada"
         fill
         className="object-cover"
@@ -17,7 +17,7 @@ export default function CTAPlanJourney() {
       />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-dark/10" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 text-center text-white">
         <motion.h2

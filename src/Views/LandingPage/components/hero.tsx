@@ -9,7 +9,7 @@ export default function hero() {
     <section className="relative h-screen w-full snap-start overflow-hidden">
       {/* Background Image */}
       <Image
-        src="/LandingImages/hero-tower.jpg"
+        src="/drive-images/Cape_Forchu_Lighthouse-DaveyandSky.jpg"
         alt="Canada travel destination"
         fill
         priority
@@ -17,7 +17,7 @@ export default function hero() {
       />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-dark/40" />
+      <div className="absolute inset-0 bg-dark/60" />
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center">
@@ -26,12 +26,12 @@ export default function hero() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-heading text-bg font-bold max-w-3xl"
+            className="font-heading text-bg text-primary-lite font-bold max-w-3xl"
             style={{
-              fontSize: "clamp(36px, 4vw, 48px)",
+              fontSize: "clamp(48px, 4vw, 60px)",
             }}
           >
-            Discover Canada,
+            Discover <span className="text-primary">Canada,</span>
             <br />
             One Journey at a Time
           </motion.h1>

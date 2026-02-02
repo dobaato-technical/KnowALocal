@@ -45,7 +45,7 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/Logo/Ghumfare_Logo-removebg.png"
+            src="/Logo/logo-removebg-preview.png"
             alt="Ghumfare"
             width={72}
             height={72}

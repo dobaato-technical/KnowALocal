@@ -12,9 +12,12 @@ const Hero = dynamic(() => import("@/Views/LandingPage/components/hero"), {
   ssr: false,
 });
 
-const About = dynamic(() => import("@/Views/About/About"), {
-  ssr: false,
-});
+const About = dynamic(
+  () => import("@/Views/LandingPage/components/AboutCompany"),
+  {
+    ssr: false,
+  },
+);
 
 const Tours = dynamic(() => import("@/Views/LandingPage/components/Tour"), {
   ssr: false,
@@ -45,23 +48,25 @@ export default function LandingPage() {
         <Hero />
       </section>
 
-      <section className="snap-start">
+      <section className="snap-start  section ">
         <About />
       </section>
 
-      <section className="snap-start">
+      <section className="snap-start ">
         <CTAPlanJourney />
       </section>
 
-      <section className="snap-start">
+      <section className="snap-start  section ">
         <Tours />
       </section>
 
-      <section className="snap-start">
+      <section className="snap-start  section ">
         <CTALocalExpert />
       </section>
 
-      <Footer />
+      <section className="snap-start  section ">
+        <Footer />
+      </section>
     </main>
   );
 }

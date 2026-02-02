@@ -19,7 +19,7 @@ export default function Footer() {
           {/* Left: Logo + Description */}
           <div>
             <Image
-              src="/Logo/Ghumfare_white_logo-removebg.png"
+              src="/Logo/logo-removebg-preview.png"
               alt="Ghumfare"
               width={120}
               height={120}

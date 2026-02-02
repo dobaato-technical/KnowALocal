@@ -4,8 +4,12 @@ import Button from "@/components/ui/Button";
 import tours from "@/data/travelLocations.json";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function Tours() {
+  const [showAll, setShowAll] = useState(false);
+  const visibleTours = showAll ? tours : tours.slice(0, 4);
+
   return (
     <section className="snap-start bg-bg text-dark py-24">
       <div className="max-w-6xl mx-auto px-4 md:px-8">
@@ -28,7 +32,7 @@ export default function Tours() {
 
         {/* Cards */}
         <div className="mt-16 grid gap-12 md:grid-cols-2">
-          {tours.map((tour) => (
+          {visibleTours.map((tour) => (
             <motion.div
               key={tour.id}
               whileHover={{ y: -4 }}
@@ -40,6 +44,7 @@ export default function Tours() {
                   src={tour.image}
                   alt={tour.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
@@ -56,6 +61,18 @@ export default function Tours() {
             </motion.div>
           ))}
         </div>
+
+        {/* Show More / Show Less Button */}
+        {tours.length > 4 && (
+          <div className="mt-12 flex justify-center">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="px-8 py-3 bg-accent text-bg font-semibold rounded-md hover:bg-opacity-90 transition-all duration-300 hover:scale-105"
+            >
+              {showAll ? "Show Less" : "Show More"}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
