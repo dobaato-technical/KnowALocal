@@ -21,26 +21,28 @@ export default function hero() {
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center">
-        <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <div className="max-w-6xl px-12">
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-heading text-bg text-primary-lite font-bold max-w-3xl"
+            className="font-heading text-bg flex flex-col gap-1 items-start text-primary-lite font-extrabold max-w-5xl tracking-tighter leading-tighter"
             style={{
-              fontSize: "clamp(48px, 4vw, 60px)",
+              fontSize: "clamp(80px, 4vw, 92px)",
             }}
           >
-            Discover <span className="text-primary">Canada,</span>
-            <br />
-            One Journey at a Time
+            <span className="leading-tight">
+              {" "}
+              Discover <span className="text-primary">Canada,</span>
+            </span>
+            <span className="leading-tight"> One Journey at a Time</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-6 max-w-xl text-bg/90 font-body"
+            className="mt-6 max-w-7xl text-bg/100 font-body text-xl"
           >
             Explore coastal escapes, scenic trails, and authentic local
             experiences curated for travelers who seek more than just

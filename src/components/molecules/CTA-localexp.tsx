@@ -39,10 +39,11 @@ export default function CTALocalExpert() {
             className="font-heading font-bold leading-tight"
             style={{ fontSize: "clamp(28px, 3vw, 40px)" }}
           >
-            Talk to a{" "}
             <span className="relative inline-block">
-              <span className="relative z-10">Local Travel Expert</span>
-              <span className="absolute bottom-2 left-0 w-full h-10 bg-accent/5 -rotate-2" />
+              <span className="relative z-10 rotate-4">
+                Talk to a Local Travel Expert
+              </span>
+              <span className="absolute bottom-2 left-0 w-full h-10 bg-secondary/20 rotate-4" />
             </span>
           </h2>
 

@@ -128,8 +128,8 @@ export default function FAQ() {
   };
 
   return (
-    <section className="py-24 bg-surface snap-start">
-      <div className="max-w-4xl mx-auto px-4 md:px-8">
+    <section className="py-24 snap-start">
+      <div className="max-w-6xl mx-auto px-4 md:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -165,38 +165,6 @@ export default function FAQ() {
             />
           ))}
         </div>
-
-        {/* Contact CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-12 text-center p-8 bg-primary/5 rounded-xl border border-primary/10"
-        >
-          <h3 className="font-heading text-xl text-primary font-semibold mb-2">
-            Still have questions?
-          </h3>
-          <p className="text-text/70 mb-4">
-            Our team is here to help you plan the perfect trip.
-          </p>
-          <button className="inline-flex items-center gap-2 bg-primary text-bg px-6 py-3 rounded-md hover:bg-accent transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md">
-            Contact Us
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
-          </button>
-        </motion.div>
       </div>
     </section>
   );

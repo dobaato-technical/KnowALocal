@@ -9,7 +9,7 @@ export default function CTAPlanJourney() {
     <section className="relative py-36 overflow-hidden">
       {/* Background Image */}
       <Image
-        src="drive-images/Deep-Sky-Eye-Observatory-Hugh-Whitaker.jpg"
+        src="/drive-images/Port-Maitland-Unbound-Media.jpg"
         alt="Travel Canada"
         fill
         className="object-cover"
@@ -17,7 +17,7 @@ export default function CTAPlanJourney() {
       />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-dark/10" />
+      <div className="absolute inset-0 bg-accent/20" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 text-center text-white">
         <motion.h2
@@ -26,7 +26,7 @@ export default function CTAPlanJourney() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="font-heading font-bold"
-          style={{ fontSize: "clamp(32px, 4vw, 48px)" }}
+          style={{ fontSize: "clamp(36px, 4vw, 48px)" }}
         >
           Ready to Plan Your Canadian Escape?
         </motion.h2>
