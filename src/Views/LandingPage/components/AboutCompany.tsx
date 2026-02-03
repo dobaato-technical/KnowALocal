@@ -27,7 +27,7 @@ export default function About() {
       className="snap-start bg-[#f8f1dd] py-12 md:py-16 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left: Overlapping tilted images */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}

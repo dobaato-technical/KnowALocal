@@ -14,7 +14,7 @@ const tours = [
 export default function Footer() {
   return (
     <footer className="bg-dark text-bg rounded-2xl">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-6">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 md:py-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-12">
           {/* Left: Logo + Description */}
           <div className="col-span-2 md:col-span-1">

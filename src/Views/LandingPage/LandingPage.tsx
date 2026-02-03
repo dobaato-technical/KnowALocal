@@ -72,7 +72,6 @@ export default function LandingPage() {
       {/* <section className="section">
         <CTANewsletter />
       </section> */}
-
       <section className="section">
         <Footer />
       </section>
