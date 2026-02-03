@@ -11,8 +11,8 @@ export default function Tours() {
   const visibleTours = showAll ? tours : tours.slice(0, 4);
 
   return (
-    <section className="snap-start bg-bg text-dark py-24">
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
+    <section id="tours" className="snap-start bg-bg text-dark py-24">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Heading */}
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -31,7 +31,7 @@ export default function Tours() {
         </p>
 
         {/* Cards */}
-        <div className="mt-16 grid gap-12 md:grid-cols-2">
+        <div className="mt-16 grid gap-12 md:grid-cols-4">
           {visibleTours.map((tour) => (
             <motion.div
               key={tour.id}
@@ -56,7 +56,7 @@ export default function Tours() {
               </p>
 
               <div className="mt-4">
-                <Button variant="link">Learn More</Button>
+                <Button variant="subtle">Learn More</Button>
               </div>
             </motion.div>
           ))}

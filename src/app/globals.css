@@ -1,79 +1,234 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* ============================= */
-/* Root Variables (Fonts)        */
-/* ============================= */
+@theme {
+  /* ============================================
+     COLOR ROLES (not just colors)
+     ============================================ */
 
-:root {
-  --ff-heading: "Roboto Slab";
-  --ff-body: "Romman";
+  /* PRIMARY: Authority + Structure (Headings, Structure) */
+  /* Use for: h1, h2, h3, navbar text, active states, structural icons, link text */
+  --color-primary: #335358; /* Dark Teal - Authoritative and grounded */
+
+  /* SECONDARY: Support + Hierarchy (Secondary UI Elements) */
+  /* Use for: body text, subheadings, section labels, secondary buttons, supporting icons, borders */
+  --color-secondary: #69836a; /* Sage Green - Supporting and calm */
+
+  /* ACCENT: Attention + Action - RESTRICT TO 5-10% USAGE MAX */
+  /* Use ONLY for: primary CTAs, link hovers, badges, highlights, button focus states */
+  /* Primary buttons should use this color to draw attention */
+  --color-accent: #d69850; /* Warm Tan - Energetic and inviting */
+
+  /* NEUTRALS: Canvas, Surfaces, and Text - Foundation for all layouts */
+  --color-neutral-light: #f8f1dd; /* Light Beige - Page background, breathing room, light surfaces */
+  --color-neutral-medium: #bcd2c2; /* Muted Green - Cards, section backgrounds, inputs, dividers */
+  --color-neutral-dark: #774738; /* Dark Brown - Body text, paragraphs, grounding element */
+
+  /* TEXT ROLES: Semantic text hierarchy for content */
+  /* Primary text: body copy, paragraphs, main content readability (use --color-neutral-dark instead for consistency) */
+  --color-text-primary: #774738;
+  /* Secondary text: subheadings, supporting info, secondary content */
+  --color-text-secondary: #335358;
+  /* Muted text: meta info, descriptions, disabled states, hint text */
+  --color-text-muted: #69836a;
+
+  /* TEXT VARIANTS: For use on colored backgrounds or overlays */
+  --color-text-inverse: #f8f1dd; /* Light text on dark backgrounds */
+
+  /* OVERLAYS: Semi-transparent layers for image readability */
+  --color-overlay-dark: rgba(
+    0,
+    0,
+    0,
+    0.65
+  ); /* 65% dark overlay for better text readability on images */
+
+  /* BACKWARD COMPATIBILITY ALIASES */
+  --color-bg: #f8f1dd;
+  --color-surface: #bcd2c2;
+  --color-text: #774738;
+  --color-dark: #774738;
+
+  /* CUSTOM FONT FAMILIES */
+  --font-heading: Arial, Helvetica, sans-serif;
+  --font-body: Arial, Helvetica, sans-serif;
 }
 
-/* ============================= */
-/* Base Styles                   */
-/* ============================= */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-html {
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+  body {
+    @apply bg-neutral-light text-neutral-dark;
+    font-family: var(--font-body);
+  }
+
+  /* HEADING HIERARCHY: All use primary color + heading font */
+  h1 {
+    @apply font-bold text-primary;
+    font-family: var(--font-heading);
+    font-size: clamp(36px, 4vw, 48px);
+  }
+
+  h2 {
+    @apply font-semibold text-primary;
+    font-family: var(--font-heading);
+    font-size: clamp(28px, 3vw, 36px);
+  }
+
+  h3 {
+    @apply font-medium text-primary;
+    font-family: var(--font-heading);
+    font-size: clamp(22px, 2.5vw, 28px);
+  }
+
+  /* Link base styles */
+  a {
+    @apply text-primary hover:text-accent transition-colors underline-offset-4;
+  }
 }
 
-body {
-  @apply bg-bg text-dark font-body antialiased;
-}
+@layer components {
+  /* ============================================
+     LAYOUT HELPERS
+     ============================================ */
 
-/* ============================= */
-/* Typography System             */
-/* ============================= */
+  /* SECTION: Padding and responsive layout for page sections
+     Use with .section-light or .section-medium for background
+     Removed snap-start for smooth continuous scrolling
+  */
+  .section {
+    @apply px-4 md:px-8 lg:px-0 py-16 lg:py-20 mx-auto max-w-7xl;
+  }
 
-h1 {
-  @apply font-heading font-bold text-primary;
-  font-size: clamp(36px, 4vw, 48px);
-}
+  .section-light {
+    @apply px-4 md:px-8 lg:px-12 py-16 lg:py-20 bg-neutral-light;
+  }
 
-h2 {
-  @apply font-heading font-semibold text-primary;
-  font-size: clamp(28px, 3vw, 36px);
-}
+  .section-medium {
+    @apply px-4 md:px-8 lg:px-12 py-16 lg:py-20 bg-neutral-medium;
+  }
 
-h3 {
-  @apply font-heading font-medium text-primary;
-  font-size: clamp(22px, 2.5vw, 28px);
-}
+  /* ============================================
+     FORM UTILITIES
+     ============================================ */
 
-.sub-heading {
-  @apply font-heading text-secondary tracking-wide;
-  font-size: clamp(18px, 2vw, 22px);
-}
+  /* INPUT: Text input base style */
+  .input {
+    @apply w-full bg-neutral-light border border-secondary rounded-lg
+      px-4 py-3 text-neutral-dark placeholder:text-secondary
+      focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent
+      transition-all duration-200
+      disabled:opacity-50 disabled:cursor-not-allowed;
+  }
 
-.description {
-  @apply font-body text-dark leading-relaxed;
-  font-size: 16px;
-}
+  /* LABEL: Form label styling */
+  .label {
+    @apply text-primary font-medium text-sm block mb-2;
+  }
 
-/* ============================= */
-/* Section Defaults              */
-/* ============================= */
+  /* ============================================
+     ICON UTILITIES
+     ============================================ */
 
-.section {
-  @apply px-4 md:px-8 lg:px-12 py-16 lg:py-20;
-  scroll-snap-align: start;
-}
+  /* ICON: Base icon sizing and styling */
+  .icon {
+    @apply w-6 h-6;
+  }
 
-/* ============================= */
-/* Button System                 */
-/* ============================= */
+  .icon-sm {
+    @apply w-4 h-4;
+  }
 
-.btn-primary {
-  @apply bg-primary text-bg px-6 py-3 rounded-md
-  transition-transform duration-200 ease-out
-  hover:bg-accent hover:scale-105;
-}
+  .icon-lg {
+    @apply w-8 h-8;
+  }
 
-.btn-secondary {
-  @apply bg-secondary text-bg px-6 py-3 rounded-md
-  transition-transform duration-200 ease-out
-  hover:scale-105;
+  /* Icon color roles */
+  .icon-primary {
+    @apply text-primary;
+  }
+
+  .icon-secondary {
+    @apply text-secondary;
+  }
+
+  .icon-accent {
+    @apply text-accent;
+  }
+
+  .icon-muted {
+    @apply text-secondary/60;
+  }
+
+  /* ============================================
+     TEXT UTILITIES
+     ============================================ */
+
+  /* TEXT UTILITIES: Semantic text styling */
+  .text-primary-color {
+    color: var(--color-text-primary);
+  }
+
+  .text-secondary-color {
+    color: var(--color-text-secondary);
+  }
+
+  .text-accent-color {
+    color: var(--color-accent);
+  }
+
+  .text-neutral-light {
+    color: var(--color-neutral-light);
+  }
+
+  .text-neutral-medium {
+    color: var(--color-neutral-medium);
+  }
+
+  .text-neutral-dark {
+    color: var(--color-neutral-dark);
+  }
+
+  /* BACKGROUND UTILITIES: Accent and Neutral backgrounds */
+  .bg-accent-color {
+    background-color: var(--color-accent);
+  }
+
+  .bg-neutral-light {
+    background-color: var(--color-neutral-light);
+  }
+
+  .bg-neutral-medium {
+    background-color: var(--color-neutral-medium);
+  }
+
+  .bg-neutral-dark {
+    background-color: var(--color-neutral-dark);
+  }
+
+  .text-muted {
+    @apply text-secondary text-sm;
+  }
+
+  .text-supporting {
+    @apply text-secondary;
+  }
+
+  /* SPACING: Consistent vertical rhythm */
+  .space-section {
+    @apply space-y-6 md:space-y-8;
+  }
+
+  /* ============================================
+     RESPONSIVE HELPERS
+     ============================================ */
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }

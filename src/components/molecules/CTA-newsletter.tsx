@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 export default function CTANewsletter() {
   return (
     <section className="bg-bg py-24 border-t border-dark/10">
-      <div className="max-w-4xl mx-auto px-4 text-center">
+      <div className="mx-auto px-4 text-center">
         <motion.h3
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

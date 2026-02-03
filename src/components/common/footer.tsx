@@ -5,22 +5,22 @@ import Image from "next/image";
 import Link from "next/link";
 
 const tours = [
-  { name: "Cape Forchu", href: "/tours/cape-forchu" },
-  { name: "Smuggler Cove", href: "/tours/smuggler-cove" },
-  { name: "Brier Island", href: "/tours/brier-island" },
-  { name: "Lake Adventures", href: "/tours/lake-adventures" },
+  { name: "About", href: "#about" },
+  { name: "Tours", href: "#tours" },
+  { name: "FAQ", href: "#faq" },
+  { name: "Home", href: "#hero" },
 ];
 
 export default function Footer() {
   return (
     <footer className="bg-dark text-bg rounded-2xl">
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-12">
           {/* Left: Logo + Description */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <Image
               src="/Logo/logo-removebg-preview.png"
-              alt="Ghumfare"
+              alt="Know A Local Logo"
               width={120}
               height={120}
               className="object-contain"
@@ -32,9 +32,9 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Middle: Tours */}
+          {/* Middle: Navigation */}
           <div>
-            <h4 className="font-heading text-lg mb-6">Tours</h4>
+            <h4 className="font-heading text-lg mb-6">Navigation</h4>
 
             <ul className="space-y-4">
               {tours.map((tour) => (
@@ -46,7 +46,7 @@ export default function Footer() {
                   <Link
                     href={tour.href}
                     className="
-                      relative text-sm
+                      relative text-sm text-bg
                       after:absolute after:left-0 after:-bottom-1
                       after:h-[2px] after:w-0 after:bg-accent
                       after:transition-all after:duration-300

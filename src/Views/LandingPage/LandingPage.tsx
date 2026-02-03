@@ -45,31 +45,35 @@ export default function LandingPage() {
     <main className="relative">
       <Header />
 
-      <section className="snap-start">
+      <section>
         <Hero />
       </section>
 
-      <section className="snap-start  section ">
+      <section className="section">
         <About />
       </section>
 
-      <section className="snap-start ">
+      <section>
         <CTAPlanJourney />
       </section>
 
-      <section className="snap-start  section ">
+      <section className="section">
         <Tours />
       </section>
 
-      <section className="snap-start ">
+      <section>
         <CTALocalExpert />
       </section>
 
-      <section className="snap-start mt-28 ">
+      <section className="section">
         <FAQ />
       </section>
 
-      <section className="snap-start  section ">
+      {/* <section className="section">
+        <CTANewsletter />
+      </section> */}
+
+      <section className="section">
         <Footer />
       </section>
     </main>

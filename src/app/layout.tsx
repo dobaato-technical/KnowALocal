@@ -1,3 +1,4 @@
+import ScrollProgressBar from "@/components/common/ScrollProgressBar";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto_Slab } from "next/font/google";
 import "./globals.css";
@@ -39,12 +40,11 @@ export default function RootLayout({
           min-h-screen
           overflow-y-scroll
           scroll-smooth
-          snap-y
-          snap-mandatory
           bg-bg
           text-dark
         `}
       >
+        <ScrollProgressBar />
         {children}
       </body>
     </html>

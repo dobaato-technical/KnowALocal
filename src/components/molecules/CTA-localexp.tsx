@@ -12,7 +12,7 @@ export default function CTALocalExpert() {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary rounded-full blur-3xl" />
       </div>
 
-      <div className="relative max-w-6xl mx-auto px-4 md:px-8 grid md:grid-cols-2 gap-12 items-center">
+      <div className="relative max-w-7xl mx-auto px-4 md:px-8 grid md:grid-cols-2 gap-12 items-center">
         {/* Content Side */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
@@ -21,30 +21,8 @@ export default function CTALocalExpert() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="space-y-6"
         >
-          {/* Badge/Label */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-block"
-          >
-            <span className="inline-flex items-center gap-2 bg-bg/10 backdrop-blur-sm text-bg px-4 py-2 rounded-full text-sm font-medium border border-bg/20">
-              <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-              Expert Guidance
-            </span>
-          </motion.div>
-
-          <h2
-            className="font-heading font-bold leading-tight"
-            style={{ fontSize: "clamp(28px, 3vw, 40px)" }}
-          >
-            <span className="relative inline-block">
-              <span className="relative z-10 rotate-4">
-                Talk to a Local Travel Expert
-              </span>
-              <span className="absolute bottom-2 left-0 w-full h-10 bg-secondary/20 rotate-4" />
-            </span>
+          <h2 className="font-heading font-bold text-accent leading-tight text-4xl md:text-5xl">
+            Talk to a Local Travel Expert
           </h2>
 
           <p className="text-bg/90 leading-relaxed text-lg">
@@ -91,14 +69,8 @@ export default function CTALocalExpert() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="flex flex-wrap gap-4 pt-2"
           >
-            <Button variant="secondary" className="shadow-lg hover:shadow-xl">
+            <Button variant="primary" className="shadow-lg hover:shadow-xl">
               Get In Touch
-            </Button>
-            <Button
-              variant="outline"
-              className="border-bg/30 text-bg hover:bg-bg/10 hover:border-bg"
-            >
-              View Examples
             </Button>
           </motion.div>
 
@@ -109,6 +81,7 @@ export default function CTALocalExpert() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.5 }}
             className="flex items-center gap-4 pt-4 border-t border-bg/20"
+            style={{ display: "none" }}
           >
             <div className="flex -space-x-2">
               {[1, 2, 3, 4].map((i) => (
@@ -139,7 +112,7 @@ export default function CTALocalExpert() {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
             <div className="relative aspect-[4/5] md:aspect-[3/4]">
               <Image
-                src="/CTA-images/CTA-hero-kta.jpeg"
+                src="/drive-images/Town-of-Yarmouth-DaveyandSky.jpg"
                 alt="Local travel expert providing personalized guidance"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -160,6 +133,7 @@ export default function CTALocalExpert() {
               ease: "easeInOut",
             }}
             className="absolute -top-6 -right-6 w-24 h-24 bg-accent/20 backdrop-blur-sm rounded-2xl rotate-12 hidden md:block"
+            style={{ display: "none" }}
           />
         </motion.div>
       </div>

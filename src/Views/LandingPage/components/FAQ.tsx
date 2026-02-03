@@ -128,8 +128,8 @@ export default function FAQ() {
   };
 
   return (
-    <section className="py-24 snap-start">
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
+    <section id="faq" className="py-2 md:py-4 snap-start">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -138,9 +138,6 @@ export default function FAQ() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <span className="inline-block bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-4">
-            FAQ
-          </span>
           <h2
             className="font-heading font-bold text-primary mb-4"
             style={{ fontSize: "clamp(32px, 4vw, 48px)" }}

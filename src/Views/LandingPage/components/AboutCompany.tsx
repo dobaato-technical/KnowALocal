@@ -1,84 +1,4 @@
 "use client";
-
-// import { motion } from "framer-motion";
-// import { MapPinned, Mountain, Waves } from "lucide-react";
-
-// const points = [
-//   {
-//     icon: MapPinned,
-//     title: "Local Knowledge",
-//     desc: "Experiences crafted with insights only locals know — beyond tourist paths.",
-//   },
-//   {
-//     icon: Mountain,
-//     title: "Nature First",
-//     desc: "From rugged coastlines to quiet trails, every journey respects the land.",
-//   },
-//   {
-//     icon: Waves,
-//     title: "Slow Travel",
-//     desc: "Unrushed itineraries designed to let moments breathe and memories settle.",
-//   },
-// ];
-
-// export default function About() {
-//   return (
-//     <section className="snap-start bg-primary text-bg py-28">
-//       <div className="max-w-6xl mx-auto px-4 md:px-8">
-//         {/* Heading */}
-//         <motion.h2
-//           initial={{ opacity: 0, y: 30 }}
-//           whileInView={{ opacity: 1, y: 0 }}
-//           viewport={{ once: true }}
-//           transition={{ duration: 0.6 }}
-//           className="font-heading font-bold text-center"
-//           style={{ fontSize: "clamp(32px, 4vw, 48px)" }}
-//         >
-//           About Know A Local
-//         </motion.h2>
-
-//         {/* Quote style description */}
-//         <motion.p
-//           initial={{ opacity: 0 }}
-//           whileInView={{ opacity: 1 }}
-//           viewport={{ once: true }}
-//           transition={{ delay: 0.2, duration: 0.6 }}
-//           className="mt-10 max-w-4xl mx-auto text-center italic text-bg/90 leading-relaxed"
-//         >
-//           “Travel is richer when you understand the place, not just visit it.”
-//         </motion.p>
-
-//         {/* Icon Story Grid */}
-//         <div className="mt-16 grid gap-12 md:grid-cols-3">
-//           {points.map((item, i) => (
-//             <motion.div
-//               key={item.title}
-//               initial={{ opacity: 0, y: 30 }}
-//               whileInView={{ opacity: 1, y: 0 }}
-//               viewport={{ once: true }}
-//               transition={{ delay: 0.2 + i * 0.15, duration: 0.5 }}
-//               className="text-center px-4"
-//             >
-//               <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-bg/10">
-//                 <item.icon className="h-7 w-7 text-bg" />
-//               </div>
-
-//               <h3 className="font-heading font-semibold text-lg">
-//                 {item.title}
-//               </h3>
-
-//               <p className="mt-3 text-sm text-bg/80 leading-relaxed">
-//                 {item.desc}
-//               </p>
-//             </motion.div>
-//           ))}
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
-"use client";
 import { motion } from "framer-motion";
 import { MapPinned, Mountain, Waves } from "lucide-react";
 
@@ -102,9 +22,12 @@ const values = [
 
 export default function About() {
   return (
-    <section className="snap-start bg-[#f8f1dd] py-24 md:py-32 overflow-hidden">
+    <section
+      id="about"
+      className="snap-start bg-[#f8f1dd] py-12 md:py-16 overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left: Overlapping tilted images */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -134,7 +57,7 @@ export default function About() {
               whileInView={{ opacity: 1, rotate: -6 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="absolute bottom-8 left-0 w-[75%] h-[65%] bg-[#335358] rounded-2xl  overflow-hidden"
+              className="absolute bottom-8 left-0 w-[75%] h-[65%] bg-[#335358] rounded-2xl overflow-hidden"
             >
               <img
                 src="/drive-images/Trout-Point-Lodge-Hot-Tub-DaveyandSky.jpg"
@@ -165,7 +88,7 @@ export default function About() {
               Know A Local
             </h2>
 
-            <p className="text-[#335358]/80 text-lg leading-relaxed mb-8">
+            <p className="text-[#335358]/80 text-lg leading-relaxed px-4 mb-8">
               We're Trisha and Keisha — lifelong Yarmouth residents who believe
               the best way to experience Nova Scotia is through the eyes of
               someone who calls it home.

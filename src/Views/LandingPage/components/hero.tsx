@@ -1,59 +1,69 @@
 "use client";
-
 import Button from "@/components/ui/Button";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
+import { useRef } from "react";
 
-export default function hero() {
+export default function Hero() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
+
+  // Parallax effect: background moves slower than scroll
+  const bgY = useTransform(scrollY, [0, 400], [0, -100], { clamp: false });
+
   return (
-    <section className="relative h-screen w-full snap-start overflow-hidden">
-      {/* Background Image */}
-      <Image
-        src="/drive-images/Cape_Forchu_Lighthouse-DaveyandSky.jpg"
-        alt="Canada travel destination"
-        fill
-        priority
-        className="object-cover"
-      />
+    <section
+      ref={ref}
+      id="hero"
+      className="relative h-screen w-full overflow-hidden"
+    >
+      {/* Parallax Background Image */}
+      <motion.div className="absolute inset-0" style={{ y: bgY }}>
+        <Image
+          src="/drive-images/Cape_Forchu_Lighthouse-DaveyandSky.jpg"
+          alt="Cape Forchu Lighthouse"
+          fill
+          className="object-cover"
+          priority
+          quality={100}
+        />
+        {/* Gradient overlay - darker on left for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+      </motion.div>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-dark/60" />
-
-      {/* Content */}
-      <div className="relative z-10 h-full flex items-center">
-        <div className="max-w-6xl px-12">
+      {/* Content - Positioned to the left */}
+      <div className="relative h-full flex items-center px-6 lg:px-16">
+        <div className="max-w-2xl space-y-8">
+          {/* Headline */}
           <motion.h1
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-heading text-bg flex flex-col gap-1 items-start text-primary-lite font-extrabold max-w-5xl tracking-tighter leading-tighter"
-            style={{
-              fontSize: "clamp(80px, 4vw, 92px)",
-            }}
+            transition={{ duration: 0.6 }}
+            className="text-5xl md:text-6xl lg:text-7xl px-4 font-light text-white/80 tracking-tight leading-tight"
           >
-            <span className="leading-tight">
-              {" "}
-              Discover <span className="text-primary">Canada,</span>
-            </span>
-            <span className="leading-tight"> One Journey at a Time</span>
+            Discover <span className="text-accent-color">Canada,</span>
+            <br />
+            One Journey at a Time
           </motion.h1>
 
+          {/* Subheadline */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-6 max-w-7xl text-bg/100 font-body text-xl"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg md:text-xl text-white/60 max-w-xl px-4 leading-relaxed"
           >
             Explore coastal escapes, scenic trails, and authentic local
             experiences curated for travelers who seek more than just
             destinations.
           </motion.p>
 
+          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="mt-10"
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="px-4"
           >
             <Button variant="primary">Explore Tours</Button>
           </motion.div>

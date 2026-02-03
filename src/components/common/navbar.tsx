@@ -8,11 +8,10 @@ import { useEffect, useState } from "react";
 import Button from "../ui/Button";
 
 const navItems = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "Tours", href: "/tours" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Contact", href: "/contact" },
+  { label: "Home", href: "#hero" },
+  { label: "About", href: "#about" },
+  { label: "Tours", href: "#tours" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 export default function Header() {
@@ -29,16 +28,16 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-2">
       <motion.div
         className={`
-          mx-auto flex items-center justify-between gap-8 rounded-full px-6 py-2
+          mx-auto flex items-center justify-between gap-8 rounded-2xl px-6 py-2
           transition-colors duration-300
           ${
             isScrolled
-              ? "bg-bg/80 backdrop-blur-xl border border-dark/10 shadow-lg max-w-6xl"
+              ? "bg-bg/80 backdrop-blur-xl border border-dark/10 shadow-lg max-w-7xl"
               : "bg-transparent max-w-full"
           }
         `}
         animate={{
-          maxWidth: isScrolled ? "72rem" : "100%",
+          maxWidth: isScrolled ? "76rem" : "100%",
         }}
         transition={{ type: "spring", stiffness: 120, damping: 22 }}
       >
@@ -46,7 +45,7 @@ export default function Header() {
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/Logo/logo-removebg-preview.png"
-            alt="Ghumfare"
+            alt="Know A Local Logo"
             width={72}
             height={72}
             className="object-contain"

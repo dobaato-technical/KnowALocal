@@ -71,7 +71,7 @@ export default function TravelCard({
 
         {/* CTA Section */}
         <div className="mt-4 flex items-center justify-between">
-          <Button variant="link" className="group-hover:after:w-full">
+          <Button variant="subtle" className="group-hover:after:w-full">
             Learn more
           </Button>
 
