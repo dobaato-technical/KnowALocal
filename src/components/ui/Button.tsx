@@ -1,39 +1,60 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ButtonHTMLAttributes } from "react";
+import { ReactNode } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "outline" | "link";
+type ButtonVariant = "primary" | "secondary" | "subtle";
+type ButtonSize = "sm" | "md";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Visual style variant. Primary = accent. Secondary = outlined. Subtle = text-only. */
   variant?: ButtonVariant;
+  /** Button size */
+  size?: ButtonSize;
+  /** Button content */
+  children: ReactNode;
 }
 
+/**
+ * Button Component - Design System Implementation
+ *
+ * Golden Rule: Accent color ONLY appears on primary buttons
+ *
+ * @example
+ * <Button variant="primary">Get Started</Button>
+ * <Button variant="secondary" size="sm">Cancel</Button>
+ * <Button variant="subtle">View details →</Button>
+ */
 export default function Button({
   variant = "primary",
+  size = "md",
   className,
   children,
+  disabled,
   ...props
 }: ButtonProps) {
   return (
     <button
       className={cn(
-        "font-body transition-all duration-200 ease-out",
+        // Base styles
+        "font-medium transition-all duration-200 cursor-pointer inline-flex items-center justify-center gap-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
 
+        // Sizes
+        size === "sm" && "px-4 py-2 rounded-md text-sm",
+        size === "md" && "px-6 py-3 rounded-lg",
+
+        // Variants
         variant === "primary" &&
-          "bg-primary text-bg px-6 py-3 rounded-md hover:bg-accent hover:scale-105",
-
+          "bg-accent text-neutral-light hover:opacity-90 active:opacity-75",
         variant === "secondary" &&
-          "bg-secondary text-bg px-6 py-3 rounded-md hover:scale-105",
-
-        variant === "outline" &&
-          "border border-primary text-primary hover:bg-primary hover:text-bg",
-
-        variant === "link" &&
-          "relative text-primary text-sm after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-full",
+          "border-2 border-primary text-primary hover:bg-neutral-medium hover:text-primary active:bg-opacity-90",
+        variant === "subtle" && "text-secondary hover:text-primary p-0",
 
         className,
       )}
+      disabled={disabled}
       {...props}
     >
       {children}

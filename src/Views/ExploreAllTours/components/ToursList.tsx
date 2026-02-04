@@ -5,41 +5,38 @@ import tours from "@/data/travelLocations.json";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 
-export default function Tours() {
-  const [showAll, setShowAll] = useState(false);
-  const visibleTours = showAll ? tours : tours.slice(0, 4);
-
+export default function ToursList() {
   return (
-    <section id="tours" className="snap-start bg-bg text-dark py-24">
+    <section className="bg-bg text-dark py-24">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Heading */}
-        <div>
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="font-heading font-bold"
-            style={{ fontSize: "clamp(28px, 3vw, 40px)" }}
-          >
-            Explore Our Tours
-          </motion.h2>
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="font-heading font-bold"
+          style={{ fontSize: "clamp(28px, 3vw, 40px)" }}
+        >
+          All Available Tours
+        </motion.h2>
 
-          <p className="mt-4 max-w-xl text-dark/70">
-            Handpicked experiences that showcase the natural beauty, culture,
-            and adventure Canada has to offer.
-          </p>
-        </div>
+        <p className="mt-4 max-w-xl text-dark/70">
+          Handpicked experiences that showcase the natural beauty, culture, and
+          adventure Canada has to offer.
+        </p>
 
-        {/* Cards */}
+        {/* Cards Grid */}
         <div className="mt-16 grid gap-12 md:grid-cols-4">
-          {visibleTours.map((tour) => (
+          {tours.map((tour) => (
             <motion.div
               key={tour.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
               whileHover={{ y: -4 }}
-              transition={{ duration: 0.3 }}
               className="group"
             >
               <Link href={`/tour-details/${tour.slug}`}>
@@ -77,13 +74,6 @@ export default function Tours() {
               </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Explore All Tours Button */}
-        <div className="mt-16 flex justify-center">
-          <Link href="/explore-all-tours">
-            <Button variant="primary">Explore All Tours</Button>
-          </Link>
         </div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import FAQ from "./components/FAQ";
 
 /* ---------------- Dynamic Imports ---------------- */
 
@@ -12,9 +13,12 @@ const Hero = dynamic(() => import("@/Views/LandingPage/components/hero"), {
   ssr: false,
 });
 
-const About = dynamic(() => import("@/Views/About/About"), {
-  ssr: false,
-});
+const About = dynamic(
+  () => import("@/Views/LandingPage/components/AboutCompany"),
+  {
+    ssr: false,
+  },
+);
 
 const Tours = dynamic(() => import("@/Views/LandingPage/components/Tour"), {
   ssr: false,
@@ -41,27 +45,40 @@ export default function LandingPage() {
     <main className="relative">
       <Header />
 
-      <section className="snap-start">
+      <section>
         <Hero />
       </section>
 
-      <section className="snap-start">
+      {/* <section>
+        <SearchBar />
+      </section> */}
+
+      <section className="section">
         <About />
       </section>
 
-      <section className="snap-start">
+      <section>
         <CTAPlanJourney />
       </section>
 
-      <section className="snap-start">
+      <section className="section">
         <Tours />
       </section>
 
-      <section className="snap-start">
+      <section>
         <CTALocalExpert />
       </section>
 
-      <Footer />
+      <section className="section">
+        <FAQ />
+      </section>
+
+      {/* <section className="section">
+        <CTANewsletter />
+      </section> */}
+      <section>
+        <Footer />
+      </section>
     </main>
   );
 }
