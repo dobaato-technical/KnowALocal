@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import FAQ from "./components/FAQ";
+import { SearchBar } from "./components/search-bar";
 
 /* ---------------- Dynamic Imports ---------------- */
 
@@ -49,6 +50,10 @@ export default function LandingPage() {
         <Hero />
       </section>
 
+      <section>
+        <SearchBar />
+      </section>
+
       <section className="section">
         <About />
       </section>
@@ -72,7 +77,7 @@ export default function LandingPage() {
       {/* <section className="section">
         <CTANewsletter />
       </section> */}
-      <section className="section">
+      <section>
         <Footer />
       </section>
     </main>

@@ -1,5 +1,4 @@
 "use client";
-import Button from "@/components/ui/Button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useRef } from "react";
@@ -58,15 +57,12 @@ export default function Hero() {
             destinations.
           </motion.p>
 
-          {/* CTA */}
+          {/* Search Bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="px-4"
-          >
-            <Button variant="primary">Explore Tours</Button>
-          </motion.div>
+          ></motion.div>
         </div>
       </div>
     </section>

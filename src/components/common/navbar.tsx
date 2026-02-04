@@ -25,7 +25,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-2">
+    <header className="fixed top-0 left-0 right-0  z-50 px-4 md:px-8 py-2">
       <motion.div
         className={`
           mx-auto flex items-center justify-between gap-8 rounded-2xl px-6 py-2
@@ -53,13 +53,13 @@ export default function Header() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden md:flex items-center gap-12">
           {navItems.map((item) => (
             <Link
               key={item.label}
               href={item.href}
               className={`
-                relative font-body text-sm transition-colors duration-200
+                relative font-body text-lg transition-colors duration-200
                 ${isScrolled ? "text-primary" : "text-bg"}
                 hover:text-accent
                 after:absolute after:left-0 after:-bottom-1
