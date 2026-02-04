@@ -5,12 +5,22 @@ import Button from "./Button";
 
 type CardVariant = "default" | "featured" | "compact";
 
+interface TravelLocation {
+  id: number;
+  title: string;
+  image: string;
+  description: string;
+  rating?: number;
+}
+
 interface TravelCardProps {
   image: string;
   title: string;
   description: string;
   variant?: CardVariant;
   className?: string;
+  rating?: number; // 0-5 star rating
+  location?: TravelLocation; // Full location object for scalability
 }
 
 export default function TravelCard({
@@ -19,7 +29,29 @@ export default function TravelCard({
   description,
   variant = "default",
   className,
+  rating = 0,
+  location,
 }: TravelCardProps) {
+  // Use rating from location object if available, otherwise use the prop
+  const cardRating = location?.rating ?? rating;
+  // Render star rating
+  const renderStars = (rate: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span
+          key={i}
+          className={cn(
+            "text-lg",
+            i <= Math.floor(rate) ? "text-yellow-400" : "text-gray-300",
+          )}
+        >
+          ★
+        </span>,
+      );
+    }
+    return stars;
+  };
   return (
     <div
       className={cn(
@@ -51,6 +83,16 @@ export default function TravelCard({
         {variant === "featured" && (
           <div className="absolute top-4 right-4 bg-accent text-bg px-3 py-1 rounded-full text-sm font-medium shadow-lg">
             Featured
+          </div>
+        )}
+
+        {/* Rating Badge */}
+        {cardRating > 0 && (
+          <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg shadow-lg flex items-center gap-1">
+            <div className="flex">{renderStars(cardRating)}</div>
+            <span className="text-sm font-semibold text-gray-800 ml-1">
+              {cardRating.toFixed(1)}
+            </span>
           </div>
         )}
       </div>

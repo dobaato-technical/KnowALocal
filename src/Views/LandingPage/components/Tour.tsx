@@ -47,6 +47,16 @@ export default function Tours() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
+
+                {/* Rating Badge */}
+                {tour.rating && tour.rating > 0 && (
+                  <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3.5 py-2 rounded-2xl shadow-md flex items-center gap-1.5">
+                    <span className="text-lg text-yellow-500">★</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {tour.rating.toFixed(1)}/5
+                    </span>
+                  </div>
+                )}
               </div>
 
               <h3 className="mt-6 font-heading text-xl">{tour.title}</h3>
