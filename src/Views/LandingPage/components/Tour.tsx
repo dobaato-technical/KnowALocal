@@ -3,6 +3,7 @@
 import Button from "@/components/ui/Button";
 import tours from "@/data/travelLocations.json";
 import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -27,10 +28,49 @@ export default function Tours() {
             Explore Our Tours
           </motion.h2>
 
-          <p className="mt-4 max-w-xl text-dark/70">
-            Handpicked experiences that showcase the natural beauty, culture,
-            and adventure Canada has to offer.
-          </p>
+          <div className="mt-8 flex items-start justify-between gap-12">
+            {/* Description */}
+            <p className="text-dark/70 max-w-2xl leading-relaxed">
+              Handpicked experiences that showcase the natural beauty, culture,
+              and adventure Canada has to offer.
+            </p>
+
+            {/* Explore All Tours Button - Bold & Modern */}
+            <Link href="/explore-all-tours" className="flex-shrink-0">
+              <motion.button
+                whileHover="hover"
+                initial="initial"
+                className="relative text-accent font-medium text-base lg:text-lg tracking-tight group whitespace-nowrap pb-2"
+              >
+                <motion.span
+                  variants={{
+                    initial: { x: 0 },
+                    hover: { x: 4 },
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="inline-flex items-center gap-2"
+                >
+                  Explore All Tours
+                  <motion.span
+                    variants={{
+                      initial: { x: 0, opacity: 1, rotate: 0, scale: 1 },
+                      hover: { x: 8, opacity: 1, rotate: 45, scale: 1.2 },
+                    }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                  >
+                    <ArrowRight size={22} />
+                  </motion.span>
+                </motion.span>
+
+                <motion.div
+                  className="absolute bottom-0 left-0 h-[3px] bg-accent"
+                  initial={{ width: 0 }}
+                  whileHover={{ width: "70%" }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+              </motion.button>
+            </Link>
+          </div>
         </div>
 
         {/* Cards */}
@@ -77,13 +117,6 @@ export default function Tours() {
               </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Explore All Tours Button */}
-        <div className="mt-16 flex justify-center">
-          <Link href="/explore-all-tours">
-            <Button variant="primary">Explore All Tours</Button>
-          </Link>
         </div>
       </div>
     </section>
