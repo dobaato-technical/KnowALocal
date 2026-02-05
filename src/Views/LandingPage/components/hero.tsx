@@ -39,7 +39,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight"
+            className="text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight font-[family-name:var(--font-merriweather)]"
           >
             Discover <span className="text-accent-color">Nova Scotia,</span>
             <br />

@@ -416,19 +416,26 @@ export default function Footer({
 
         {/* Bottom Bar - Copyright */}
         <div className="mt-2 md:mt-4 border-t border-bg/20 pt-2 md:pt-4">
-          <p className="text-center text-xs text-bg/70">
-            © {new Date().getFullYear()} Know A Local. All rights reserved.
-            <span className="ml-2">
-              |
-              <Link
-                href="https://dobaato.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-2 text-center text-xs text-bg/70 hover:text-accent transition-all cursor-pointer hover:scale-125"
-              >
-                Crafted by Dobaato
-              </Link>
+          <p className="text-center text-xs text-bg/70 flex items-center justify-center gap-2 flex-wrap">
+            <span>
+              © {new Date().getFullYear()} Know A Local. All rights reserved.
             </span>
+            <span>|</span>
+            <span className="text-xs text-bg/70">Crafted by</span>
+            <Link
+              href="https://dobaato.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center transition-all cursor-pointer hover:opacity-100"
+            >
+              <Image
+                src="/Logo/Final_Black-nobg.png"
+                alt="Dobaato"
+                width={100}
+                height={34}
+                className="h-5 w-auto object-contain opacity-70"
+              />
+            </Link>
           </p>
         </div>
       </div>

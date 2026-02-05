@@ -1,6 +1,6 @@
 import ScrollProgressBar from "@/components/common/ScrollProgressBar";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Roboto_Slab } from "next/font/google";
+import { Geist, Geist_Mono, Merriweather, Roboto_Slab } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +17,12 @@ const robotoSlab = Roboto_Slab({
   variable: "--ff-heading",
   subsets: ["latin"],
   weight: "400",
+});
+
+const merriweather = Merriweather({
+  variable: "--font-merriweather",
+  subsets: ["latin"],
+  weight: ["300", "400", "700", "900"],
 });
 
 export const metadata: Metadata = {
@@ -36,6 +42,7 @@ export default function RootLayout({
           ${geistSans.variable}
           ${geistMono.variable}
           ${robotoSlab.variable}
+          ${merriweather.variable}
           antialiased
           min-h-screen
           overflow-y-scroll

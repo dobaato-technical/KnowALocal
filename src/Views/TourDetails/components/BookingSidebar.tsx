@@ -61,7 +61,7 @@ export default function BookingSidebar({ tour }: any) {
             className="w-full border-2 border-accent text-accent hover:bg-accent hover:text-white py-4 rounded-xl font-bold text-sm transition-all transform hover:-translate-y-0.5 active:translate-y-0"
             onClick={() => alert("Applying now...")}
           >
-            Apply Now
+            Book Now
           </Button>
         </div>
 
