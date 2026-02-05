@@ -80,32 +80,21 @@ export default function Header() {
             initial="initial"
             className="inline-block"
           >
-            <Link
-              href="/contact-us"
-              className={`
-                relative font-body text-lg transition-colors duration-200
-                ${isScrolled ? "text-accent" : "text-accent"}
-                hover:text-accent
-                after:absolute after:left-0 after:-bottom-1
-                after:h-[2px] after:w-0 after:bg-accent
-                after:transition-all after:duration-300
-                hover:after:w-1/2
-                flex items-center gap-2
-              `}
-            >
-              <motion.div
-                variants={{
-                  initial: { rotate: 0 },
-                  hover: { rotate: 15 },
-                }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-              >
-                <Phone size={20} />
-              </motion.div>
-              Contact Us
+            <Link href="/contact-us">
+              <Button variant="primary" className="flex items-center gap-2">
+                <motion.div
+                  variants={{
+                    initial: { rotate: 0 },
+                    hover: { rotate: 15 },
+                  }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  <Phone size={20} />
+                </motion.div>
+                Get In Touch
+              </Button>
             </Link>
           </motion.div>
-          <Button variant="primary">Book a Tour</Button>
         </div>
 
         {/* Mobile Toggle */}
