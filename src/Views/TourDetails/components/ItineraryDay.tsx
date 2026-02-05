@@ -1,10 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Clock } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 export default function ItineraryDay({ tour, day }: any) {
   const dayData = tour.itinerary.find((item: any) => item.day === day);
+  const [isOpen, setIsOpen] = useState(false);
 
   if (!dayData) return null;
 
@@ -13,40 +15,72 @@ export default function ItineraryDay({ tour, day }: any) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-2xl border border-dark/5 p-6 md:p-8 shadow-sm mb-8"
+      className="bg-neutral-light rounded-3xl border border-primary/10 shadow-lg overflow-hidden mb-5 transition-all hover:border-accent/20 group/card"
     >
-      <div className="flex items-center gap-4 mb-8">
-        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-accent text-white font-bold">
-          {day}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-4 md:p-6 text-left"
+      >
+        <div className="flex items-center gap-5 md:gap-6">
+          <div className="flex flex-col items-center justify-center min-w-[50px] h-[50px] md:min-w-[64px] md:h-[64px] rounded-2xl bg-primary text-neutral-light font-bold shadow-md group-hover/card:bg-accent transition-all duration-500 transform group-hover/card:scale-105">
+            <span className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] opacity-70">
+              Day
+            </span>
+            <span className="text-xl md:text-2xl font-heading -mt-0.5">
+              {day}
+            </span>
+          </div>
+          <div>
+            <h3 className="font-heading text-lg md:text-xl font-bold text-primary group-hover/card:text-accent transition-colors duration-300">
+              {dayData.title}
+            </h3>
+            <p className="text-secondary font-bold text-[8px] md:text-[10px] mt-0.5 uppercase tracking-[0.2em] opacity-60">
+              Daily Journey Highlights
+            </p>
+          </div>
         </div>
-        <h3 className="font-heading text-xl md:text-2xl font-bold">
-          {dayData.title}
-        </h3>
-      </div>
+        <div
+          className={`p-2 md:p-2.5 rounded-full transition-all duration-500 ${isOpen ? "rotate-180 bg-accent text-neutral-light shadow-md" : "bg-primary/5 text-primary hover:bg-primary/10"}`}
+        >
+          <ChevronDown className="w-5 h-5 md:w-6 md:h-6" />
+        </div>
+      </button>
 
-      <div className="relative pl-8">
-        {/* Timeline line */}
-        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-accent/20" />
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <div className="px-6 md:px-10 pb-8 pt-2">
+              <div className="h-px bg-primary/10 mb-6 w-full" />
+              <div className="prose prose-sm md:prose-base max-w-none">
+                <p className="text-primary/90 text-sm md:text-base leading-relaxed font-body font-medium">
+                  {dayData.activities.map((activity: any, index: number) => {
+                    const words = activity.activity.split(" ");
+                    const firstTwo = words.slice(0, 2).join(" ");
+                    const rest = words.slice(2).join(" ");
 
-        <div className="space-y-6">
-          {dayData.activities.map((activity: any, index: number) => (
-            <div key={index} className="relative">
-              {/* Timeline dot */}
-              <div className="absolute -left-[1.375rem] top-1.5 w-3 h-3 rounded-full bg-accent ring-4 ring-white" />
-
-              <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-4">
-                <div className="flex items-center gap-2 text-accent bg-accent/5 px-2 py-0.5 rounded text-xs font-bold w-fit uppercase tracking-wider">
-                  <Clock className="w-3 h-3" />
-                  {activity.time}
-                </div>
-                <p className="text-dark/80 text-base md:text-lg leading-relaxed">
-                  {activity.activity}
+                    return (
+                      <span key={index} className="inline-block mb-2 mr-2">
+                        <span className="text-accent font-bold decoration-primary/20 decoration-2 underline-offset-4">
+                          {firstTwo}
+                        </span>{" "}
+                        <span className="italic text-secondary font-semibold">
+                          {rest}
+                        </span>
+                        {index < dayData.activities.length - 1 ? ". " : "."}
+                      </span>
+                    );
+                  })}
                 </p>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

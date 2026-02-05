@@ -36,7 +36,7 @@ export function SearchBar({ transparent = false, onSearch }: SearchBarProps) {
 
   return (
     <div className="w-full">
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-4xl mx-auto">
         {/* Search Fields */}
         <div
           className={`rounded-3xl p-6 md:p-8 shadow-2xl ${

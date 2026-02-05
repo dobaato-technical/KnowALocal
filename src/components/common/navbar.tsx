@@ -1,17 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, Phone, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Button from "../ui/Button";
 
 const navItems = [
-  { label: "Home", href: "#hero" },
-  { label: "About", href: "#about" },
-  { label: "Tours", href: "#tours" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Tours", href: "/explore-all-tours" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 export default function Header() {
@@ -32,22 +32,22 @@ export default function Header() {
           transition-colors duration-300
           ${
             isScrolled
-              ? "bg-bg/80 backdrop-blur-xl border border-dark/10 shadow-lg max-w-7xl"
+              ? "bg-bg/80 backdrop-blur-xl border border-dark/10 shadow-lg max-w-[78rem]"
               : "bg-transparent max-w-full"
           }
         `}
         animate={{
-          maxWidth: isScrolled ? "76rem" : "100%",
+          maxWidth: isScrolled ? "78rem" : "100%",
         }}
         transition={{ type: "spring", stiffness: 120, damping: 22 }}
       >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/Logo/logo-removebg-preview.png"
+            src="/Logo/logo.webp"
             alt="Know A Local Logo"
-            width={72}
-            height={72}
+            width={100}
+            height={100}
             className="object-contain"
           />
         </Link>
@@ -74,7 +74,37 @@ export default function Header() {
         </nav>
 
         {/* CTA */}
-        <div className="hidden md:block">
+        <div className="hidden md:flex items-center gap-6">
+          <motion.div
+            whileHover="hover"
+            initial="initial"
+            className="inline-block"
+          >
+            <Link
+              href="/contact-us"
+              className={`
+                relative font-body text-lg transition-colors duration-200
+                ${isScrolled ? "text-accent" : "text-accent"}
+                hover:text-accent
+                after:absolute after:left-0 after:-bottom-1
+                after:h-[2px] after:w-0 after:bg-accent
+                after:transition-all after:duration-300
+                hover:after:w-1/2
+                flex items-center gap-2
+              `}
+            >
+              <motion.div
+                variants={{
+                  initial: { rotate: 0 },
+                  hover: { rotate: 15 },
+                }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <Phone size={20} />
+              </motion.div>
+              Contact Us
+            </Link>
+          </motion.div>
           <Button variant="primary">Book a Tour</Button>
         </div>
 
@@ -107,6 +137,12 @@ export default function Header() {
               </Link>
             ))}
 
+            <Link
+              href="/contact-us"
+              className="relative font-body text-sm text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+            >
+              Contact Us
+            </Link>
             <Button variant="primary" className="mt-4">
               Book a Tour
             </Button>

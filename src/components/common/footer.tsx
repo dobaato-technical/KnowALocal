@@ -1,5 +1,6 @@
 "use client";
 
+import travelLocations from "@/data/travelLocations.json";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -41,7 +42,7 @@ const defaultSocialLinks: FooterProps["socialLinks"] = [
 export default function Footer({
   logo = {
     url: "/",
-    src: "/Logo/logo-removebg-preview.png",
+    src: "/Logo/logo.webp",
     alt: "Know A Local Logo",
     title: "Know A Local",
   },
@@ -54,7 +55,7 @@ export default function Footer({
   },
 }: FooterProps) {
   return (
-    <footer className="bg-primary text-bg mx-auto max-w-7xl py-12 md:py-16 mb-8 rounded-2xl">
+    <footer className="bg-primary text-bg mx-auto max-w-7xl py-8 md:py-10 mb-8 mt-8 rounded-2xl">
       <div className=" px-4 md:px-8">
         {/* Mobile Layout - No Grid */}
         <div className="md:hidden space-y-4">
@@ -107,7 +108,7 @@ export default function Footer({
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="#about"
+                    href="/about"
                     className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                   >
                     About Us
@@ -115,7 +116,7 @@ export default function Footer({
                 </li>
                 <li>
                   <Link
-                    href="#tours"
+                    href="/explore-all-tours"
                     className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                   >
                     Tours
@@ -123,7 +124,7 @@ export default function Footer({
                 </li>
                 <li>
                   <Link
-                    href="#hero"
+                    href="/"
                     className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                   >
                     Home
@@ -131,10 +132,10 @@ export default function Footer({
                 </li>
                 <li>
                   <Link
-                    href="#faq"
+                    href="/contact-us"
                     className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                   >
-                    FAQ
+                    Contact Us
                   </Link>
                 </li>
               </ul>
@@ -173,34 +174,67 @@ export default function Footer({
             </div>
           </div>
 
-          {/* Legal Information */}
-          <div>
-            <h3 className="mb-4 font-heading text-sm font-semibold text-bg">
-              Legal Information
-            </h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/privacy-policy"
-                  className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms-and-conditions"
-                  className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
-                >
-                  Terms and Conditions
-                </Link>
-              </li>
-            </ul>
+          {/* Legal Information and Payment Cards side by side */}
+          <div className="grid grid-cols-2 gap-6">
+            {/* Legal Information */}
+            <div>
+              <h3 className="mb-4 font-heading text-sm font-semibold text-bg">
+                Legal Information
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="/privacy-policy"
+                    className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/terms-and-conditions"
+                    className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+                  >
+                    Terms and Conditions
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Payment Cards Section - Mobile */}
+            <div>
+              <h3 className="mb-3 font-heading text-sm font-semibold text-bg">
+                We Accept
+              </h3>
+              <div className="flex gap-3 items-center flex-wrap">
+                <Image
+                  src="/payment-cards/visa.png"
+                  alt="Visa"
+                  width={40}
+                  height={25}
+                  className="h-6 w-auto object-contain"
+                />
+                <Image
+                  src="/payment-cards/master-card.png"
+                  alt="Mastercard"
+                  width={40}
+                  height={25}
+                  className="h-6 w-auto object-contain"
+                />
+                <Image
+                  src="/payment-cards/amex.png"
+                  alt="American Express"
+                  width={40}
+                  height={25}
+                  className="h-6 w-auto object-contain"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Desktop Grid Layout */}
-        <div className="hidden md:grid grid-cols-4 gap-8 md:gap-12 lg:gap-16">
+        <div className="hidden md:grid grid-cols-5 gap-8 md:gap-12 lg:gap-16">
           {/* Desktop: Logo + Description + Social */}
           <div className="hidden md:flex flex-col gap-4">
             <Link href={logo.url} className="inline-block w-fit">
@@ -239,7 +273,7 @@ export default function Footer({
             <ul className="hidden md:block space-y-3">
               <li>
                 <Link
-                  href="#about"
+                  href="/about"
                   className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                 >
                   About Us
@@ -247,7 +281,7 @@ export default function Footer({
               </li>
               <li>
                 <Link
-                  href="#tours"
+                  href="/explore-all-tours"
                   className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                 >
                   Tours
@@ -255,7 +289,7 @@ export default function Footer({
               </li>
               <li>
                 <Link
-                  href="#hero"
+                  href="/"
                   className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                 >
                   Home
@@ -263,12 +297,31 @@ export default function Footer({
               </li>
               <li>
                 <Link
-                  href="#faq"
+                  href="/contact-us"
                   className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                 >
-                  FAQ
+                  Contact Us
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          {/* Featured Tours Section */}
+          <div>
+            <h3 className="hidden md:block mb-4 font-heading text-lg font-semibold text-bg">
+              Featured Tours
+            </h3>
+            <ul className="hidden md:block space-y-3">
+              {travelLocations.slice(0, 4).map((tour) => (
+                <li key={tour.id}>
+                  <Link
+                    href={`/tour-details/${tour.slug}`}
+                    className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+                  >
+                    {tour.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -304,34 +357,65 @@ export default function Footer({
             </div>
           </div>
 
-          {/* Legal Information */}
-          <div>
-            <h3 className="hidden md:block mb-4 font-heading text-lg font-semibold text-bg">
-              Legal Information
-            </h3>
-            <ul className="hidden md:block space-y-3">
-              <li>
-                <Link
-                  href="/privacy-policy"
-                  className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms-and-conditions"
-                  className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
-                >
-                  Terms and Conditions
-                </Link>
-              </li>
-            </ul>
+          {/* Legal Information with Image */}
+          <div className="flex flex-col gap-3">
+            <div>
+              <h3 className="hidden md:block mb-4 font-heading text-lg font-semibold text-bg">
+                Legal Information
+              </h3>
+              <ul className="hidden md:block space-y-3">
+                <li>
+                  <Link
+                    href="/privacy-policy"
+                    className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/terms-and-conditions"
+                    className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+                  >
+                    Terms and Conditions
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            {/* Payment Cards Section */}
+            <div>
+              <h3 className="text-sm md:text-base mt-12 pl-8 font-semibold text-bg mb-4">
+                We Accept
+              </h3>
+              <div className="flex gap-2 items-center flex-wrap">
+                <Image
+                  src="/payment-cards/visa.png"
+                  alt="Visa"
+                  width={48}
+                  height={32}
+                  className="h-8 w-auto object-contain"
+                />
+                <Image
+                  src="/payment-cards/master-card.png"
+                  alt="Mastercard"
+                  width={48}
+                  height={32}
+                  className="h-8 w-auto object-contain"
+                />
+                <Image
+                  src="/payment-cards/amex.png"
+                  alt="American Express"
+                  width={48}
+                  height={32}
+                  className="h-8 w-auto object-contain"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Bottom Bar - Copyright */}
-        <div className="mt-4 md:mt-8 border-t border-bg/20 pt-3 md:pt-6">
+        <div className="mt-2 md:mt-4 border-t border-bg/20 pt-2 md:pt-4">
           <p className="text-center text-xs text-bg/70">
             © {new Date().getFullYear()} Know A Local. All rights reserved.
             <span className="ml-2">
