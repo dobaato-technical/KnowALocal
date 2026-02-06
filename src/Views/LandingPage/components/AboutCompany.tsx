@@ -26,15 +26,15 @@ export default function About() {
       id="about"
       className="snap-start bg-[#f8f1dd] py-12 md:py-16 overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
           {/* Left: Overlapping tilted images */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="relative h-[500px] lg:h-[600px]"
+            className="relative h-[400px] sm:h-[500px] lg:h-[600px]"
           >
             {/* Back card - tilted right */}
             <motion.div
@@ -88,7 +88,7 @@ export default function About() {
               Know A Local
             </h2>
 
-            <p className="text-[#335358]/80 text-lg leading-relaxed px-4 mb-8">
+            <p className="text-[#335358]/80 text-base sm:text-lg leading-relaxed mb-8">
               We're Trisha and Keisha — lifelong Yarmouth residents who believe
               the best way to experience Nova Scotia is through the eyes of
               someone who calls it home.

@@ -45,9 +45,9 @@ export function SearchBar({ transparent = false, onSearch }: SearchBarProps) {
               : "bg-gradient-to-br from-[#f8f1dd] to-white border-2 border-[#bcd2c2]/50"
           }`}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-end">
             {/* Destination */}
-            <div className="relative group">
+            <div className="relative group sm:col-span-1 lg:col-span-1">
               <label
                 className={`block text-xs font-semibold mb-3 tracking-wide uppercase ${
                   transparent ? "text-white/90" : "text-[#335358]"
@@ -110,10 +110,10 @@ export function SearchBar({ transparent = false, onSearch }: SearchBarProps) {
             </div>
 
             {/* Search Button */}
-            <div className="md:pt-7">
+            <div className="sm:col-span-2 lg:col-span-1 lg:pt-7">
               <button
                 onClick={handleSearch}
-                className={`group w-full h-14 inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 transform hover:scale-105 text-base tracking-wide ${
+                className={`group w-full h-12 sm:h-14 inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base tracking-wide ${
                   transparent
                     ? "bg-accent-color text-white hover:bg-accent-color/90 shadow-lg hover:shadow-xl"
                     : "bg-gradient-to-r from-[#774738] to-[#d69850] hover:from-[#d69850] hover:to-[#774738] text-white shadow-lg hover:shadow-xl"

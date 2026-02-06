@@ -13,8 +13,11 @@ export default function Tours() {
   const visibleTours = showAll ? tours : tours.slice(0, 4);
 
   return (
-    <section id="tours" className="snap-start bg-bg text-dark py-24">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
+    <section
+      id="tours"
+      className="snap-start bg-bg text-dark py-16 sm:py-20 md:py-24"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Heading */}
         <div>
           <motion.h2
@@ -23,24 +26,27 @@ export default function Tours() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             className="font-heading font-bold"
-            style={{ fontSize: "clamp(28px, 3vw, 40px)" }}
+            style={{ fontSize: "clamp(24px, 5vw, 40px)" }}
           >
             Explore Our Tours
           </motion.h2>
 
-          <div className="mt-8 flex items-start justify-between gap-12">
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:items-start justify-between gap-6 sm:gap-8 lg:gap-12">
             {/* Description */}
-            <p className="text-dark/70 max-w-2xl leading-relaxed">
+            <p className="text-dark/70 max-w-2xl leading-relaxed text-sm sm:text-base">
               Handpicked experiences that showcase the natural beauty, culture,
               and adventure Canada has to offer.
             </p>
 
             {/* Explore All Tours Button - Bold & Modern */}
-            <Link href="/explore-all-tours" className="flex-shrink-0">
+            <Link
+              href="/explore-all-tours"
+              className="flex-shrink-0 w-full sm:w-auto"
+            >
               <motion.button
                 whileHover="hover"
                 initial="initial"
-                className="relative text-accent font-medium text-base lg:text-lg tracking-tight group whitespace-nowrap pb-2"
+                className="relative text-accent font-medium text-base tracking-tight group whitespace-nowrap pb-2 w-full sm:w-auto text-center sm:text-left"
               >
                 <motion.span
                   variants={{
