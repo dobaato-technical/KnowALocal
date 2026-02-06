@@ -38,6 +38,13 @@ const Footer = dynamic(() => import("@/components/common/footer"), {
   ssr: true,
 });
 
+const ParnterCompanies = dynamic(
+  () => import("@/Views/LandingPage/components/ParnterCompanies"),
+  {
+    ssr: true,
+  },
+);
+
 const TestimonialSlider = dynamic(
   () => import("@/Views/LandingPage/components/Testimonial"),
   {
@@ -81,12 +88,21 @@ export default function LandingPage() {
       </section>
 
       <section>
+        <ParnterCompanies />
+      </section>
+
+      <section>
         <TestimonialSlider />
       </section>
 
       {/* <section className="section">
         <CTANewsletter />
       </section> */}
+
+      <section>
+        <ParnterCompanies />
+      </section>
+
       <section>
         <Footer />
       </section>
