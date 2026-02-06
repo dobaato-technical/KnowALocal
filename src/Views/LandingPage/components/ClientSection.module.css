@@ -1,0 +1,19 @@
+.infinite-scroll {
+  display: flex;
+  gap: clamp(1rem, 5vw, 2rem);
+  animation: scroll 60s linear infinite;
+  width: fit-content;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.infinite-scroll:hover {
+  animation-play-state: paused;
+}

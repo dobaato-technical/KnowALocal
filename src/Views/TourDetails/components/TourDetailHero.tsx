@@ -77,7 +77,7 @@ export default function TourDetailHero({ tour }: any) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="font-heading font-bold text-5xl md:text-7xl text-white mb-6 drop-shadow-lg uppercase tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 drop-shadow-lg tracking-tight leading-tight font-[family-name:var(--font-merriweather)]">
               {tour.title}
             </h1>
             <div className="w-24 h-1 bg-accent mx-auto mb-8 rounded-full shadow-lg" />

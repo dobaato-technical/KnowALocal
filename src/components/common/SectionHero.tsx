@@ -46,7 +46,7 @@ export default function SectionHero({
 }: SectionHeroProps) {
   return (
     <section
-      className={`relative h-96 md:h-[500px] w-full overflow-hidden ${className}`}
+      className={`relative h-[500px] md:h-[600px] w-full overflow-hidden ${className}`}
     >
       {/* Background Image */}
       <div className="absolute inset-0">
@@ -74,7 +74,7 @@ export default function SectionHero({
           className="max-w-2xl space-y-4"
         >
           {/* Title */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white/90 tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white/90 tracking-tight leading-tight font-[family-name:var(--font-merriweather)]">
             {title}
           </h1>
 
@@ -84,7 +84,7 @@ export default function SectionHero({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-white/70 max-w-xl leading-relaxed"
+              className="text-base sm:text-lg md:text-xl text-white/70 max-w-xl leading-relaxed font-[family-name:var(--font-merriweather)]"
             >
               {subtitle}
             </motion.p>

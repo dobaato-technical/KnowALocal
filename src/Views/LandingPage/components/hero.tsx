@@ -32,14 +32,14 @@ export default function Hero() {
       </motion.div>
 
       {/* Content - Centered */}
-      <div className="relative h-full flex items-center justify-center px-6 lg:px-16">
-        <div className="w-full max-w-5xl space-y-8 text-center flex flex-col items-center">
+      <div className="relative h-full flex items-center justify-center px-4 sm:px-6 lg:px-16">
+        <div className="w-full max-w-5xl space-y-4 sm:space-y-6 md:space-y-8 text-center flex flex-col items-center">
           {/* Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight font-[family-name:var(--font-merriweather)]"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight font-[family-name:var(--font-merriweather)]"
           >
             Discover <span className="text-accent-color">Nova Scotia,</span>
             <br />
@@ -51,7 +51,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-white/95 max-w-3xl leading-relaxed font-medium"
+            className="text-base sm:text-lg md:text-xl text-white/95 max-w-2xl sm:max-w-3xl leading-relaxed font-medium font-[family-name:var(--font-merriweather)]"
           >
             Explore coastal escapes, scenic trails, and authentic local
             experiences curated for travelers who seek more than just
