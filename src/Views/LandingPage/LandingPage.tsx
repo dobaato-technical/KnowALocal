@@ -83,12 +83,12 @@ export default function LandingPage() {
         <CTALocalExpert />
       </section>
 
-      <section className="section">
-        <FAQ />
-      </section>
-
       <section>
         <ParnterCompanies />
+      </section>
+
+      <section className="section">
+        <FAQ />
       </section>
 
       <section>
@@ -98,10 +98,6 @@ export default function LandingPage() {
       {/* <section className="section">
         <CTANewsletter />
       </section> */}
-
-      <section>
-        <ParnterCompanies />
-      </section>
 
       <section>
         <Footer />
