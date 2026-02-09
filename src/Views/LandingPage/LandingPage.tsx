@@ -67,7 +67,7 @@ export default function LandingPage() {
         <SearchBar />
       </section> */}
 
-      <section className="section">
+      <section id="about" className="section scroll-mt-24">
         <About />
       </section>
 
@@ -75,7 +75,7 @@ export default function LandingPage() {
         <CTAPlanJourney />
       </section>
 
-      <section className="section">
+      <section id="tours" className="section scroll-mt-24">
         <Tours />
       </section>
 
@@ -87,7 +87,7 @@ export default function LandingPage() {
         <ParnterCompanies />
       </section>
 
-      <section className="section">
+      <section id="faq" className="section scroll-mt-24">
         <FAQ />
       </section>
 

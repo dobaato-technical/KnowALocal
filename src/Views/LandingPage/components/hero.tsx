@@ -15,7 +15,7 @@ export default function Hero() {
     <section
       ref={ref}
       id="hero"
-      className="relative h-screen w-full overflow-hidden"
+      className="relative h-screen w-full overflow-hidden scroll-mt-24"
     >
       {/* Parallax Background Image */}
       <motion.div className="absolute inset-0" style={{ y: bgY }}>

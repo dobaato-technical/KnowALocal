@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function PrivacyHero() {
   return (
-    <section className="relative py-20 sm:py-28 md:py-32 lg:py-40 flex items-center justify-center overflow-hidden bg-primary">
+    <section className="relative py-28 sm:py-36 md:py-48 lg:py-64 flex items-center justify-center overflow-hidden bg-primary">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating orb 1 */}
@@ -77,11 +77,11 @@ export default function PrivacyHero() {
           transition={{ duration: 0.8 }}
           className="max-w-2xl sm:max-w-3xl mx-auto"
         >
-          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-4 sm:mb-6 leading-tight">
+          <h1 className="font-heading text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-3 sm:mb-4 md:mb-6 leading-tight">
             Privacy Policy
           </h1>
 
-          <p className="font-body text-sm sm:text-base md:text-xl text-neutral-light/90">
+          <p className="font-body text-xs sm:text-sm md:text-lg lg:text-xl text-neutral-light/90 leading-relaxed">
             Your privacy matters to us. Learn how we collect, use, and protect
             your information.
           </p>
@@ -91,7 +91,7 @@ export default function PrivacyHero() {
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="mt-12 sm:mt-16 md:mt-20"
+          className="mt-8 sm:mt-10 md:mt-16 lg:mt-20"
         >
           <div className="flex flex-col items-center gap-1 sm:gap-2 text-neutral-light/60">
             <span className="text-xs sm:text-sm font-medium">

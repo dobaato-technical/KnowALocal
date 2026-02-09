@@ -22,10 +22,7 @@ const values = [
 
 export default function About() {
   return (
-    <section
-      id="about"
-      className="snap-start bg-[#f8f1dd] py-12 md:py-16 overflow-hidden"
-    >
+    <div className="w-full overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
           {/* Left: Overlapping tilted images */}
@@ -127,6 +124,6 @@ export default function About() {
           </motion.div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
