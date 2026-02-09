@@ -38,10 +38,10 @@ export default function ContactInfo() {
           <div>
             <h3 className="font-semibold text-primary mb-1">Email</h3>
             <a
-              href="mailto:Knowalocaltours@gmail.com"
+              href="mailto:knowalocaltours@gmail.com"
               className="text-neutral-dark hover:text-accent transition-colors"
             >
-              Knowalocaltours@gmail.com
+              knowalocaltours@gmail.com
             </a>
           </div>
         </motion.div>

@@ -49,7 +49,7 @@ export default function Footer({
   description = "Discover authentic travel experiences across Canada, guided by local knowledge, nature, and care.",
   socialLinks = defaultSocialLinks,
   contactInfo = {
-    email: "Knowalocaltours@gmail.com",
+    email: "knowalocaltours@gmail.com",
     phone: "902-774-0710",
     address: "Yarmouth, Nova Scotia",
   },
@@ -192,10 +192,18 @@ export default function Footer({
                 </li>
                 <li>
                   <Link
-                    href="/terms-and-conditions"
+                    href="/terms-conditions"
                     className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                   >
-                    Terms and Conditions
+                    Terms & Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/legal-disclaimer"
+                    className="relative text-xs text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+                  >
+                    Legal Disclaimer
                   </Link>
                 </li>
               </ul>
@@ -374,10 +382,18 @@ export default function Footer({
                 </li>
                 <li>
                   <Link
-                    href="/terms-and-conditions"
+                    href="/terms-conditions"
                     className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                   >
-                    Terms and Conditions
+                    Terms & Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/legal-disclaimer"
+                    className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+                  >
+                    Legal Disclaimer
                   </Link>
                 </li>
               </ul>

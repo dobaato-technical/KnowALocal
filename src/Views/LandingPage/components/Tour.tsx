@@ -13,10 +13,7 @@ export default function Tours() {
   const visibleTours = showAll ? tours : tours.slice(0, 4);
 
   return (
-    <section
-      id="tours"
-      className="snap-start bg-bg text-dark py-16 sm:py-20 md:py-24"
-    >
+    <div className="w-full text-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Heading */}
         <div>
@@ -125,6 +122,6 @@ export default function Tours() {
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

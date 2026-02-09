@@ -1,10 +1,10 @@
 "use client";
+
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useRef } from "react";
-import { SearchBar } from "./search-bar";
 
-export default function Hero() {
+export default function AboutHero() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
 
@@ -12,23 +12,19 @@ export default function Hero() {
   const bgY = useTransform(scrollY, [0, 400], [0, -100], { clamp: false });
 
   return (
-    <section
-      ref={ref}
-      id="hero"
-      className="relative h-screen w-full overflow-hidden scroll-mt-24"
-    >
+    <section ref={ref} className="relative h-screen w-full overflow-hidden">
       {/* Parallax Background Image */}
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <Image
-          src="/drive-images/Cape_Forchu_Lighthouse-DaveyandSky.jpg"
-          alt="Cape Forchu Lighthouse"
+          src="/drive-images/Town-of-Yarmouth-DaveyandSky.jpg"
+          alt="Yarmouth, Nova Scotia"
           fill
           className="object-cover"
           priority
           quality={100}
         />
         {/* Overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/55" />
       </motion.div>
 
       {/* Content - Centered */}
@@ -41,9 +37,8 @@ export default function Hero() {
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight font-[family-name:var(--font-merriweather)]"
           >
-            Discover <span className="text-accent-color">Nova Scotia,</span>
-            <br />
-            One Journey at a Time
+            Meet the Faces Behind
+            <span className="block text-accent-color">Know A Local</span>
           </motion.h1>
 
           {/* Subheadline */}
@@ -51,22 +46,10 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-white/95 max-w-2xl sm:max-w-3xl leading-relaxed font-medium font-[family-name:var(--font-merriweather)]"
+            className="text-base sm:text-lg md:text-xl text-white max-w-2xl sm:max-w-3xl leading-relaxed font-medium font-[family-name:var(--font-merriweather)]"
           >
-            Explore coastal escapes, scenic trails, and authentic local
-            experiences curated for travelers who seek more than just
-            destinations.
+            Authentic experiences guided by lifelong Yarmouth residents
           </motion.p>
-
-          {/* Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="pt-4 w-full flex justify-center"
-          >
-            <SearchBar transparent={true} />
-          </motion.div>
         </div>
       </div>
     </section>

@@ -12,6 +12,31 @@ export const toursMockData = [
       "Experience the iconic Cape Forchu Lightstation, perched on the edge of dramatic cliffs. This scenic coastal tour combines lighthouse history, stunning ocean views, and a chance to witness some of Nova Scotia's most breathtaking sunsets.",
     duration: "4 hours",
     difficulty: "Easy",
+    specialties: [
+      {
+        id: "cape-1",
+        name: "Lobster Roll",
+        description:
+          "Fresh local lobster meat on a toasted bun with a touch of mayo",
+        price: 18,
+        icon: "🦞",
+      },
+      {
+        id: "cape-2",
+        name: "Clam Chowder",
+        description:
+          "Creamy Nova Scotia clam chowder served with buttered crackers",
+        price: 12,
+        icon: "🍲",
+      },
+      {
+        id: "cape-3",
+        name: "Blueberry Pie",
+        description: "Homemade blueberry pie with vanilla ice cream",
+        price: 8,
+        icon: "🥧",
+      },
+    ],
     itinerary: [
       {
         day: 1,
@@ -48,6 +73,31 @@ export const toursMockData = [
       "Discover the serene Port Maitland Beach, a hidden gem perfect for those seeking tranquility. This pristine sandy beach offers miles of walking space, fresh maritime air, and the perfect backdrop for relaxation and reflection.",
     duration: "Full Day",
     difficulty: "Easy",
+    specialties: [
+      {
+        id: "port-1",
+        name: "Scallop Pasta",
+        description:
+          "Pan-seared local scallops with garlic butter and fresh herbs",
+        price: 22,
+        icon: "🍝",
+      },
+      {
+        id: "port-2",
+        name: "Fish & Chips",
+        description: "Crispy battered local fish served with hand-cut fries",
+        price: 14,
+        icon: "🍟",
+      },
+      {
+        id: "port-3",
+        name: "Strawberry Shortcake",
+        description:
+          "Fresh local strawberries with whipped cream and sponge cake",
+        price: 9,
+        icon: "🍓",
+      },
+    ],
     itinerary: [
       {
         day: 1,
@@ -84,6 +134,31 @@ export const toursMockData = [
       "Uncover the mysteries of Smuggler Cove, a secluded coastal treasure with rich maritime history. Explore rocky formations, calm azure waters, and pristine beaches in this untouched natural paradise.",
     duration: "Full Day",
     difficulty: "Moderate",
+    specialties: [
+      {
+        id: "smuggler-1",
+        name: "Grilled Mussels",
+        description:
+          "Fresh Prince Edward Island mussels grilled with white wine and garlic",
+        price: 16,
+        icon: "🐚",
+      },
+      {
+        id: "smuggler-2",
+        name: "Smoked Salmon Platter",
+        description:
+          "Local smoked salmon served with capers, cream cheese, and bagels",
+        price: 20,
+        icon: "🍣",
+      },
+      {
+        id: "smuggler-3",
+        name: "Chocolate Mousse",
+        description: "Rich dark chocolate mousse with fresh berries",
+        price: 7,
+        icon: "🍫",
+      },
+    ],
     itinerary: [
       {
         day: 1,
@@ -120,6 +195,30 @@ export const toursMockData = [
       "Get your adrenaline pumping with Lake Adventures! This action-packed tour combines mountain biking, kayaking, and water sports in stunning lakeside settings. Perfect for adventure seekers of all levels.",
     duration: "2 Days",
     difficulty: "Hard",
+    specialties: [
+      {
+        id: "lake-1",
+        name: "BBQ Salmon",
+        description:
+          "Grilled fresh salmon fillet with maple glaze and roasted vegetables",
+        price: 24,
+        icon: "🍗",
+      },
+      {
+        id: "lake-2",
+        name: "Energy Granola Bars",
+        description: "Homemade granola bars with nuts, oats, and local honey",
+        price: 5,
+        icon: "🥜",
+      },
+      {
+        id: "lake-3",
+        name: "Apple Crumble",
+        description: "Warm apple crumble with cinnamon and vanilla ice cream",
+        price: 8,
+        icon: "🍎",
+      },
+    ],
     itinerary: [
       {
         day: 1,

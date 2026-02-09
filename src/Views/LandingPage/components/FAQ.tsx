@@ -128,7 +128,7 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="py-2 md:py-4 snap-start">
+    <div className="w-full">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Header */}
         <motion.div
@@ -163,6 +163,6 @@ export default function FAQ() {
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
