@@ -1,14 +1,63 @@
 "use client";
 
-import BookingSidebar from "@/Views/TourDetails/components/BookingSidebar";
-import ItineraryDay from "@/Views/TourDetails/components/ItineraryDay";
-import TourDetailHero from "@/Views/TourDetails/components/TourDetailHero";
-import TourInfoCards from "@/Views/TourDetails/components/TourInfoCards";
 import { toursMockData } from "@/Views/TourDetails/data/mock";
-import Footer from "@/components/common/footer";
-import Header from "@/components/common/navbar";
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Link from "next/link";
+
+/* -------- Dynamic Imports -------- */
+
+const Header = dynamic(() => import("@/components/common/navbar"), {
+  ssr: true,
+});
+
+const TourDetailHero = dynamic(
+  () => import("@/Views/TourDetails/components/TourDetailHero"),
+  {
+    ssr: false,
+  },
+);
+
+const TourInfoCards = dynamic(
+  () => import("@/Views/TourDetails/components/TourInfoCards"),
+  {
+    ssr: false,
+  },
+);
+
+const ItineraryDay = dynamic(
+  () => import("@/Views/TourDetails/components/ItineraryDay"),
+  {
+    ssr: false,
+  },
+);
+
+const BookingSidebar = dynamic(
+  () => import("@/Views/TourDetails/components/BookingSidebar"),
+  {
+    ssr: false,
+  },
+);
+
+const ImageGallery = dynamic(
+  () =>
+    import("@/Views/TourDetails/components/carousel-circular-image-gallery").then(
+      (mod) => mod.ImageGallery,
+    ),
+  { ssr: false },
+);
+
+const SpecialtiesSection = dynamic(
+  () =>
+    import("@/Views/TourDetails/components/SpecialtiesSection").then(
+      (mod) => mod.SpecialtiesSection,
+    ),
+  { ssr: false },
+);
+
+const Footer = dynamic(() => import("@/components/common/footer"), {
+  ssr: true,
+});
 
 interface TourDetailsPageProps {
   params: {
@@ -27,7 +76,7 @@ export default function TourDetailsPage({ params }: TourDetailsPageProps) {
 
   if (!tour) {
     return (
-      <main className="bg-bg min-h-screen">
+      <main className="bg-primary min-h-screen">
         <Header />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
@@ -57,6 +106,8 @@ export default function TourDetailsPage({ params }: TourDetailsPageProps) {
       <TourDetailHero tour={tour} />
 
       <TourInfoCards tour={tour} />
+
+      <SpecialtiesSection specialties={tour.specialties || []} />
 
       <section className="py-16 md:py-20 bg-neutral-medium/30 relative">
         <div className="max-w-[78rem] mx-auto px-4 md:px-8">
@@ -102,6 +153,22 @@ export default function TourDetailsPage({ params }: TourDetailsPageProps) {
               <BookingSidebar tour={tour} />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section className="py-16 md:py-20 bg-neutral-medium/10">
+        <div className="max-w-[78rem] mx-auto px-4 md:px-8">
+          <div className="text-center mb-12">
+            <span className="text-accent font-bold uppercase tracking-[0.3em] text-[10px] md:text-xs mb-3 block">
+              Gallery
+            </span>
+            <h2 className="font-heading text-3xl md:text-4xl font-extrabold mb-2 text-primary">
+              Tour Highlights
+            </h2>
+            <div className="w-16 h-1 bg-accent mx-auto mt-4 rounded-full" />
+          </div>
+          <ImageGallery />
         </div>
       </section>
 
