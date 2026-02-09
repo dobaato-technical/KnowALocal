@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function PrivacyHero() {
   return (
-    <section className="relative py-32 sm:py-40 md:py-48 lg:py-56 min-h-screen flex items-center justify-center overflow-hidden bg-primary">
+    <section className="relative py-20 sm:py-28 md:py-32 lg:py-40 flex items-center justify-center overflow-hidden bg-primary">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating orb 1 */}
