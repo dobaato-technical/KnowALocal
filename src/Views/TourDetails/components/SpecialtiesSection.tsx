@@ -62,7 +62,7 @@ export const SpecialtiesSection = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {specialties.map((specialty, index) => (
             <motion.div
-              key={specialty.id}
+              key={`${specialty.name}-${index}`}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -76,7 +76,11 @@ export const SpecialtiesSection = ({
               <div className="relative p-6 flex flex-col h-full gap-4">
                 {/* Icon */}
                 <div className="flex items-center justify-center">
-                  {iconMap[specialty.id] || (
+                  {specialty.id ? (
+                    iconMap[specialty.id] || (
+                      <ShoppingCart className="w-12 h-12 text-accent" />
+                    )
+                  ) : (
                     <ShoppingCart className="w-12 h-12 text-accent" />
                   )}
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import travelLocations from "@/data/travelLocations.json";
+import { getTours, type Tour } from "@/sanity/lib/queries";
 import Cal, { getCalApi } from "@calcom/embed-react";
 import { ArrowRight, ChevronDown, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -21,9 +21,22 @@ export function SearchBar({ transparent = false, onSearch }: SearchBarProps) {
   const [duration, setDuration] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     (async function () {
+      try {
+        // Fetch tours from Sanity
+        const fetchedTours = await getTours();
+        setTours(fetchedTours);
+      } catch (error) {
+        console.error("Error fetching tours:", error);
+      } finally {
+        setIsLoading(false);
+      }
+
+      // Initialize Cal.com calendar
       const cal = await getCalApi({ namespace: "30min" });
       cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
     })();
@@ -73,22 +86,23 @@ export function SearchBar({ transparent = false, onSearch }: SearchBarProps) {
               <select
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
+                disabled={isLoading}
                 className={`w-full pl-11 pr-11 h-14 rounded-xl transition-all appearance-none cursor-pointer text-base font-medium ${
                   transparent
                     ? "border-2 border-white/40 bg-white/20 text-white placeholder:text-white/60 focus:border-white focus:bg-white/30 backdrop-blur-sm"
                     : "border-2 border-[#bcd2c2] bg-white text-[#335358] focus:border-[#335358] focus:ring-2 focus:ring-[#335358]/20"
-                }`}
+                } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <option value="" className="text-gray-700">
-                  Where to?
+                  {isLoading ? "Loading destinations..." : "Where to?"}
                 </option>
-                {travelLocations.map((location) => (
+                {tours.map((tour) => (
                   <option
-                    key={location.id}
-                    value={location.title}
+                    key={tour._id}
+                    value={tour.title}
                     className="text-gray-700"
                   >
-                    {location.title}
+                    {tour.title}
                   </option>
                 ))}
               </select>

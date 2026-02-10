@@ -1,15 +1,38 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import tours from "@/data/travelLocations.json";
+import { getToursPreview, type TourPreview } from "@/sanity/lib/queries";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Tours() {
+  const [tours, setTours] = useState<TourPreview[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    async function loadTours() {
+      try {
+        console.log("🔍 LandingPage Tours: Fetching tours...");
+        const data = await getToursPreview();
+        console.log("✅ LandingPage Tours: Fetched", data.length, "tours");
+        if (data.length > 0) {
+          console.log("📋 First tour:", data[0]);
+        }
+        setTours(data);
+      } catch (error) {
+        console.error("❌ LandingPage Tours: Error loading tours:", error);
+        setTours([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadTours();
+  }, []);
+
   const visibleTours = showAll ? tours : tours.slice(0, 4);
 
   return (
@@ -38,7 +61,7 @@ export default function Tours() {
             {/* Explore All Tours Button - Bold & Modern */}
             <Link
               href="/explore-all-tours"
-              className="flex-shrink-0 w-full sm:w-auto"
+              className="shrink-0 w-full sm:w-auto"
             >
               <motion.button
                 whileHover="hover"
@@ -66,7 +89,7 @@ export default function Tours() {
                 </motion.span>
 
                 <motion.div
-                  className="absolute bottom-0 left-0 h-[3px] bg-accent"
+                  className="absolute bottom-0 left-0 h-0.75 bg-accent"
                   initial={{ width: 0 }}
                   whileHover={{ width: "70%" }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
@@ -76,51 +99,82 @@ export default function Tours() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="mt-16 grid gap-12 md:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="h-100 bg-neutral-medium/30 rounded-2xl animate-pulse"
+              />
+            ))}
+          </div>
+        )}
+
         {/* Cards */}
-        <div className="mt-16 grid gap-12 md:grid-cols-4">
-          {visibleTours.map((tour) => (
-            <motion.div
-              key={tour.id}
-              whileHover={{ y: -4 }}
-              transition={{ duration: 0.3 }}
-              className="group"
-            >
-              <Link href={`/tour-details/${tour.slug}`}>
-                <div className="relative h-[280px] rounded-2xl overflow-hidden cursor-pointer">
-                  <Image
-                    src={tour.image}
-                    alt={tour.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+        {!isLoading && tours.length === 0 && (
+          <div className="mt-16 text-center">
+            <p className="text-lg text-dark/60">
+              No tours available at the moment.
+            </p>
+          </div>
+        )}
 
-                  {/* Rating Badge */}
-                  {tour.rating && tour.rating > 0 && (
-                    <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3.5 py-2 rounded-2xl shadow-md flex items-center gap-1.5">
-                      <span className="text-lg text-yellow-500">★</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {tour.rating.toFixed(1)}/5
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </Link>
+        {/* Cards */}
+        {!isLoading && tours.length > 0 && (
+          <div className="mt-16 grid gap-12 md:grid-cols-4">
+            {visibleTours.map((tour) => (
+              <motion.div
+                key={tour._id}
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.3 }}
+                className="group"
+              >
+                <Link href={`/tour-details/${tour.slug.current}`}>
+                  <div className="relative h-70 rounded-2xl overflow-hidden cursor-pointer bg-gray-200">
+                    {tour.image?.asset?.url ? (
+                      <Image
+                        src={tour.image.asset.url}
+                        alt={tour.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-300 to-gray-400">
+                        <span className="text-gray-600 font-semibold">
+                          No Image
+                        </span>
+                      </div>
+                    )}
 
-              <h3 className="mt-6 font-heading text-xl">{tour.title}</h3>
-
-              <p className="mt-2 text-sm text-dark/70 max-w-md">
-                {tour.description}
-              </p>
-
-              <div className="mt-4">
-                <Link href={`/tour-details/${tour.slug}`}>
-                  <Button variant="subtle">Learn More</Button>
+                    {/* Rating Badge */}
+                    {tour.rating && tour.rating > 0 && (
+                      <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3.5 py-2 rounded-2xl shadow-md flex items-center gap-1.5">
+                        <span className="text-lg text-yellow-500">★</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {tour.rating.toFixed(1)}/5
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </Link>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+
+                <h3 className="mt-6 font-heading text-xl">{tour.title}</h3>
+
+                <p className="mt-2 text-sm text-dark/70 max-w-md">
+                  {tour.description}
+                </p>
+
+                <div className="mt-4">
+                  <Link href={`/tour-details/${tour.slug.current}`}>
+                    <Button variant="subtle">Learn More</Button>
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

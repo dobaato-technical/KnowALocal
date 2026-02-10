@@ -14,6 +14,10 @@ interface ImageData {
   url: string;
 }
 
+interface ImageGalleryProps {
+  images?: Array<{ asset: { url: string } }>;
+}
+
 const defaultImages: ImageData[] = [
   {
     title: "Mini canine",
@@ -42,7 +46,16 @@ const defaultImages: ImageData[] = [
 ];
 
 // Main component for the Image Gallery
-export function ImageGallery() {
+export function ImageGallery({ images }: ImageGalleryProps) {
+  // Convert user-provided images to ImageData format, fallback to defaults
+  const galleryImages: ImageData[] =
+    images && images.length > 0
+      ? images.map((img, index) => ({
+          title: `Gallery Image ${index + 1}`,
+          url: img.asset.url,
+        }))
+      : defaultImages;
+
   const [opened, setOpened] = useState(0);
   const [inPlace, setInPlace] = useState(0);
   const [disabled, setDisabled] = useState(false);
@@ -57,18 +70,18 @@ export function ImageGallery() {
   const next = useCallback(() => {
     setOpened((currentOpened) => {
       let nextIndex = currentOpened + 1;
-      if (nextIndex >= defaultImages.length) nextIndex = 0;
+      if (nextIndex >= galleryImages.length) nextIndex = 0;
       return nextIndex;
     });
-  }, []);
+  }, [galleryImages.length]);
 
   const prev = useCallback(() => {
     setOpened((currentOpened) => {
       let prevIndex = currentOpened - 1;
-      if (prevIndex < 0) prevIndex = defaultImages.length - 1;
+      if (prevIndex < 0) prevIndex = galleryImages.length - 1;
       return prevIndex;
     });
-  }, []);
+  }, [galleryImages.length]);
 
   // Disable clicks during animation transitions
   useEffect(() => {
@@ -95,14 +108,14 @@ export function ImageGallery() {
   return (
     <div className="relative flex items-center justify-center py-16 px-4 w-full mx-auto max-w-7xl font-sans overflow-visible">
       <div className="relative h-[75vmin] w-[75vmin] max-h-[600px] max-w-[600px] overflow-hidden rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] bg-neutral-medium/5">
-        {defaultImages.map((image, i) => (
+        {galleryImages.map((image, i) => (
           <div
             key={image.url}
             className="absolute left-0 top-0 h-full w-full"
-            style={{ zIndex: inPlace === i ? i : defaultImages.length + 1 }}
+            style={{ zIndex: inPlace === i ? i : galleryImages.length + 1 }}
           >
             <GalleryImage
-              total={defaultImages.length}
+              total={galleryImages.length}
               id={i}
               url={image.url}
               open={opened === i}
@@ -112,7 +125,7 @@ export function ImageGallery() {
           </div>
         ))}
         <div className="absolute left-0 top-0 z-50 h-full w-full pointer-events-none">
-          <Tabs images={defaultImages} onSelect={onClick} />
+          <Tabs images={galleryImages} onSelect={onClick} />
         </div>
       </div>
 

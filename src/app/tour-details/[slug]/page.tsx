@@ -1,4 +1,4 @@
-import { toursMockData } from "@/Views/TourDetails/data/mock";
+import { getTourBySlug } from "@/sanity/lib/queries";
 import TourDetailsPage from "@/Views/TourDetails/TourDetailsPage";
 
 interface TourDetailsPageProps {
@@ -7,14 +7,27 @@ interface TourDetailsPageProps {
   }>;
 }
 
-export function generateStaticParams() {
-  return toursMockData.flatMap((tour) => [
-    { slug: tour.slug },
-    { slug: tour.id.toString() },
-  ]);
+export async function generateStaticParams() {
+  // Static generation can be added later by fetching all tour slugs
+  return [];
 }
 
 export default async function Page({ params }: TourDetailsPageProps) {
   const resolvedParams = await params;
-  return <TourDetailsPage params={resolvedParams} />;
+  const tour = await getTourBySlug(resolvedParams.slug);
+
+  if (!tour) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Tour Not Found</h1>
+          <p className="text-gray-600">
+            The tour you're looking for doesn't exist.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return <TourDetailsPage tour={tour} />;
 }
