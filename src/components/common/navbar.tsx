@@ -19,6 +19,9 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    // Set initial state based on current scroll position
+    setIsScrolled(window.scrollY > 40);
+
     const onScroll = () => setIsScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
