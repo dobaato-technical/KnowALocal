@@ -1,9 +1,9 @@
 "use client";
 
-import { DatePicker } from "@/components/common/DatePicker";
 import travelLocations from "@/data/travelLocations.json";
+import Cal, { getCalApi } from "@calcom/embed-react";
 import { ArrowRight, ChevronDown, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SearchBarProps {
   transparent?: boolean;
@@ -20,6 +20,14 @@ export function SearchBar({ transparent = false, onSearch }: SearchBarProps) {
   const [destination, setDestination] = useState("");
   const [duration, setDuration] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  useEffect(() => {
+    (async function () {
+      const cal = await getCalApi({ namespace: "30min" });
+      cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
+    })();
+  }, []);
 
   const handleSearch = () => {
     const filters: SearchFilters = {
@@ -93,20 +101,80 @@ export function SearchBar({ transparent = false, onSearch }: SearchBarProps) {
               />
             </div>
 
-            {/* Duration */}
+            {/* Duration / Calendar */}
             <div>
               <label
                 className={`block text-xs font-semibold mb-3 tracking-wide uppercase ${
                   transparent ? "text-white/90" : "text-[#335358]"
                 }`}
               >
-                Travel Date
+                Tour Date
               </label>
-              <DatePicker
-                value={duration}
-                onChange={setDuration}
-                placeholder="Select Date"
-              />
+              <button
+                onClick={() => setShowCalendar(!showCalendar)}
+                className={`w-full h-14 px-4 rounded-xl transition-all font-medium text-base text-left flex items-center justify-between ${
+                  transparent
+                    ? "border-2 border-white/40 bg-white/20 text-white placeholder:text-white/60 hover:border-white"
+                    : "border-2 border-[#bcd2c2] bg-white text-[#335358] hover:border-[#335358]"
+                }`}
+              >
+                <span>{duration || "Select Date"}</span>
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform ${
+                    showCalendar ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {showCalendar && (
+                <>
+                  {/* Modal Overlay */}
+                  <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                    onClick={() => setShowCalendar(false)}
+                  />
+                  {/* Modal */}
+                  <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-5xl mx-auto px-4 max-h-[90vh]">
+                    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden h-full flex flex-col">
+                      {/* Modal Header */}
+                      <div className="flex items-center justify-between p-8 border-b border-[#bcd2c2]/20">
+                        <h3 className="text-2xl font-bold text-[#335358]">
+                          Select Your Tour Date
+                        </h3>
+                        <button
+                          onClick={() => setShowCalendar(false)}
+                          className="text-[#335358] hover:text-[#774738] transition-colors p-2 hover:bg-[#f8f1dd] rounded-lg"
+                        >
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      {/* Modal Content */}
+                      <div className="p-8 flex-1 overflow-auto min-h-[500px]">
+                        <Cal
+                          namespace="30min"
+                          calLink="know-a-local-okxsgd/30min"
+                          style={{ width: "100%", height: "100%" }}
+                          config={{
+                            layout: "month_view",
+                            useSlotsViewOnSmallScreen: "true",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Search Button */}
