@@ -58,23 +58,27 @@ export default function ItineraryDay({ tour, day }: any) {
               <div className="h-px bg-primary/10 mb-6 w-full" />
               <div className="prose prose-sm md:prose-base max-w-none">
                 <p className="text-primary/90 text-sm md:text-base leading-relaxed font-body font-medium">
-                  {dayData.activities.map((activity: any, index: number) => {
-                    const words = activity.activity.split(" ");
-                    const firstTwo = words.slice(0, 2).join(" ");
-                    const rest = words.slice(2).join(" ");
+                  {dayData.activities && dayData.activities.length > 0 ? (
+                    dayData.activities.map((activity: any, index: number) => {
+                      const words = activity.activity.split(" ");
+                      const firstTwo = words.slice(0, 2).join(" ");
+                      const rest = words.slice(2).join(" ");
 
-                    return (
-                      <span key={index} className="inline-block mb-2 mr-2">
-                        <span className="text-accent font-bold decoration-primary/20 decoration-2 underline-offset-4">
-                          {firstTwo}
-                        </span>{" "}
-                        <span className="italic text-secondary font-semibold">
-                          {rest}
+                      return (
+                        <span key={index} className="inline-block mb-2 mr-2">
+                          <span className="text-accent font-bold decoration-primary/20 decoration-2 underline-offset-4">
+                            {firstTwo}
+                          </span>{" "}
+                          <span className="italic text-secondary font-semibold">
+                            {rest}
+                          </span>
+                          {index < dayData.activities.length - 1 ? ". " : "."}
                         </span>
-                        {index < dayData.activities.length - 1 ? ". " : "."}
-                      </span>
-                    );
-                  })}
+                      );
+                    })
+                  ) : (
+                    <span>No activities available for this day.</span>
+                  )}
                 </p>
               </div>
             </div>

@@ -156,10 +156,32 @@ export const tour = defineType({
                       validation: (Rule) => Rule.required(),
                     },
                   ],
+                  preview: {
+                    select: {
+                      time: "time",
+                      activity: "activity",
+                    },
+                    prepare({ time, activity }) {
+                      return {
+                        title: `${time || "No time"} - ${activity}`,
+                      };
+                    },
+                  },
                 },
               ],
             },
           ],
+          preview: {
+            select: {
+              day: "day",
+              title: "title",
+            },
+            prepare({ day, title }) {
+              return {
+                title: `Day ${day}: ${title}`,
+              };
+            },
+          },
         },
       ],
     }),
