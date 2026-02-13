@@ -41,9 +41,8 @@ export default function Hero() {
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight font-[family-name:var(--font-merriweather)]"
           >
-            Discover <span className="text-accent-color">Nova Scotia,</span>
-            <br />
-            One Journey at a Time
+            Get to know <span className="text-accent-color">Nova Scotia,</span>
+            <br /> like a local
           </motion.h1>
 
           {/* Subheadline */}

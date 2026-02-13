@@ -38,71 +38,108 @@ export const SpecialtiesSection = ({
   }
 
   return (
-    <section className="py-16 md:py-20 bg-secondary/15">
-      <div className="max-w-[78rem] mx-auto px-4 md:px-8">
+    <section className="py-20 md:py-28 bg-gradient-to-b from-[#f8f1dd] via-white to-[#f8f1dd]/50 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-accent/8 rounded-full -mr-48 -mt-48 blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#335358]/8 rounded-full -ml-48 -mb-48 blur-3xl" />
+
+      <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
         >
-          <span className="text-accent font-bold uppercase tracking-[0.3em] text-[10px] md:text-xs mb-3 block">
-            Local Flavors
-          </span>
-          <h2 className="font-heading text-3xl md:text-4xl font-extrabold mb-2 text-shadow-accent">
+          <motion.span className="text-accent font-bold uppercase tracking-[0.3em] text-xs md:text-sm mb-4 block">
+            Add-ons & Experiences
+          </motion.span>
+          <h2 className="font-heading text-4xl md:text-5xl font-extrabold mb-6 text-primary leading-tight">
             Tour Specialties
           </h2>
-          <p className="text-secondary text-base md:text-lg max-w-2xl mx-auto mt-4">
-            Discover the culinary delights unique to this tour
+          <motion.div
+            initial={{ width: 0 }}
+            whileInView={{ width: 80 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="h-1.5 bg-gradient-to-r from-accent to-orange-400 rounded-full mx-auto shadow-lg"
+          />
+          <p className="text-secondary/70 text-lg max-w-3xl mx-auto mt-8">
+            Enhance your tour experience with our carefully curated add-ons
           </p>
-          <div className="w-16 h-1 bg-accent mx-auto mt-4 rounded-full" />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {specialties.map((specialty, index) => (
             <motion.div
               key={`${specialty.name}-${index}`}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative overflow-hidden rounded-xl bg-neutral-medium/20 border border-accent/30 hover:border-accent/60 transition-all duration-300 hover:shadow-lg h-full"
+              whileHover={{ y: -12, transition: { duration: 0.3 } }}
+              className="group relative overflow-hidden rounded-2xl h-full"
             >
-              {/* Background Accent */}
-              <div className="absolute inset-0 bg-accent/5 group-hover:bg-accent/10 transition-colors duration-300" />
+              {/* Gradient Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/90 to-white/40 border border-white/60 group-hover:border-accent/40 transition-all duration-300" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-accent/5 to-orange-100/5 transition-opacity duration-300" />
+
+              {/* Shadow on hover */}
+              <div className="absolute inset-0 shadow-lg group-hover:shadow-2xl transition-shadow duration-300 rounded-2xl" />
 
               {/* Content */}
-              <div className="relative p-6 flex flex-col h-full gap-4">
-                {/* Icon */}
-                <div className="flex items-center justify-center">
-                  {specialty.id ? (
-                    iconMap[specialty.id] || (
-                      <ShoppingCart className="w-12 h-12 text-accent" />
-                    )
-                  ) : (
-                    <ShoppingCart className="w-12 h-12 text-accent" />
+              <div className="relative p-8 flex flex-col h-full gap-6">
+                {/* Icon Container */}
+                <motion.div
+                  className="flex items-center justify-center p-4 rounded-xl bg-gradient-to-br from-accent/20 to-orange-100/20 group-hover:from-accent/30 group-hover:to-orange-100/30 transition-all duration-300 w-fit"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <div className="text-accent group-hover:scale-110 transition-transform duration-300">
+                    {specialty.id ? (
+                      iconMap[specialty.id] || (
+                        <ShoppingCart className="w-10 h-10" />
+                      )
+                    ) : specialty.icon ? (
+                      <span className="text-4xl">{specialty.icon}</span>
+                    ) : (
+                      <ShoppingCart className="w-10 h-10" />
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Name */}
+                <div>
+                  <h3 className="font-heading text-2xl md:text-2xl font-bold text-primary group-hover:text-accent transition-colors duration-300 leading-snug">
+                    {specialty.name}
+                  </h3>
+                  {specialty.isClimbing && (
+                    <span className="inline-block mt-2 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+                      Adventure Activity
+                    </span>
                   )}
                 </div>
 
-                {/* Name */}
-                <h3 className="font-heading text-xl md:text-2xl font-bold text-primary group-hover:text-accent transition-colors duration-300">
-                  {specialty.name}
-                </h3>
-
                 {/* Description */}
-                <p className="text-secondary/70 text-sm md:text-base flex-grow">
+                <p className="text-secondary/70 text-base leading-relaxed flex-grow">
                   {specialty.description}
                 </p>
 
-                {/* Price Tag */}
-                <div className="flex items-center justify-between pt-4 border-t border-accent/20">
-                  <span className="text-secondary/60 text-sm font-medium">
-                    Included in Tour
-                  </span>
-                  <span className="inline-flex items-center justify-center bg-accent text-white font-bold rounded-lg px-4 py-2 text-base md:text-lg shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                    ${specialty.price}
-                  </span>
+                {/* Price & CTA */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-200 group-hover:border-accent/30 transition-colors">
+                  <div>
+                    <span className="text-secondary/60 text-sm font-medium block">
+                      Add-on Price
+                    </span>
+                    <span className="inline-flex items-center justify-center bg-gradient-to-r from-accent to-orange-400 text-white font-bold rounded-xl px-5 py-3 text-lg shadow-lg group-hover:shadow-xl transition-all duration-300 mt-2">
+                      ${specialty.price}
+                    </span>
+                  </div>
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <ShoppingCart className="w-6 h-6 text-accent" />
+                  </motion.div>
                 </div>
               </div>
             </motion.div>

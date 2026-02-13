@@ -48,18 +48,22 @@ export default function AboutUs() {
             </h2>
 
             <p className="text-neutral-dark/90 text-base sm:text-lg leading-relaxed mb-6">
-              We offer unforgettable guided adventures along Nova Scotia's
-              stunning coastline. From the iconic Cape Forchu lighthouse to
-              serene Port Maitland Beach, Smuggler Cove explorations, and
-              thrilling Lake Adventures, we capture the region's natural beauty
-              and hidden gems.
+              Know A Local was created with one simple idea: the best way to
+              experience rural Nova Scotia is through the people who live here.
+              We offer small, locally guided tours that showcase the hidden
+              gems, coastal beauty, and everyday charm you won’t always find on
+              a map. From quiet seaside stops to scenic drives and local
+              favourites, our tours are designed to feel relaxed, personal, and
+              authentic.
             </p>
 
             <p className="text-neutral-dark/80 text-base sm:text-lg leading-relaxed mb-10">
-              Whether you're collecting beach glass, savoring Beau Vendredi crab
-              legs, or embarking on Brier Island whale tours—we craft
-              experiences that matter, backed by clear cancellation policies and
-              glowing guest reviews.
+              As locals ourselves, we’re passionate about sharing the places we
+              love while supporting rural communities and encouraging meaningful
+              tourism beyond the usual routes. Whether you’re visiting for the
+              first time or returning to explore more deeply, our goal is to
+              help you slow down, connect with the region, and truly get to know
+              Nova Scotia — like a local.
             </p>
 
             {/* Highlights */}

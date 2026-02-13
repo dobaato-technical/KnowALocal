@@ -43,6 +43,33 @@ export interface Specialty {
   description: string;
   price: number;
   icon?: string;
+  isClimbing?: boolean;
+}
+
+export interface Inclusion {
+  title: string;
+  description: string;
+  icon?: string;
+}
+
+export interface Requirement {
+  title: string;
+  description: string;
+  severity?: "info" | "warning" | "critical";
+  icon?: string;
+}
+
+export interface SafetyWarning {
+  title: string;
+  description: string;
+  level?: "info" | "warning" | "danger";
+}
+
+export interface TowerDetails {
+  stepCount?: number;
+  description?: string;
+  diameter?: number;
+  specialInstructions?: string;
 }
 
 // For detail view (complete tour data)
@@ -51,6 +78,14 @@ export interface Tour extends TourPreview {
   location: string;
   duration: string;
   difficulty: string;
+  tourType?: "standard" | "adventure" | "hiking" | "water";
+  basePrice?: number;
+  maxGroupSize?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  maxWeight?: number;
+  minAge?: number;
+  maxAge?: number;
   galleryImages?: Array<{
     asset: {
       url: string;
@@ -58,6 +93,10 @@ export interface Tour extends TourPreview {
   }>;
   specialties?: Specialty[];
   itinerary?: ItineraryDay[];
+  tourInclusions?: Inclusion[];
+  keyRequirements?: Requirement[];
+  safetyWarnings?: SafetyWarning[];
+  towerOrClimbingDetails?: TowerDetails;
 }
 
 // ============================================================================
@@ -114,8 +153,20 @@ export async function getTourBySlug(slug: string): Promise<Tour | null> {
     rating,
     duration,
     difficulty,
+    tourType,
+    basePrice,
+    maxGroupSize,
+    minHeight,
+    maxHeight,
+    maxWeight,
+    minAge,
+    maxAge,
     specialties,
-    itinerary
+    itinerary,
+    tourInclusions,
+    keyRequirements,
+    safetyWarnings,
+    towerOrClimbingDetails
   }`;
 
   return client.fetch(query, { slug });
@@ -146,8 +197,20 @@ export async function getTours(): Promise<Tour[]> {
     rating,
     duration,
     difficulty,
+    tourType,
+    basePrice,
+    maxGroupSize,
+    minHeight,
+    maxHeight,
+    maxWeight,
+    minAge,
+    maxAge,
     specialties,
-    itinerary
+    itinerary,
+    tourInclusions,
+    keyRequirements,
+    safetyWarnings,
+    towerOrClimbingDetails
   } | order(_createdAt desc)`;
 
   return client.fetch(query);

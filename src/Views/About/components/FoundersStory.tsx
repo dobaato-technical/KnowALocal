@@ -47,22 +47,25 @@ export default function FoundersStory() {
 
             <motion.div variants={itemVariants} className="space-y-4">
               <p className="text-lg text-neutral-dark leading-relaxed">
-                Born and raised in Yarmouth, Nova Scotia, Trisha and Keisha grew
-                up exploring every corner of this beautiful coastal region. From
-                hidden coves to local restaurants known only to residents, they
-                accumulated decades of authentic local knowledge.
+                Our guides, Trisha and Keisha, were born and raised in rural
+                Nova Scotia’s Tri-County region — a place that shaped who we are
+                and how we see the world.
               </p>
 
               <p className="text-lg text-neutral-dark leading-relaxed">
-                After years of watching tourists miss the real Yarmouth—rushing
-                through guidebook attractions without experiencing the soul of
-                the place—they founded Know A Local to change that narrative.
+                Growing up here meant learning how to make fun out of nothing
+                and developing a deep appreciation for the land, the coast, and
+                the people who call it home.
               </p>
 
               <p className="text-lg text-neutral-dark leading-relaxed">
-                Their mission: Share their beloved home with travelers who value
-                authenticity over convenience, and slow travel over checkmarks
-                on a bucket list.
+                Today, we’re proud to share that same sense of place with
+                visitors. As locals, we don’t just guide tours — we share
+                personal stories, local knowledge, and the little details you
+                only learn by growing up here. Our goal is to help you feel
+                welcomed and connected, so your time in Nova Scotia feels less
+                like a tour and more like spending the day with someone who
+                truly knows the area.
               </p>
             </motion.div>
 

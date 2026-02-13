@@ -1,4 +1,5 @@
 import ScrollProgressBar from "@/components/common/ScrollProgressBar";
+import Providers from "@/lib/providers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Merriweather, Roboto_Slab } from "next/font/google";
 import "./globals.css";
@@ -51,8 +52,10 @@ export default function RootLayout({
           text-dark
         `}
       >
-        <ScrollProgressBar />
-        {children}
+        <Providers>
+          <ScrollProgressBar />
+          {children}
+        </Providers>
       </body>
     </html>
   );
