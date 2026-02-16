@@ -38,11 +38,7 @@ export const SpecialtiesSection = ({
   }
 
   return (
-    <section className="py-20 md:py-28 bg-accent/10 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-accent/8 rounded-full -mr-48 -mt-48 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#335358]/8 rounded-full -ml-48 -mb-48 blur-3xl" />
-
+    <section className="py-20 md:py-28 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -61,74 +57,53 @@ export const SpecialtiesSection = ({
             initial={{ width: 0 }}
             whileInView={{ width: 80 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="h-1.5 bg-gradient-to-r from-accent to-orange-400 rounded-full mx-auto shadow-lg"
+            className="h-1.5 bg-accent rounded-full mx-auto"
           />
           <p className="text-secondary/70 text-lg max-w-3xl mx-auto mt-8">
             Enhance your tour experience with our carefully curated add-ons
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="space-y-4">
           {specialties.map((specialty, index) => (
             <motion.div
               key={`${specialty.name}-${index}`}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -12, transition: { duration: 0.3 } }}
-              className="group relative overflow-hidden rounded-2xl h-full"
+              transition={{ duration: 0.4, delay: index * 0.08 }}
+              className="group flex items-center gap-6 p-6 rounded-lg bg-[#f8f1dd]/40 border border-[#bcd2c2]/30 hover:border-[#d69850]/50 hover:bg-[#f8f1dd]/60 transition-all duration-300"
             >
-              {/* Gradient Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/90 to-white/40 border border-white/60 group-hover:border-accent/40 transition-all duration-300" />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-accent/5 to-orange-100/5 transition-opacity duration-300" />
-
-              {/* Shadow on hover */}
-              <div className="absolute inset-0 shadow-lg group-hover:shadow-2xl transition-shadow duration-300 rounded-2xl" />
+              {/* Icon */}
+              <div className="flex-shrink-0">
+                <div className="text-accent group-hover:scale-110 transition-transform duration-300">
+                  {specialty.id ? (
+                    iconMap[specialty.id] || (
+                      <ShoppingCart className="w-8 h-8" />
+                    )
+                  ) : specialty.icon ? (
+                    <span className="text-3xl">{specialty.icon}</span>
+                  ) : (
+                    <ShoppingCart className="w-8 h-8" />
+                  )}
+                </div>
+              </div>
 
               {/* Content */}
-              <div className="relative p-8 flex flex-col h-full gap-6">
-                {/* Icon Container */}
-                <motion.div
-                  className="flex items-center justify-center p-4 rounded-xl bg-gradient-to-br from-accent/20 to-orange-100/20 group-hover:from-accent/30 group-hover:to-orange-100/30 transition-all duration-300 w-fit"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                >
-                  <div className="text-accent group-hover:scale-110 transition-transform duration-300">
-                    {specialty.id ? (
-                      iconMap[specialty.id] || (
-                        <ShoppingCart className="w-10 h-10" />
-                      )
-                    ) : specialty.icon ? (
-                      <span className="text-4xl">{specialty.icon}</span>
-                    ) : (
-                      <ShoppingCart className="w-10 h-10" />
-                    )}
-                  </div>
-                </motion.div>
-
-                {/* Name */}
-                <div>
-                  <h3 className="font-heading text-2xl md:text-2xl font-bold text-primary group-hover:text-accent transition-colors duration-300 leading-snug">
-                    {specialty.name}
-                  </h3>
-                </div>
-
-                {/* Description */}
-                <p className="text-secondary/70 text-base leading-relaxed flex-grow">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-[#335358] text-base md:text-lg mb-1">
+                  {specialty.name}
+                </h3>
+                <p className="text-[#335358]/70 text-sm leading-relaxed">
                   {specialty.description}
                 </p>
+              </div>
 
-                {/* Price & CTA */}
-                <div className="flex items-center justify-between pt-6 border-t border-gray-200 group-hover:border-accent/30 transition-colors">
-                  <div>
-                    <span className="text-secondary/60 text-sm font-medium block">
-                      Add-on Price
-                    </span>
-                    <span className="inline-flex items-center justify-center bg-gradient-to-r from-accent to-orange-400 text-white font-bold rounded-xl px-5 py-3 text-lg shadow-lg group-hover:shadow-xl transition-all duration-300 mt-2">
-                      ${specialty.price}
-                    </span>
-                  </div>
-                </div>
+              {/* Price */}
+              <div className="flex-shrink-0 text-right">
+                <p className="text-[#d69850] font-bold text-lg md:text-xl">
+                  ${specialty.price}
+                </p>
               </div>
             </motion.div>
           ))}

@@ -3,42 +3,17 @@
 import { motion } from "framer-motion";
 import * as Icons from "lucide-react";
 
-interface Inclusion {
+interface TowerItem {
   title: string;
   description: string;
-  icon?: string;
 }
 
-interface TourInclusionsSectionProps {
-  inclusions: Inclusion[];
+interface InsideTowerSectionProps {
+  items: TowerItem[];
 }
 
-// Map icon names (from Sanity) to Lucide components
-const iconMap: Record<
-  string,
-  React.ComponentType<{ size: number; strokeWidth: number }>
-> = {
-  check: Icons.Check,
-  "check-circle": Icons.CheckCircle2,
-  mapPin: Icons.MapPin,
-  users: Icons.Users,
-  camera: Icons.Camera,
-  utensils: Icons.UtensilsCrossed,
-  mountain: Icons.Mountain,
-  map: Icons.Map,
-  heart: Icons.Heart,
-  compass: Icons.Compass,
-  phone: Icons.Phone,
-  package: Icons.Package,
-  clock: Icons.Clock,
-  shield: Icons.Shield,
-  award: Icons.Award,
-};
-
-export default function TourInclusionsSection({
-  inclusions,
-}: TourInclusionsSectionProps) {
-  if (!inclusions || inclusions.length === 0) return null;
+export default function InsideTowerSection({ items }: InsideTowerSectionProps) {
+  if (!items || items.length === 0) return null;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -71,13 +46,13 @@ export default function TourInclusionsSection({
         >
           <div className="mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-accent mb-4 font-heading tracking-tight">
-              What's Included
+              Inside the Tower
             </h2>
             <div className="h-1.5 w-20 bg-accent rounded-full"></div>
           </div>
 
           <motion.div className="grid md:grid-cols-2 gap-6">
-            {inclusions.map((inclusion, index) => (
+            {items.map((item, index) => (
               <motion.div
                 key={index}
                 variants={itemVariants}
@@ -91,10 +66,10 @@ export default function TourInclusionsSection({
                 {/* Content */}
                 <div className="flex-1">
                   <h3 className="font-semibold text-[#335358] text-base md:text-lg mb-1">
-                    {inclusion.title}
+                    {item.title}
                   </h3>
                   <p className="text-[#335358]/70 text-sm md:text-base leading-relaxed font-normal">
-                    {inclusion.description}
+                    {item.description}
                   </p>
                 </div>
               </motion.div>

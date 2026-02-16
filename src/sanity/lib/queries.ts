@@ -27,7 +27,6 @@ export interface TourPreview {
 }
 
 export interface Activity {
-  time: string;
   activity: string;
 }
 
@@ -64,13 +63,6 @@ export interface SafetyWarning {
   level?: "info" | "warning" | "danger";
 }
 
-export interface TowerDetails {
-  stepCount?: number;
-  description?: string;
-  diameter?: number;
-  specialInstructions?: string;
-}
-
 // For detail view (complete tour data)
 export interface Tour extends TourPreview {
   fullDescription: string;
@@ -80,11 +72,6 @@ export interface Tour extends TourPreview {
   tourType?: "standard" | "adventure" | "hiking" | "water";
   basePrice?: number;
   maxGroupSize?: number;
-  minHeight?: number;
-  maxHeight?: number;
-  maxWeight?: number;
-  minAge?: number;
-  maxAge?: number;
   galleryImages?: Array<{
     asset: {
       url: string;
@@ -95,7 +82,6 @@ export interface Tour extends TourPreview {
   tourInclusions?: Inclusion[];
   keyRequirements?: Requirement[];
   safetyWarnings?: SafetyWarning[];
-  towerOrClimbingDetails?: TowerDetails;
 }
 
 // ============================================================================
@@ -155,17 +141,11 @@ export async function getTourBySlug(slug: string): Promise<Tour | null> {
     tourType,
     basePrice,
     maxGroupSize,
-    minHeight,
-    maxHeight,
-    maxWeight,
-    minAge,
-    maxAge,
     specialties,
     itinerary,
     tourInclusions,
     keyRequirements,
-    safetyWarnings,
-    towerOrClimbingDetails
+    safetyWarnings
   }`;
 
   return client.fetch(query, { slug });
@@ -199,17 +179,11 @@ export async function getTours(): Promise<Tour[]> {
     tourType,
     basePrice,
     maxGroupSize,
-    minHeight,
-    maxHeight,
-    maxWeight,
-    minAge,
-    maxAge,
     specialties,
     itinerary,
     tourInclusions,
     keyRequirements,
-    safetyWarnings,
-    towerOrClimbingDetails
+    safetyWarnings
   } | order(_createdAt desc)`;
 
   return client.fetch(query);

@@ -4,142 +4,188 @@ export const termsAndConditionsData: TCData = {
   lastUpdated: "February 9, 2026",
   sections: [
     {
-      id: "booking-cancellation",
-      title: "Booking & Cancellation Policy",
-      description:
-        "Understanding our booking process and cancellation terms will help you plan your Canadian adventure with confidence.",
+      id: "acceptance-of-terms",
+      title: "Acceptance of Terms",
+      description: "Please read the following terms carefully before booking.",
       clauses: [
         {
-          heading: "Booking Confirmation",
+          heading: "Agreement to Terms",
           content:
-            "Once you submit a booking request, you will receive a confirmation email within 24 hours. Your spot on the tour is reserved only after payment has been received in full. We recommend booking at least 14 days before your desired travel date to ensure availability.",
-        },
-        {
-          heading: "Cancellation Terms",
-          content:
-            "Cancellations made more than 30 days before the tour date will receive a full refund. Cancellations made 15-30 days before will incur a 50% cancellation fee. Cancellations made less than 15 days before the tour are non-refundable. Natural disasters or extreme weather may result in tour postponement or cancellation at our discretion.",
-        },
-        {
-          heading: "Rescheduling",
-          content:
-            "If you need to reschedule your tour, please notify us at least 21 days in advance. Rescheduling is subject to availability and may incur an additional fee if selecting a premium date. No rescheduling is permitted within 15 days of the original tour date.",
-        },
-        {
-          heading: "No Shows",
-          content:
-            "If you do not arrive for your booked tour and have not cancelled at least 24 hours in advance, the full tour price will be forfeited with no refund or rescheduling permitted.",
+            "By booking or participating in a tour with Know-A-Local Tours, you agree to these Terms & Conditions. If you do not agree, you should not book or participate in our tours.",
         },
       ],
     },
     {
-      id: "payment-terms",
-      title: "Payment Terms",
-      description:
-        "All payments must be made according to the following terms to secure your booking.",
+      id: "bookings-payments",
+      title: "Bookings & Payments",
+      description: "Information regarding tour bookings and payment policies.",
       clauses: [
         {
-          heading: "Payment Methods",
+          heading: "Availability & Booking",
           content:
-            "We accept all major credit cards (Visa, MasterCard, American Express), bank transfers, and digital payment platforms. All payments must be in Canadian dollars unless otherwise agreed upon in writing.",
+            "All bookings are subject to availability. Full payment may be required at the time of booking.",
         },
         {
-          heading: "Payment Schedule",
+          heading: "Pricing",
           content:
-            "A 50% deposit is required to secure your booking. The remaining balance must be paid in full at least 14 days before your tour date. Payments not received by the deadline will result in automatic cancellation of your reservation.",
-        },
-        {
-          heading: "Currency & Fees",
-          content:
-            "All tour prices are quoted in Canadian dollars (CAD). Credit card processing fees, if any, are the responsibility of the customer. International bank transfers may incur additional fees determined by your financial institution.",
-        },
-        {
-          heading: "Invoicing",
-          content:
-            "Upon payment, you will receive an itemized invoice detailing all tour inclusions, prices, and terms. Please retain this for your records and reference during your tour.",
+            "Prices are listed in CAD and are subject to change but will not affect confirmed bookings.",
         },
       ],
     },
     {
-      id: "liability-disclaimers",
-      title: "Liability & Disclaimers",
-      description:
-        "Please read our liability limitations and important disclaimers carefully before booking.",
+      id: "cancellations-refunds",
+      title: "Cancellations & Refunds",
+      description: "Our cancellation and refund policy.",
       clauses: [
         {
-          heading: "Assumption of Risk",
+          heading: "Early Cancellations",
           content:
-            "All tours involve physical activity and travel in natural environments. By booking with us, you acknowledge and assume all risks associated with outdoor activities, including but not limited to falls, exposure to weather, wildlife encounters, and water-related incidents. Participants must be in good physical health and disclose any medical conditions upon booking.",
+            "Cancellations made 3 days (72 hours from pick-up time) prior to the tour date may be eligible for a refund or credit.",
         },
         {
-          heading: "Limitation of Liability",
+          heading: "Late Cancellations",
           content:
-            "Know a Local and its guides, employees, and partners are not liable for any indirect, incidental, consequential, or punitive damages arising from your participation in our tours. Our total liability is limited to the amount paid for the tour. This includes but is not limited to: personal injury, property damage, travel delays, accommodation issues, or missed connections.",
+            "Cancellations made within 1 day (24 hours from pick-up time) of the tour date may be non-refundable.",
         },
         {
-          heading: "Exclusions",
-          content:
-            "We are not responsible for claims arising from: your failure to obtain proper travel documents or insurance; pre-existing medical conditions; use of alcohol or drugs; non-compliance with guide instructions; personal negligence; or acts of God and force majeure events.",
+          heading: "No-Shows",
+          content: "No-shows are non-refundable.",
         },
         {
-          heading: "Travel Insurance",
+          heading: "Company Cancellations",
           content:
-            "We strongly recommend purchasing comprehensive travel insurance that includes trip cancellation, medical emergencies, and evacuation coverage. Travel insurance is not included in tour pricing and is your responsibility.",
+            "Know-A-Local Tours reserves the right to cancel or reschedule tours due to weather, safety concerns, or unforeseen circumstances. In such cases, a refund or alternative date will be offered.",
+        },
+        {
+          heading: "Emergency Exceptions",
+          content:
+            "Exceptions are reserved for emergencies, travel disruptions, and cancelled boat crossings. If the CAT is cancelled and this is your mode of travel please email or phone ASAP!",
         },
       ],
     },
     {
-      id: "user-responsibilities",
-      title: "User Responsibilities",
+      id: "participant-responsibilities",
+      title: "Participant Responsibilities",
       description:
-        "As a participant, you agree to uphold these responsibilities for a safe and enjoyable experience.",
+        "As a participant, you agree to the following responsibilities.",
       clauses: [
         {
-          heading: "Physical Fitness & Health Disclosure",
+          heading: "Punctuality",
           content:
-            "You are responsible for assessing your physical fitness level against the tour difficulty rating. You must disclose all medical conditions, allergies, medications, and physical limitations at the time of booking. Failure to disclose relevant health information may result in exclusion from the tour without refund.",
+            "Guests are responsible for arriving on time at the designated meeting location.",
         },
         {
-          heading: "Compliance with Instructions",
+          heading: "Safety Compliance",
           content:
-            "You must follow all instructions provided by our guides, local partners, and venue operators. This includes safety briefings, trail rules, and facility policies. Non-compliance may result in immediate removal from the tour.",
+            "Participants must follow all instructions provided by guides for safety reasons.",
         },
         {
-          heading: "Personal Conduct",
+          heading: "Physical Capability",
           content:
-            "You agree to treat guides, fellow participants, local communities, and wildlife with respect. Behavior that is dangerous, disruptive, discriminatory, or harmful to others will result in immediate removal from the tour. No refunds will be provided for removals due to misconduct.",
+            "You are responsible for ensuring you are physically capable of participating in the tour.",
         },
         {
-          heading: "Equipment & Attire",
+          heading: "Damage Liability",
           content:
-            "You are responsible for bringing appropriate clothing and equipment for the tour conditions. We provide a detailed packing list upon booking. Inadequate preparation may limit your ability to participate fully in some activities.",
+            "Any damage caused to equipment, property, or vehicles due to negligence may be charged to the participant.",
         },
       ],
     },
     {
-      id: "dispute-resolution",
-      title: "Dispute Resolution",
+      id: "health-safety-risk",
+      title: "Health, Safety & Assumption of Risk",
       description:
-        "In the event of a dispute, we follow these steps to reach a fair resolution.",
+        "Important information regarding health risks and safety during tours.",
       clauses: [
         {
-          heading: "Complaint Procedure",
+          heading: "Risk Acknowledgment",
           content:
-            "Any concerns or complaints must be submitted in writing within 30 days of your tour. Please include: (1) your booking reference number, (2) specific details of the issue, (3) date and time of the incident, and (4) supporting documentation. Email complaints to: knowalocaltours@gmail.com",
+            "Participation in tours may involve inherent risks, including but not limited to physical activity, weather conditions, terrain, and transportation. By participating, you voluntarily assume all risks and agree that Know-A-Local Tours is not responsible for injuries, losses, or damages except where required by law.",
         },
+      ],
+    },
+    {
+      id: "liability-waiver",
+      title: "Liability Waiver",
+      description:
+        "Legal waiver of liability for Know-A-Local Tours and its representatives.",
+      clauses: [
         {
-          heading: "Resolution Process",
+          heading: "Waiver of Liability",
           content:
-            "Upon receipt of a formal complaint, we will respond within 10 business days with our investigation findings. We will work with you in good faith to resolve the issue. If initial resolution is not reached, we offer mediation through a neutral third party at our expense.",
+            "To the fullest extent permitted by law, Know-A-Local Tours, its owners, employees, and contractors shall not be liable for any injury, loss, damage, or expense arising from participation in tours.",
         },
+      ],
+    },
+    {
+      id: "weather-conditions",
+      title: "Weather & Conditions",
+      description: "Policy regarding weather and operating conditions.",
+      clauses: [
         {
-          heading: "Governing Law",
+          heading: "Tour Operations",
           content:
-            "These Terms and Conditions are governed by the laws of Nova Scotia, Canada. Any legal action or proceeding arising under these terms shall be subject to the exclusive jurisdiction of the courts of Nova Scotia.",
+            "Tours operate rain or shine unless deemed unsafe by Know-A-Local Tours. Weather-related cancellations are made at our discretion with guest safety as the priority. If we suspect bad weather we will reach out in advance to discuss an alternative.",
         },
+      ],
+    },
+    {
+      id: "photography-media",
+      title: "Photography & Media",
+      description: "Policy regarding photography and media usage.",
+      clauses: [
         {
-          heading: "Binding Arbitration",
+          heading: "Consent to Photography",
           content:
-            "By booking with Know a Local, you agree that any unresolved disputes will be settled through binding arbitration rather than court proceedings. Arbitration will be conducted by a mutually agreed upon arbitrator in accordance with Canadian Arbitration Act rules.",
+            "By participating in a tour, you consent to being photographed or recorded for promotional and marketing purposes, unless you notify us prior to the tour.",
+        },
+      ],
+    },
+    {
+      id: "third-party-services",
+      title: "Third-Party Services",
+      description: "Information regarding third-party service providers.",
+      clauses: [
+        {
+          heading: "Third Party Liability",
+          content:
+            "Some tours may involve third-party operators or services. Know-A-Local Tours is not responsible for the acts, omissions, or policies of third parties.",
+        },
+      ],
+    },
+    {
+      id: "changes-to-tours",
+      title: "Changes to Tours",
+      description: "Right to modify tour details.",
+      clauses: [
+        {
+          heading: "Tour Modifications",
+          content:
+            "We reserve the right to modify routes, itineraries, schedules, or inclusions when necessary for safety or operational reasons.",
+        },
+      ],
+    },
+    {
+      id: "governing-law",
+      title: "Governing Law",
+      description: "Legal jurisdiction and applicable law.",
+      clauses: [
+        {
+          heading: "Jurisdiction",
+          content:
+            "These Terms & Conditions are governed by the laws of Nova Scotia, Canada.",
+        },
+      ],
+    },
+    {
+      id: "contact-information",
+      title: "Contact Information",
+      description: "How to reach us with questions.",
+      clauses: [
+        {
+          heading: "Get in Touch",
+          content:
+            "If you have questions regarding these Terms & Conditions, please contact: Know-A-Local Tours, Knowalocaltours@gmail.com, 19027740710",
         },
       ],
     },

@@ -11,9 +11,30 @@ export function SearchBar({}: SearchBarProps) {
 
   useEffect(() => {
     if (showCalendarModal) {
+      // Inject custom CSS for Cal.com styling
+      const styleId = "cal-theme-styles";
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.textContent = `
+          /* Cal.com Theme via CSS Variables */
+          :root, [data-cal-namespace="know-a-local"] {
+            --cal-brand: #d69850;
+            --cal-brand-text-color: #ffffff;
+            --cal-bg-default: #335358;
+            --cal-text-emphasis: #335358;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
       (async function () {
         const cal = await getCalApi({ namespace: "know-a-local" });
-        cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
+        cal("ui", {
+          hideEventTypeDetails: false,
+          layout: "month_view",
+          theme: "light",
+        });
       })();
     }
   }, [showCalendarModal]);
@@ -38,12 +59,10 @@ export function SearchBar({}: SearchBarProps) {
             onClick={() => setShowCalendarModal(false)}
           />
           {/* Modal */}
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-accent rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-[#bcd2c2]/30">
-              <h3 className="text-lg font-bold text-[#335358]">
-                Book an Appointment
-              </h3>
+              <h2 className="text-lg font-bold text-primary">Book Your Tour</h2>
               <button
                 onClick={() => setShowCalendarModal(false)}
                 className="text-[#335358] hover:text-[#774738] transition-colors p-1 hover:bg-[#f8f1dd] rounded"
