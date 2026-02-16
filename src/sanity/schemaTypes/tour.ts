@@ -71,6 +71,8 @@ export const tour = defineType({
       title: "Duration",
       type: "string",
       validation: (Rule) => Rule.required(),
+      description: "Fixed duration for all tours: 2 Hours",
+      initialValue: "2 Hours",
     }),
     defineField({
       name: "difficulty",
@@ -309,21 +311,16 @@ export const tour = defineType({
     }),
     defineField({
       name: "itinerary",
-      title: "Itinerary",
+      title: "Tour Itinerary",
+      description: "Timeline of activities for the 2-hour tour experience",
       type: "array",
       of: [
         {
           type: "object",
           fields: [
             {
-              name: "day",
-              title: "Day Number",
-              type: "number",
-              validation: (Rule) => Rule.required().min(1),
-            },
-            {
               name: "title",
-              title: "Day Title",
+              title: "Section Title",
               type: "string",
               validation: (Rule) => Rule.required(),
             },
@@ -339,6 +336,7 @@ export const tour = defineType({
                       name: "time",
                       title: "Time",
                       type: "string",
+                      description: "e.g., '2:00 PM' or '30 mins'",
                     },
                     {
                       name: "activity",
@@ -364,12 +362,11 @@ export const tour = defineType({
           ],
           preview: {
             select: {
-              day: "day",
               title: "title",
             },
-            prepare({ day, title }) {
+            prepare({ title }) {
               return {
-                title: `Day ${day}: ${title}`,
+                title: title,
               };
             },
           },

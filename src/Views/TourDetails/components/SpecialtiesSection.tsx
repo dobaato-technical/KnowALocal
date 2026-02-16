@@ -38,7 +38,7 @@ export const SpecialtiesSection = ({
   }
 
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-b from-[#f8f1dd] via-white to-[#f8f1dd]/50 relative overflow-hidden">
+    <section className="py-20 md:py-28 bg-accent/10 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-accent/8 rounded-full -mr-48 -mt-48 blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#335358]/8 rounded-full -ml-48 -mb-48 blur-3xl" />
@@ -111,11 +111,6 @@ export const SpecialtiesSection = ({
                   <h3 className="font-heading text-2xl md:text-2xl font-bold text-primary group-hover:text-accent transition-colors duration-300 leading-snug">
                     {specialty.name}
                   </h3>
-                  {specialty.isClimbing && (
-                    <span className="inline-block mt-2 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
-                      Adventure Activity
-                    </span>
-                  )}
                 </div>
 
                 {/* Description */}
@@ -133,13 +128,6 @@ export const SpecialtiesSection = ({
                       ${specialty.price}
                     </span>
                   </div>
-                  <motion.div
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <ShoppingCart className="w-6 h-6 text-accent" />
-                  </motion.div>
                 </div>
               </div>
             </motion.div>

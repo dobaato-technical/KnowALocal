@@ -1,90 +1,91 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { motion } from "framer-motion";
+import { Clock } from "lucide-react";
 
-export default function ItineraryDay({ tour, day }: any) {
-  const dayData = tour.itinerary.find((item: any) => item.day === day);
-  const [isOpen, setIsOpen] = useState(false);
+export default function ItineraryTimeline({ tour }: any) {
+  if (!tour.itinerary || tour.itinerary.length === 0) return null;
 
-  if (!dayData) return null;
+  // Flatten all activities from the itinerary array
+  const activities = tour.itinerary.flatMap((item: any) =>
+    item.activities
+      ? item.activities.map((act: any) => ({
+          ...act,
+          dayTitle: item.title,
+        }))
+      : [],
+  );
+
+  if (activities.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="bg-neutral-light rounded-3xl border border-primary/10 shadow-lg overflow-hidden mb-5 transition-all hover:border-accent/20 group/card"
-    >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 md:p-6 text-left"
-      >
-        <div className="flex items-center gap-5 md:gap-6">
-          <div className="flex flex-col items-center justify-center min-w-[50px] h-[50px] md:min-w-[64px] md:h-[64px] rounded-2xl bg-primary text-neutral-light font-bold shadow-md group-hover/card:bg-accent transition-all duration-500 transform group-hover/card:scale-105">
-            <span className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] opacity-70">
-              Day
-            </span>
-            <span className="text-xl md:text-2xl font-heading -mt-0.5">
-              {day}
-            </span>
-          </div>
-          <div>
-            <h3 className="font-heading text-lg md:text-xl font-bold text-primary group-hover/card:text-accent transition-colors duration-300">
-              {dayData.title}
-            </h3>
-            <p className="text-secondary font-bold text-[8px] md:text-[10px] mt-0.5 uppercase tracking-[0.2em] opacity-60">
-              Daily Journey Highlights
-            </p>
-          </div>
+    <div className="space-y-6">
+      {/* Timeline Header */}
+      <div className="flex items-center gap-3 mb-12">
+        <div className="p-3 bg-accent/10 rounded-lg">
+          <Clock className="w-6 h-6 text-accent" />
         </div>
-        <div
-          className={`p-2 md:p-2.5 rounded-full transition-all duration-500 ${isOpen ? "rotate-180 bg-accent text-neutral-light shadow-md" : "bg-primary/5 text-primary hover:bg-primary/10"}`}
-        >
-          <ChevronDown className="w-5 h-5 md:w-6 md:h-6" />
+        <div>
+          <h3 className="text-2xl md:text-3xl font-heading font-bold text-primary">
+            Tour Timeline
+          </h3>
+          <p className="text-secondary/60 text-sm mt-1">Your 2-hour journey</p>
         </div>
-      </button>
+      </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-          >
-            <div className="px-6 md:px-10 pb-8 pt-2">
-              <div className="h-px bg-primary/10 mb-6 w-full" />
-              <div className="prose prose-sm md:prose-base max-w-none">
-                <p className="text-primary/90 text-sm md:text-base leading-relaxed font-body font-medium">
-                  {dayData.activities && dayData.activities.length > 0 ? (
-                    dayData.activities.map((activity: any, index: number) => {
-                      const words = activity.activity.split(" ");
-                      const firstTwo = words.slice(0, 2).join(" ");
-                      const rest = words.slice(2).join(" ");
-
-                      return (
-                        <span key={index} className="inline-block mb-2 mr-2">
-                          <span className="text-accent font-bold decoration-primary/20 decoration-2 underline-offset-4">
-                            {firstTwo}
-                          </span>{" "}
-                          <span className="italic text-secondary font-semibold">
-                            {rest}
-                          </span>
-                          {index < dayData.activities.length - 1 ? ". " : "."}
-                        </span>
-                      );
-                    })
-                  ) : (
-                    <span>No activities available for this day.</span>
-                  )}
-                </p>
-              </div>
-            </div>
-          </motion.div>
+      {/* Timeline Items */}
+      <div className="relative">
+        {/* Vertical line */}
+        {activities.length > 1 && (
+          <div
+            className="absolute left-3.5 top-8 bottom-0 w-1 bg-accent"
+            style={{ height: `calc(100% - 32px)` }}
+          />
         )}
-      </AnimatePresence>
-    </motion.div>
+
+        {/* Activities */}
+        <div className="space-y-8">
+          {activities.map((activity: any, index: number) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              className="flex gap-6 group"
+            >
+              {/* Time Circle */}
+              <div className="flex-shrink-0 relative z-10">
+                <div className="w-8 h-8 rounded-full bg-accent border-4 border-[#f8f1dd] shadow-lg flex items-center justify-center flex-shrink-0 text-white text-xs font-bold transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
+                  {index + 1}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 pt-1 pb-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-accent/10 rounded-full text-accent text-xs font-semibold">
+                        <Clock className="w-3 h-3" />
+                        {activity.time}
+                      </span>
+                    </div>
+                    <p className="text-primary/90 leading-relaxed">
+                      <span className="font-bold text-accent">
+                        {activity.activity.split(" ").slice(0, 2).join(" ")}
+                      </span>{" "}
+                      <span className="text-secondary/70">
+                        {activity.activity.split(" ").slice(2).join(" ")}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

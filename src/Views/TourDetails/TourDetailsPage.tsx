@@ -93,13 +93,9 @@ export default function TourDetailsPage({ tour }: TourDetailsPageProps) {
             <TourInclusionsSection inclusions={tour.tourInclusions} />
           )}
 
-          <div className="grid md:grid-cols-2 gap-0">
-            {tour.keyRequirements && (
-              <div className="md:col-span-1">
-                <KeyRequirementsSection requirements={tour.keyRequirements} />
-              </div>
-            )}
-          </div>
+          {tour.keyRequirements && (
+            <KeyRequirementsSection requirements={tour.keyRequirements} />
+          )}
 
           {tour.safetyWarnings && (
             <SafetyWarningsBox
@@ -123,7 +119,7 @@ export default function TourDetailsPage({ tour }: TourDetailsPageProps) {
       <SpecialtiesSection specialties={tour.specialties || []} />
 
       {/* Itinerary & Booking Section */}
-      <section className="py-20 md:py-28 bg-gradient-to-b from-white via-[#f8f1dd]/20 to-white relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gradient-to-b from-white via-[#f8f1dd]/20 to-white relative overflow-hidden font-[family-name:var(--font-merriweather)]">
         {/* Background decorations */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-accent/5 rounded-full -ml-48 -mt-48 blur-3xl" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#335358]/5 rounded-full -mr-48 -mb-48 blur-3xl" />
@@ -155,9 +151,8 @@ export default function TourDetailsPage({ tour }: TourDetailsPageProps) {
                   {tour.fullDescription}
                 </p>
                 <p className="text-secondary/70 text-base md:text-lg max-w-2xl leading-relaxed font-body">
-                  Everything you need to know about your adventure. Click on
-                  each day to reveal the stories and experiences waiting for
-                  you.
+                  Everything you need to know about your adventure are mentioned
+                  below.
                 </p>
               </motion.div>
 
@@ -168,17 +163,7 @@ export default function TourDetailsPage({ tour }: TourDetailsPageProps) {
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                {tour.itinerary?.map((itinerary, idx) => (
-                  <motion.div
-                    key={itinerary.day}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                  >
-                    <ItineraryDay tour={tour} day={itinerary.day} />
-                  </motion.div>
-                ))}
+                <ItineraryDay tour={tour} />
               </motion.div>
             </div>
 

@@ -25,30 +25,45 @@ export default function SafetyWarningsBox({
 }: SafetyWarningsBoxProps) {
   if ((!warnings || warnings.length === 0) && !towerDetails) return null;
 
-  const getBackgroundColor = (level?: string) => {
+  const getAccentColor = (level?: string) => {
     switch (level) {
       case "danger":
-        return "bg-red-50 border-red-300";
+        return "#ff6b6b";
       case "warning":
-        return "bg-amber-50 border-amber-300";
+        return "#ffd93d";
       default:
-        return "bg-blue-50 border-blue-300";
+        return "#d69850";
     }
   };
 
   const getIcon = (level?: string) => {
     switch (level) {
       case "danger":
-        return <AlertTriangle className="w-5 h-5 text-red-700 flex-shrink-0" />;
+        return (
+          <AlertTriangle
+            className="w-5 h-5 flex-shrink-0"
+            style={{ color: "#ff6b6b" }}
+          />
+        );
       case "warning":
-        return <AlertCircle className="w-5 h-5 text-amber-700 flex-shrink-0" />;
+        return (
+          <AlertCircle
+            className="w-5 h-5 flex-shrink-0"
+            style={{ color: "#ffd93d" }}
+          />
+        );
       default:
-        return <Info className="w-5 h-5 text-blue-700 flex-shrink-0" />;
+        return (
+          <Info
+            className="w-5 h-5 flex-shrink-0"
+            style={{ color: "#d69850" }}
+          />
+        );
     }
   };
 
   return (
-    <section className="py-12 bg-gradient-to-r from-red-50 to-orange-50">
+    <section className="py-16 md:py-24 bg-[#335358]">
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,82 +71,171 @@ export default function SafetyWarningsBox({
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-[#335358] mb-2 font-heading">
-            Safety & Important Information
-          </h2>
-          <div className="h-1 w-16 bg-red-500 rounded mb-12"></div>
+          {/* Header */}
+          <div className="mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-[#d69850] mb-4 font-heading tracking-tight">
+              Safety & Important Information
+            </h2>
+            <div className="h-1.5 w-24 bg-[#d69850] rounded-full"></div>
+          </div>
 
-          {/* Tower/Climbing Details */}
-          {towerDetails && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="mb-8 p-6 bg-white border-2 border-red-200 rounded-lg"
-            >
-              <h3 className="text-2xl font-bold text-[#335358] mb-4">
-                🏭 Inside the Tower
-              </h3>
-              <div className="space-y-3 text-[#335358]/80">
-                {towerDetails.stepCount && (
-                  <p className="text-lg">
-                    <span className="font-semibold">Total Steps:</span>{" "}
-                    {towerDetails.stepCount} steps from base to lantern room
-                  </p>
+          {/* Two Column Layout */}
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+            {/* Left Column: Tower Details */}
+            {towerDetails && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="text-4xl">🏭</div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-[#d69850]">
+                    Inside the Tower
+                  </h3>
+                </div>
+
+                {/* Tower Stats */}
+                <div className="space-y-5">
+                  {towerDetails.stepCount && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4 }}
+                      className="pb-5 border-b border-[#d69850]/30"
+                    >
+                      <p className="text-[#d69850] font-semibold text-lg mb-2">
+                        Total Steps
+                      </p>
+                      <p className="text-white/90 text-base leading-relaxed">
+                        {towerDetails.stepCount} steps from base to lantern room
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {towerDetails.diameter && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.05 }}
+                      className="pb-5 border-b border-[#d69850]/30"
+                    >
+                      <p className="text-[#d69850] font-semibold text-lg mb-2">
+                        Tower Dimensions
+                      </p>
+                      <p className="text-white/90 text-base leading-relaxed">
+                        Very narrow {towerDetails.diameter}-foot diameter tower
+                        with steep, metal mesh stairs
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {towerDetails.description && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.1 }}
+                      className="pb-5 border-b border-[#d69850]/30"
+                    >
+                      <p className="text-white/90 text-base leading-relaxed">
+                        {towerDetails.description}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {towerDetails.specialInstructions && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.15 }}
+                      className="mt-6 p-5 border-2 border-[#d69850]/50 rounded-lg bg-[#d69850]/10 backdrop-blur-sm"
+                    >
+                      <p className="font-semibold text-[#d69850] mb-3 text-lg">
+                        ⚠️ Special Instructions
+                      </p>
+                      <p className="text-white/90 leading-relaxed">
+                        {towerDetails.specialInstructions}
+                      </p>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Right Column: Warnings - Timeline Progression */}
+            <motion.div className="relative">
+              {/* Timeline container with flex layout */}
+              <div className="relative">
+                {/* Vertical connecting line */}
+                {warnings && warnings.length > 1 && (
+                  <div
+                    className="absolute left-4 top-4 bottom-4 w-1"
+                    style={{
+                      background: `linear-gradient(to bottom, #d69850 0%, #d69850 100%)`,
+                      opacity: 0.5,
+                    }}
+                  />
                 )}
-                {towerDetails.diameter && (
-                  <p className="text-lg">
-                    <span className="font-semibold">Tower Dimensions:</span>{" "}
-                    Very narrow {towerDetails.diameter}-foot diameter tower with
-                    steep, metal mesh stairs
-                  </p>
-                )}
-                {towerDetails.description && (
-                  <p className="text-lg">{towerDetails.description}</p>
-                )}
-                {towerDetails.specialInstructions && (
-                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                    <p className="font-semibold text-yellow-900 mb-1">
-                      Special Instructions:
+
+                {/* Timeline items */}
+                <div className="flex flex-col gap-10">
+                  {warnings &&
+                    warnings.map((warning, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: index * 0.08 }}
+                        className="flex gap-6 group"
+                      >
+                        {/* Icon circle - fixed position */}
+                        <div
+                          className="flex-shrink-0 relative z-10"
+                          style={{ marginTop: "2px" }}
+                        >
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2.5 bg-[#335358] shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+                            style={{
+                              borderColor: getAccentColor(warning.level),
+                              boxShadow: `0 0 12px ${getAccentColor(
+                                warning.level,
+                              )}40`,
+                            }}
+                          >
+                            {getIcon(warning.level)}
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 pt-1 transition-all duration-300 group-hover:translate-x-1">
+                          <h4
+                            className="font-bold text-lg mb-2"
+                            style={{ color: getAccentColor(warning.level) }}
+                          >
+                            {warning.title}
+                          </h4>
+                          <p className="text-white/75 leading-relaxed text-sm">
+                            {warning.description}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+
+                  {!warnings || warnings.length === 0 ? (
+                    <p className="text-white/60 italic">
+                      No additional warnings
                     </p>
-                    <p className="text-yellow-900">
-                      {towerDetails.specialInstructions}
-                    </p>
-                  </div>
-                )}
+                  ) : null}
+                </div>
               </div>
             </motion.div>
-          )}
-
-          {/* Warnings */}
-          <motion.div className="space-y-4">
-            {warnings &&
-              warnings.map((warning, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className={`p-6 rounded-lg border-2 ${getBackgroundColor(
-                    warning.level,
-                  )} flex gap-4`}
-                >
-                  <div className="flex-shrink-0 mt-1">
-                    {getIcon(warning.level)}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-[#335358] mb-2 text-lg">
-                      {warning.title}
-                    </h4>
-                    <p className="text-[#335358]/80 leading-relaxed">
-                      {warning.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>
