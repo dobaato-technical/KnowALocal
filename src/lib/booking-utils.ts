@@ -79,96 +79,98 @@ export function formatTimeOnly(
 }
 
 /**
+ * ❌ Cal.com API integration disabled
  * Check availability through the server API
  */
-export async function checkAvailability(
-  eventTypeId: string,
-  startTime: string,
-  duration: string = "30",
-): Promise<{
-  available: boolean;
-  message: string;
-}> {
-  try {
-    const params = new URLSearchParams({
-      eventTypeId,
-      startTime,
-      duration,
-    });
-
-    const response = await fetch(`/api/cal/availability?${params}`, {
-      method: "GET",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to check availability");
-    }
-
-    const data = await response.json();
-
-    return {
-      available: data.available === true,
-      message: data.message || "Unable to check availability",
-    };
-  } catch (error) {
-    console.error("Availability check error:", error);
-    return {
-      available: false,
-      message:
-        error instanceof Error ? error.message : "Failed to check availability",
-    };
-  }
-}
+// export async function checkAvailability(
+//   eventTypeId: string,
+//   startTime: string,
+//   duration: string = "30",
+// ): Promise<{
+//   available: boolean;
+//   message: string;
+// }> {
+//   try {
+//     const params = new URLSearchParams({
+//       eventTypeId,
+//       startTime,
+//       duration,
+//     });
+//
+//     const response = await fetch(`/api/cal/availability?${params}`, {
+//       method: "GET",
+//     });
+//
+//     if (!response.ok) {
+//       throw new Error("Failed to check availability");
+//     }
+//
+//     const data = await response.json();
+//
+//     return {
+//       available: data.available === true,
+//       message: data.message || "Unable to check availability",
+//     };
+//   } catch (error) {
+//     console.error("Availability check error:", error);
+//     return {
+//       available: false,
+//       message:
+//         error instanceof Error ? error.message : "Failed to check availability",
+//     };
+//   }
+// }
 
 /**
+ * ❌ Cal.com API integration disabled
  * Create a booking through the server API
  */
-export async function createBooking(
-  eventTypeId: string,
-  startTime: string,
-  attendeeEmail: string,
-  attendeeName: string,
-  timezone: string = "Asia/Kathmandu",
-  metadata?: Record<string, any>,
-): Promise<{
-  success: boolean;
-  bookingId?: string;
-  confirmationUrl?: string;
-  message?: string;
-  error?: string;
-}> {
-  try {
-    const response = await fetch("/api/cal/booking", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        eventTypeId,
-        startTime,
-        attendeeEmail,
-        attendeeName,
-        timezone,
-        metadata,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to create booking");
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Booking creation error:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to create booking",
-    };
-  }
-}
+// export async function createBooking(
+//   eventTypeId: string,
+//   startTime: string,
+//   attendeeEmail: string,
+//   attendeeName: string,
+//   timezone: string = "Asia/Kathmandu",
+//   metadata?: Record<string, any>,
+// ): Promise<{
+//   success: boolean;
+//   bookingId?: string;
+//   confirmationUrl?: string;
+//   message?: string;
+//   error?: string;
+// }> {
+//   try {
+//     const response = await fetch("/api/cal/booking", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         eventTypeId,
+//         startTime,
+//         attendeeEmail,
+//         attendeeName,
+//         timezone,
+//         metadata,
+//       }),
+//     });
+//
+//     const data = await response.json();
+//
+//     if (!response.ok) {
+//       throw new Error(data.error || "Failed to create booking");
+//     }
+//
+//     return data;
+//   } catch (error) {
+//     console.error("Booking creation error:", error);
+//     return {
+//       success: false,
+//       error:
+//         error instanceof Error ? error.message : "Failed to create booking",
+//     };
+//   }
+// }
 
 /**
  * Get current date in Kathmandu timezone as ISO string

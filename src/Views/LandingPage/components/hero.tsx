@@ -64,7 +64,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="pt-4 w-full flex justify-center"
           >
-            <SearchBar transparent={true} />
+            <SearchBar />
           </motion.div>
         </div>
       </div>
