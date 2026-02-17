@@ -5,18 +5,18 @@ import { MapPinned, Mountain, Waves } from "lucide-react";
 const values = [
   {
     icon: MapPinned,
-    title: "Local Knowledge",
-    desc: "Experiences crafted with insights only locals know — beyond tourist paths.",
+    title: "Locally Guided Experiences",
+    desc: "Explore Nova Scotia with passionate locals who know the stories, culture, and hidden spots.",
   },
   {
     icon: Mountain,
-    title: "Nature First",
-    desc: "From rugged coastlines to quiet trails, every journey respects the land.",
+    title: "Hidden Gems & Scenic Routes",
+    desc: "Discover quiet seaside stops, scenic drives, and local favourites you won’t find on a typical map.",
   },
   {
     icon: Waves,
-    title: "Slow Travel",
-    desc: "Unrushed itineraries designed to let moments breathe and memories settle.",
+    title: "Authentic & Community-Focused",
+    desc: "upport rural communities while enjoying personal, relaxed, and meaningful tourism experiences.",
   },
 ];
 
@@ -86,9 +86,10 @@ export default function About() {
             </h2>
 
             <p className="text-[#335358]/80 text-base sm:text-lg leading-relaxed mb-8">
-              We're Trisha and Keisha — lifelong Yarmouth residents who believe
-              the best way to experience Nova Scotia is through the eyes of
-              someone who calls it home.
+              Know A Local offers small, locally guided tours designed to help
+              you experience rural Nova Scotia through the eyes of the people
+              who call it home. We take you beyond the typical tourist paths to
+              discover hidden gems, coastal beauty, and authentic local charm.
             </p>
 
             {/* Values list */}

@@ -1,87 +1,108 @@
 "use client";
 
-import { DatePicker } from "@/components/common/DatePicker";
-import Button from "@/components/ui/Button";
-import { Info } from "lucide-react";
-import { useState } from "react";
+import Cal, { getCalApi } from "@calcom/embed-react";
+import { Calendar, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function BookingSidebar({ tour }: any) {
-  const [selectedDate, setSelectedDate] = useState("");
-  const [guests, setGuests] = useState(1);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+
+  useEffect(() => {
+    if (showCalendarModal) {
+      // Inject custom CSS for Cal.com styling
+      const styleId = "cal-theme-styles";
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.textContent = `
+          /* Cal.com Theme via CSS Variables */
+          :root, [data-cal-namespace="know-a-local"] {
+            --cal-brand: #d69850;
+            --cal-brand-text-color: #ffffff;
+            --cal-bg-default: #335358;
+            --cal-text-emphasis: #335358;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      (async function () {
+        const cal = await getCalApi({ namespace: "know-a-local" });
+        cal("ui", {
+          hideEventTypeDetails: false,
+          layout: "month_view",
+          theme: "light",
+        });
+      })();
+    }
+  }, [showCalendarModal]);
 
   return (
-    <div className="bg-neutral-light rounded-[2rem] border border-primary/10 shadow-xl p-8 lg:p-10 sticky top-32">
-      <div className="space-y-6">
-        <div className="group">
-          <label className="block text-[10px] font-bold text-primary mb-2 uppercase tracking-widest transition-colors group-focus-within:text-accent">
-            Select Departure Date
-          </label>
-          <div className="relative">
-            <DatePicker value={selectedDate} onChange={setSelectedDate} />
-          </div>
-        </div>
+    <>
+      {/* Floating Button */}
+      <style>{`
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 0 0 0 rgba(214, 152, 80, 0.7);
+          }
+          50% {
+            box-shadow: 0 0 0 10px rgba(214, 152, 80, 0);
+          }
+        }
+        .floating-btn {
+          animation: pulse-glow 2s infinite;
+        }
+      `}</style>
+      <button
+        onClick={() => setShowCalendarModal(true)}
+        className="floating-btn fixed bottom-20 md:bottom-8 right-4 md:right-8 z-40 px-6 md:px-8 py-3 md:py-4 rounded-2xl bg-accent text-neutral-light font-bold text-sm md:text-base shadow-2xl hover:shadow-3xl hover:scale-110 active:scale-95 transition-all flex items-center gap-3 border-2 border-accent/50 backdrop-blur-sm hover:border-white"
+      >
+        <Calendar className="w-5 md:w-6 h-5 md:h-6 animate-pulse" />
+        <span>Book Now</span>
+      </button>
 
-        <div className="group">
-          <label className="block text-[10px] font-bold text-primary mb-2 uppercase tracking-widest transition-colors group-focus-within:text-accent">
-            Adventure Group Size
-          </label>
-          <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm rounded-xl p-2.5 border-2 border-primary/5 transition-all focus-within:border-accent/30 shadow-inner">
-            <button
-              onClick={() => setGuests(Math.max(1, guests - 1))}
-              className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-primary text-lg font-bold hover:bg-accent hover:text-white transition-all shadow-sm active:scale-95"
-            >
-              −
-            </button>
-            <div className="text-center">
-              <span className="block text-xl font-bold text-primary font-heading leading-none">
-                {guests}
-              </span>
-              <span className="text-[9px] text-secondary font-bold uppercase tracking-tighter">
-                Explorers
-              </span>
+      {/* Cal.com Calendar Modal */}
+      {showCalendarModal && (
+        <>
+          {/* Modal Overlay */}
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            onClick={() => setShowCalendarModal(false)}
+          />
+          {/* Modal */}
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-bold text-[#335358]">
+                {tour?.title ? `Book: ${tour.title}` : "Book Your Tour"}
+              </h2>
+              <button
+                onClick={() => setShowCalendarModal(false)}
+                className="text-[#335358] hover:text-[#774738] transition-colors p-1 hover:bg-[#f8f1dd] rounded"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <button
-              onClick={() => setGuests(guests + 1)}
-              className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-primary text-lg font-bold hover:bg-accent hover:text-white transition-all shadow-sm active:scale-95"
-            >
-              +
-            </button>
-          </div>
-        </div>
 
-        <div className="pt-4 space-y-3">
-          <Button
-            className="w-full bg-primary hover:bg-primary/90 text-neutral-light py-4 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all border-none transform hover:-translate-y-0.5 active:translate-y-0"
-            onClick={() => alert("Checking availability...")}
-          >
-            Check Availability
-          </Button>
-          <Button
-            variant="secondary"
-            className="w-full border-2 border-accent text-accent hover:bg-accent hover:text-white py-4 rounded-xl font-bold text-sm transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-            onClick={() => alert("Applying now...")}
-          >
-            Book Now
-          </Button>
-        </div>
-
-        <div className="mt-8 py-5 border-t border-primary/10">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-              <Info className="w-4 h-4 text-accent" />
-            </div>
-            <div>
-              <p className="text-[10px] text-secondary font-medium leading-relaxed">
-                Includes expert local guidance, premium gear, and gourmet
-                coastal refreshments.
-                <span className="block mt-0.5 text-primary/40 font-bold uppercase tracking-tighter">
-                  Flex-cancel available
-                </span>
-              </p>
+            {/* Cal.com Calendar Embed */}
+            <div className="flex-1 overflow-y-auto">
+              <Cal
+                namespace="know-a-local"
+                calLink="know-a-local-okxsgd/know-a-local"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  overflow: "scroll",
+                }}
+                config={{
+                  layout: "month_view",
+                  useSlotsViewOnSmallScreen: "false",
+                }}
+              />
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+    </>
   );
 }

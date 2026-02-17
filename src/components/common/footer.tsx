@@ -34,7 +34,7 @@ const defaultSocialLinks: FooterProps["socialLinks"] = [
   },
   {
     icon: FaInstagram as React.ComponentType<{ className?: string }>,
-    href: "#",
+    href: "https://www.instagram.com/knowalocal?igsh=ODVtY3JuM3NkMmJw&utm_source=qr",
     label: "Instagram",
   },
 ];

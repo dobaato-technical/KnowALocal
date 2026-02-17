@@ -7,50 +7,6 @@ export default function TCHero() {
     <section className="relative py-28 sm:py-36 md:py-48 lg:py-64 flex items-center justify-center overflow-hidden bg-primary">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Floating orb 1 */}
-        <motion.div
-          className="absolute top-5 sm:top-10 -left-20 sm:-left-10 w-40 sm:w-64 h-40 sm:h-64 bg-accent/5 rounded-full blur-3xl"
-          animate={{
-            y: [0, 30, 0],
-            x: [0, 20, 0],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-
-        {/* Floating orb 2 */}
-        <motion.div
-          className="absolute bottom-5 sm:bottom-10 right-5 sm:right-10 w-48 sm:w-72 h-48 sm:h-72 bg-secondary/10 rounded-full blur-3xl"
-          animate={{
-            y: [0, -40, 0],
-            x: [0, -30, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-        />
-
-        {/* Floating orb 3 */}
-        <motion.div
-          className="absolute top-1/2 right-1/4 w-32 sm:w-48 h-32 sm:h-48 bg-accent/10 rounded-full blur-3xl"
-          animate={{
-            y: [0, 50, 0],
-            x: [0, -40, 0],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2,
-          }}
-        />
-
         {/* Animated grid pattern */}
         <motion.div
           className="absolute inset-0 opacity-10"
@@ -77,7 +33,7 @@ export default function TCHero() {
           transition={{ duration: 0.8 }}
           className="max-w-2xl sm:max-w-3xl mx-auto"
         >
-          <h1 className="font-heading text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-3 sm:mb-4 md:mb-6 leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-3 sm:mb-4 md:mb-6 leading-tight font-[family-name:var(--font-merriweather)]">
             Terms & Conditions
           </h1>
 
