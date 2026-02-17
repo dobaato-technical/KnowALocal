@@ -70,10 +70,10 @@ export default function BookingSidebar({ tour }: any) {
             onClick={() => setShowCalendarModal(false)}
           />
           {/* Modal */}
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-accent rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-[#bcd2c2]/30">
-              <h2 className="text-lg font-bold text-primary">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-bold text-[#335358]">
                 {tour?.title ? `Book: ${tour.title}` : "Book Your Tour"}
               </h2>
               <button
@@ -96,7 +96,7 @@ export default function BookingSidebar({ tour }: any) {
                 }}
                 config={{
                   layout: "month_view",
-                  useSlotsViewOnSmallScreen: "true",
+                  useSlotsViewOnSmallScreen: "false",
                 }}
               />
             </div>
