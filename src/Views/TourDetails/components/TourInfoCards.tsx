@@ -6,12 +6,19 @@ import {
   Compass,
   Mountain,
   ShieldCheck,
+  Tag,
   Timer,
   Users,
 } from "lucide-react";
 
 export default function TourInfoCards({ tour }: any) {
   const details = [
+    {
+      icon: <Tag className="w-6 h-6" />,
+      label: "Price",
+      value: tour.basePrice ? `$${tour.basePrice}` : "N/A",
+      color: "text-primary",
+    },
     {
       icon: <Compass className="w-6 h-6" />,
       label: "Location",
@@ -45,7 +52,7 @@ export default function TourInfoCards({ tour }: any) {
     {
       icon: <Users className="w-6 h-6" />,
       label: "Group Size",
-      value: "Up to 12",
+      value: tour.maxGroupSize ? `Up to ${tour.maxGroupSize}` : "N/A",
       color: "text-primary",
     },
   ];
@@ -57,7 +64,7 @@ export default function TourInfoCards({ tour }: any) {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#335358]/5 rounded-full -ml-48 -mb-48 blur-3xl" />
 
       <div className="max-w-[90rem] mx-auto px-4 md:px-8 relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-6 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-7 gap-6 md:gap-8">
           {details.map((detail, index) => (
             <motion.div
               key={index}

@@ -24,6 +24,7 @@ export interface TourPreview {
     };
   };
   rating: number;
+  basePrice?: number;
 }
 
 export interface Activity {
@@ -47,7 +48,6 @@ export interface Specialty {
 export interface Inclusion {
   title: string;
   description: string;
-  icon?: string;
 }
 
 export interface Requirement {
@@ -60,7 +60,6 @@ export interface Requirement {
 export interface SafetyWarning {
   title: string;
   description: string;
-  level?: "info" | "warning" | "danger";
 }
 
 // For detail view (complete tour data)
@@ -72,6 +71,7 @@ export interface Tour extends TourPreview {
   tourType?: "standard" | "adventure" | "hiking" | "water";
   basePrice?: number;
   maxGroupSize?: number;
+  tourNote?: string;
   galleryImages?: Array<{
     asset: {
       url: string;
@@ -80,8 +80,7 @@ export interface Tour extends TourPreview {
   specialties?: Specialty[];
   itinerary?: ItineraryDay[];
   tourInclusions?: Inclusion[];
-  keyRequirements?: Requirement[];
-  safetyWarnings?: SafetyWarning[];
+  keyRequirements?: SafetyWarning[];
 }
 
 // ============================================================================
@@ -106,7 +105,8 @@ export async function getToursPreview(): Promise<TourPreview[]> {
       },
       hotspot
     },
-    rating
+    rating,
+    basePrice
   } | order(_createdAt desc)`;
 
   return client.fetch(query);
@@ -141,14 +141,37 @@ export async function getTourBySlug(slug: string): Promise<Tour | null> {
     tourType,
     basePrice,
     maxGroupSize,
+    tourNote,
     specialties,
     itinerary,
     tourInclusions,
-    keyRequirements,
-    safetyWarnings
+    keyRequirements
   }`;
 
   return client.fetch(query, { slug });
+}
+
+/**
+ * Get featured tours for landing page and footer
+ * Returns tours where isFeatured is true
+ */
+export async function getFeaturedTours(): Promise<TourPreview[]> {
+  const query = `*[_type == "tour" && isFeatured == true] {
+    _id,
+    title,
+    slug,
+    description,
+    image {
+      asset-> {
+        url
+      },
+      hotspot
+    },
+    rating,
+    basePrice
+  } | order(_createdAt desc)`;
+
+  return client.fetch(query);
 }
 
 /**
@@ -182,8 +205,7 @@ export async function getTours(): Promise<Tour[]> {
     specialties,
     itinerary,
     tourInclusions,
-    keyRequirements,
-    safetyWarnings
+    keyRequirements
   } | order(_createdAt desc)`;
 
   return client.fetch(query);

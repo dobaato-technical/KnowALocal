@@ -1,39 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import * as Icons from "lucide-react";
+import { Check } from "lucide-react";
 
 interface Inclusion {
   title: string;
   description: string;
-  icon?: string;
 }
 
 interface TourInclusionsSectionProps {
   inclusions: Inclusion[];
 }
-
-// Map icon names (from Sanity) to Lucide components
-const iconMap: Record<
-  string,
-  React.ComponentType<{ size: number; strokeWidth: number }>
-> = {
-  check: Icons.Check,
-  "check-circle": Icons.CheckCircle2,
-  mapPin: Icons.MapPin,
-  users: Icons.Users,
-  camera: Icons.Camera,
-  utensils: Icons.UtensilsCrossed,
-  mountain: Icons.Mountain,
-  map: Icons.Map,
-  heart: Icons.Heart,
-  compass: Icons.Compass,
-  phone: Icons.Phone,
-  package: Icons.Package,
-  clock: Icons.Clock,
-  shield: Icons.Shield,
-  award: Icons.Award,
-};
 
 export default function TourInclusionsSection({
   inclusions,
@@ -85,7 +62,7 @@ export default function TourInclusionsSection({
               >
                 {/* Tick Icon */}
                 <div className="flex-shrink-0 text-[#d69850] mt-1">
-                  <Icons.Check size={20} strokeWidth={2.5} />
+                  <Check size={20} strokeWidth={2.5} />
                 </div>
 
                 {/* Content */}

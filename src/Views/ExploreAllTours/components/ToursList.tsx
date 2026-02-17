@@ -109,6 +109,9 @@ export default function ToursList() {
                       </div>
                     )}
 
+                    {/* Gradient Overlay for badge legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
                     {/* Rating Badge */}
                     {tour.rating && tour.rating > 0 && (
                       <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3.5 py-2 rounded-2xl shadow-md flex items-center gap-1.5">
@@ -116,6 +119,13 @@ export default function ToursList() {
                         <span className="text-sm font-medium text-gray-900">
                           {tour.rating.toFixed(1)}/5
                         </span>
+                      </div>
+                    )}
+
+                    {/* Price Tag */}
+                    {tour.basePrice && (
+                      <div className="absolute top-4 left-4 bg-accent/90 text-white px-3.5 py-2 rounded-2xl shadow-md font-bold">
+                        ${tour.basePrice}
                       </div>
                     )}
                   </div>
@@ -129,7 +139,7 @@ export default function ToursList() {
 
                 <div className="mt-4">
                   <Link href={`/tour-details/${tour.slug.current}`}>
-                    <Button variant="subtle">Learn More</Button>
+                    <Button variant="subtle">View Detail</Button>
                   </Link>
                 </div>
               </motion.div>

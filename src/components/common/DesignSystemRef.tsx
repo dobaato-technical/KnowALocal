@@ -29,7 +29,7 @@
 // export const ButtonExamples = () => (
 //   <div className="space-y-4 p-6">
 //     <Button variant="primary">Get Started</Button>
-//     <Button variant="secondary">Learn More</Button>
+//     <Button variant="secondary">View Detail</Button>
 //     <Button variant="subtle">View details →</Button>
 //     <Button variant="primary" size="sm">
 //       Apply

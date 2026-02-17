@@ -1,9 +1,10 @@
 "use client";
 
-import travelLocations from "@/data/travelLocations.json";
+import type { TourPreview } from "@/sanity/lib/queries";
+import { getFeaturedTours } from "@/sanity/lib/queries";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 
 interface FooterProps {
@@ -54,6 +55,24 @@ export default function Footer({
     address: "Yarmouth, Nova Scotia",
   },
 }: FooterProps) {
+  const [featuredTours, setFeaturedTours] = useState<TourPreview[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadFeaturedTours = async () => {
+      try {
+        const tours = await getFeaturedTours();
+        // Show first 4 featured tours
+        setFeaturedTours(tours.slice(0, 4));
+      } catch (error) {
+        console.error("Failed to load featured tours:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFeaturedTours();
+  }, []);
   return (
     <footer className="bg-primary text-bg mx-auto max-w-7xl py-8 md:py-10 mb-8 mt-8 rounded-2xl">
       <div className=" px-4 md:px-8">
@@ -320,16 +339,22 @@ export default function Footer({
               Featured Tours
             </h3>
             <ul className="hidden md:block space-y-3">
-              {travelLocations.slice(0, 4).map((tour) => (
-                <li key={tour.id}>
-                  <Link
-                    href={`/tour-details/${tour.slug}`}
-                    className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
-                  >
-                    {tour.title}
-                  </Link>
-                </li>
-              ))}
+              {isLoading ? (
+                <li className="text-sm text-bg/60">Loading tours...</li>
+              ) : featuredTours.length > 0 ? (
+                featuredTours.map((tour) => (
+                  <li key={tour._id}>
+                    <Link
+                      href={`/tour-details/${tour.slug.current}`}
+                      className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
+                    >
+                      {tour.title}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li className="text-sm text-bg/60">No featured tours</li>
+              )}
             </ul>
           </div>
 

@@ -52,6 +52,11 @@ const SafetyWarningsBox = dynamic(
   { ssr: false },
 );
 
+const NoteSection = dynamic(
+  () => import("@/Views/TourDetails/components/NoteSection"),
+  { ssr: false },
+);
+
 const Footer = dynamic(() => import("@/components/common/footer"), {
   ssr: true,
 });
@@ -72,9 +77,10 @@ export default function TourDetailsPage({ tour }: TourDetailsPageProps) {
       {tour.tourInclusions && (
         <TourInclusionsSection inclusions={tour.tourInclusions} />
       )}
-      {tour.safetyWarnings && (
-        <SafetyWarningsBox warnings={tour.safetyWarnings} />
+      {tour.keyRequirements && (
+        <SafetyWarningsBox warnings={tour.keyRequirements} />
       )}
+      <NoteSection note={tour.tourNote} />
       <GallerySection images={tour.galleryImages} />
 
       <Footer />

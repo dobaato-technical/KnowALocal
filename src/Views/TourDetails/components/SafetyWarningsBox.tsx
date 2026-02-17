@@ -6,7 +6,6 @@ import * as Icons from "lucide-react";
 interface SafetyWarning {
   title: string;
   description: string;
-  level?: "info" | "warning" | "danger";
 }
 
 interface SafetyWarningsBoxProps {

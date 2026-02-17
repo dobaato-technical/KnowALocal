@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { getToursPreview, type TourPreview } from "@/sanity/lib/queries";
+import { getFeaturedTours, type TourPreview } from "@/sanity/lib/queries";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -11,18 +11,23 @@ import { useEffect, useState } from "react";
 export default function Tours() {
   const [tours, setTours] = useState<TourPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     async function loadTours() {
       try {
-        console.log("🔍 LandingPage Tours: Fetching tours...");
-        const data = await getToursPreview();
-        console.log("✅ LandingPage Tours: Fetched", data.length, "tours");
+        console.log("🔍 LandingPage Tours: Fetching featured tours...");
+        const data = await getFeaturedTours();
+        console.log(
+          "✅ LandingPage Tours: Fetched",
+          data.length,
+          "featured tours",
+        );
         if (data.length > 0) {
           console.log("📋 First tour:", data[0]);
         }
-        setTours(data);
+        // Shuffle and pick up to 4 random featured tours
+        const shuffled = [...data].sort(() => Math.random() - 0.5).slice(0, 4);
+        setTours(shuffled);
       } catch (error) {
         console.error("❌ LandingPage Tours: Error loading tours:", error);
         setTours([]);
@@ -32,8 +37,6 @@ export default function Tours() {
     }
     loadTours();
   }, []);
-
-  const visibleTours = showAll ? tours : tours.slice(0, 4);
 
   return (
     <div className="w-full text-dark">
@@ -123,7 +126,7 @@ export default function Tours() {
         {/* Cards */}
         {!isLoading && tours.length > 0 && (
           <div className="mt-16 grid gap-12 md:grid-cols-4">
-            {visibleTours.map((tour) => (
+            {tours.map((tour) => (
               <motion.div
                 key={tour._id}
                 whileHover={{ y: -4 }}
@@ -148,6 +151,9 @@ export default function Tours() {
                       </div>
                     )}
 
+                    {/* Gradient Overlay for badge legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
                     {/* Rating Badge */}
                     {tour.rating && tour.rating > 0 && (
                       <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3.5 py-2 rounded-2xl shadow-md flex items-center gap-1.5">
@@ -155,6 +161,13 @@ export default function Tours() {
                         <span className="text-sm font-medium text-gray-900">
                           {tour.rating.toFixed(1)}/5
                         </span>
+                      </div>
+                    )}
+
+                    {/* Price Tag */}
+                    {tour.basePrice && (
+                      <div className="absolute top-4 left-4 bg-accent/90 text-white px-3.5 py-2 rounded-2xl shadow-md font-bold">
+                        ${tour.basePrice}
                       </div>
                     )}
                   </div>
@@ -168,7 +181,7 @@ export default function Tours() {
 
                 <div className="mt-4">
                   <Link href={`/tour-details/${tour.slug.current}`}>
-                    <Button variant="subtle">Learn More</Button>
+                    <Button variant="subtle">View Detail</Button>
                   </Link>
                 </div>
               </motion.div>

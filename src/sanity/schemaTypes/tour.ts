@@ -41,12 +41,22 @@ export const tour = defineType({
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: "advanced",
-      title: "Advanced Settings",
-      options: { collapsible: true, collapsed: true },
+      name: "notes",
+      title: "Additional Notes",
+      options: { collapsible: true, collapsed: false },
     },
   ],
   fields: [
+    // FEATURED TOGGLE
+    defineField({
+      name: "isFeatured",
+      title: "Featured Tour",
+      type: "boolean",
+      description:
+        "When enabled, tour can appear on landing page (max 4 shown randomly). When disabled, only visible in tours tab.",
+      initialValue: true,
+    }),
+
     // BASIC INFO SECTION
     defineField({
       name: "title",
@@ -103,15 +113,16 @@ export const tour = defineType({
       fieldset: "basicInfo",
       validation: (Rule) => Rule.required().min(0).max(5),
     }),
+
+    // TOUR INFO CARD SECTION
     defineField({
       name: "basePrice",
       title: "Base Tour Price ($)",
       type: "number",
-      fieldset: "basicInfo",
+      fieldset: "tourInfoCard",
       description: "Main tour price (e.g., 250 for Cape Forchu)",
+      validation: (Rule) => Rule.required().min(0),
     }),
-
-    // TOUR INFO CARD SECTION
     defineField({
       name: "duration",
       title: "Duration",
@@ -277,13 +288,6 @@ export const tour = defineType({
               type: "text",
               validation: (Rule) => Rule.required(),
             },
-            {
-              name: "icon",
-              title: "Icon/Emoji",
-              type: "string",
-              description: "Icon or emoji (defaults to ✓)",
-              initialValue: "✓",
-            },
           ],
         },
       ],
@@ -292,18 +296,18 @@ export const tour = defineType({
     // KEY REQUIREMENTS SECTION
     defineField({
       name: "keyRequirements",
-      title: "Key Requirements",
+      title: "Key Requirements & Rules",
       type: "array",
       fieldset: "keyRequirements",
       description:
-        "Leave empty if none. Pre-tour requirements (height, footwear, fitness level, etc.)",
+        "Leave empty if none. Pre-tour requirements and rules (height, footwear, fitness level, etc.)",
       of: [
         {
           type: "object",
           fields: [
             {
               name: "title",
-              title: "Requirement Title",
+              title: "Title",
               type: "string",
               validation: (Rule) => Rule.required(),
             },
@@ -312,22 +316,6 @@ export const tour = defineType({
               title: "Description",
               type: "text",
               validation: (Rule) => Rule.required(),
-            },
-            {
-              name: "severity",
-              title: "Severity",
-              type: "string",
-              options: {
-                list: ["info", "warning", "critical"],
-              },
-              description: "Visual importance level",
-            },
-            {
-              name: "icon",
-              title: "Icon/Emoji",
-              type: "string",
-              description: "Icon or emoji (defaults to ✓)",
-              initialValue: "✓",
             },
           ],
         },
@@ -350,42 +338,14 @@ export const tour = defineType({
       ],
     }),
 
-    // ADVANCED SETTINGS SECTION
+    // ADDITIONAL NOTES SECTION
     defineField({
-      name: "safetyWarnings",
-      title: "Safety Warnings & Disclaimers (Optional)",
-      type: "array",
-      fieldset: "advanced",
+      name: "tourNote",
+      title: "Tour Important Note",
+      type: "text",
+      fieldset: "notes",
       description:
-        "Leave empty if none. Important safety information for guests",
-      of: [
-        {
-          type: "object",
-          fields: [
-            {
-              name: "title",
-              title: "Warning Title",
-              type: "string",
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: "description",
-              title: "Description",
-              type: "text",
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: "level",
-              title: "Alert Level",
-              type: "string",
-              options: {
-                list: ["info", "warning", "danger"],
-              },
-              description: "Visual alert level",
-            },
-          ],
-        },
-      ],
+        "Optional important information shown at the bottom of the page (e.g., pricing details, optional add-ons, or mobility constraints).",
     }),
   ],
   preview: {
