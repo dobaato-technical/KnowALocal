@@ -5,7 +5,7 @@ import { Menu, Phone, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Button from "../ui/Button";
+import Button from "../ui/button";
 
 const navItems = [
   { label: "Home", href: "/" },

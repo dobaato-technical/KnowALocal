@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import { getFeaturedTours, type TourPreview } from "@/sanity/lib/queries";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
