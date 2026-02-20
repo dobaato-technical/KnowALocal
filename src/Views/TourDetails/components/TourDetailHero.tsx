@@ -105,7 +105,7 @@ export default function TourDetailHero({ tour }: any) {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto drop-shadow-lg font-light font-[family-name:var(--font-merriweather)]"
             >
-              {tour.location}
+              {tour.location || "N/A"}
             </motion.p>
           </motion.div>
         </div>

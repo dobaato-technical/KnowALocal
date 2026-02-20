@@ -1,7 +1,10 @@
 "use client";
 
+import { ImageUpload } from "@/components/common/ImageUpload";
 import Button from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TagInput } from "@/components/ui/TagInput";
+import { getPublicImageUrl } from "@/lib/storage-config";
 import { X } from "lucide-react";
 import { useState } from "react";
 
@@ -24,6 +27,12 @@ export interface TourFormData {
   rating: number;
   maxGroupSize: number;
   isFeatured: boolean;
+  itinerary: string[];
+  specialities: string[];
+  included: string[];
+  requirements: string[];
+  heroImageUrl?: string;
+  galleryImageUrls?: string[];
 }
 
 const initialFormData: TourFormData = {
@@ -38,6 +47,12 @@ const initialFormData: TourFormData = {
   rating: 0,
   maxGroupSize: 0,
   isFeatured: true,
+  itinerary: [],
+  specialities: [],
+  included: [],
+  requirements: [],
+  heroImageUrl: "",
+  galleryImageUrls: [],
 };
 
 export default function AddTourModal({
@@ -73,6 +88,12 @@ export default function AddTourModal({
     }
     if (formData.rating < 0 || formData.rating > 5) {
       newErrors.rating = "Rating must be between 0 and 5";
+    }
+    if (!formData.heroImageUrl) {
+      newErrors.heroImageUrl = "Hero image is required";
+    }
+    if (!formData.galleryImageUrls || formData.galleryImageUrls.length === 0) {
+      newErrors.galleryImageUrls = "At least one gallery image is required";
     }
 
     setErrors(newErrors);
@@ -123,6 +144,25 @@ export default function AddTourModal({
     }
   };
 
+  const handleTagsChange = (
+    fieldName: "itinerary" | "specialities" | "included" | "requirements",
+    tags: string[],
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [fieldName]: tags,
+    }));
+
+    // Clear error when tags are updated
+    if (errors[fieldName]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -159,7 +199,7 @@ export default function AddTourModal({
         </div>
 
         {/* Form Content */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[70vh]">
+        <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[85vh]">
           <div className="space-y-6 px-6 py-6">
             {/* Title and Location Row */}
             <div className="grid grid-cols-2 gap-4">
@@ -243,6 +283,91 @@ export default function AddTourModal({
                 <p className="mt-1 text-sm text-red-600">
                   {errors.fullDescription}
                 </p>
+              )}
+            </div>
+
+            {/* Itinerary */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Itinerary
+                <span className="text-gray-500 text-xs ml-2">
+                  (Type and press Enter to add each day)
+                </span>
+              </label>
+              <TagInput
+                tags={formData.itinerary}
+                onTagsChange={(tags) => handleTagsChange("itinerary", tags)}
+                placeholder="e.g., Day 1: Arrival and orientation"
+                disabled={isLoading}
+              />
+              {errors.itinerary && (
+                <p className="mt-1 text-sm text-red-600">{errors.itinerary}</p>
+              )}
+            </div>
+
+            {/* Specialities and Requirements Row */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Specialities
+                  <span className="text-gray-500 text-xs ml-2">
+                    (Type and press Enter)
+                  </span>
+                </label>
+                <TagInput
+                  tags={formData.specialities}
+                  onTagsChange={(tags) =>
+                    handleTagsChange("specialities", tags)
+                  }
+                  placeholder="e.g., Expert guides, Small groups, Photography focus"
+                  disabled={isLoading}
+                />
+                {errors.specialities && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.specialities}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Requirements
+                  <span className="text-gray-500 text-xs ml-2">
+                    (Type and press Enter)
+                  </span>
+                </label>
+                <TagInput
+                  tags={formData.requirements}
+                  onTagsChange={(tags) =>
+                    handleTagsChange("requirements", tags)
+                  }
+                  placeholder="e.g., Moderate fitness, Hiking boots, Age 12+"
+                  disabled={isLoading}
+                />
+                {errors.requirements && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.requirements}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Included Services */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Included Services (Optional Additional Charges)
+                <span className="text-gray-500 text-xs ml-2">
+                  (Type and press Enter)
+                </span>
+              </label>
+              <TagInput
+                tags={formData.included}
+                onTagsChange={(tags) => handleTagsChange("included", tags)}
+                placeholder="e.g., Hotel pickup (+$20), Meals included, Photography service"
+                disabled={isLoading}
+              />
+              {errors.included && (
+                <p className="mt-1 text-sm text-red-600">{errors.included}</p>
               )}
             </div>
 
@@ -370,6 +495,152 @@ export default function AddTourModal({
               <label className="text-sm font-medium text-gray-900">
                 Featured Tour (can appear on landing page)
               </label>
+            </div>
+
+            {/* Image Uploads Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Images
+              </h3>
+
+              {/* Hero Image Upload */}
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-gray-900 mb-3">
+                  Hero Image *{" "}
+                  <span className="text-gray-500">(Single image)</span>
+                </label>
+                {!formData.heroImageUrl ? (
+                  <ImageUpload
+                    folder="hero"
+                    maxFiles={1}
+                    onUploadSuccess={(urls) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        heroImageUrl: urls[0],
+                      }));
+                      // Clear error when image is uploaded
+                      if (errors.heroImageUrl) {
+                        setErrors((prev) => {
+                          const newErrors = { ...prev };
+                          delete newErrors.heroImageUrl;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    onUploadError={(error) => {
+                      setErrors((prev) => ({
+                        ...prev,
+                        heroImageUrl: error,
+                      }));
+                    }}
+                    className="mb-4"
+                  />
+                ) : (
+                  <div>
+                    <img
+                      src={getPublicImageUrl(formData.heroImageUrl)}
+                      alt="Hero"
+                      className="w-full h-48 object-cover rounded-lg mb-3"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          heroImageUrl: "",
+                        }))
+                      }
+                      className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    >
+                      Change hero image
+                    </button>
+                  </div>
+                )}
+                {errors.heroImageUrl && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.heroImageUrl}
+                  </p>
+                )}
+              </div>
+
+              {/* Gallery Images Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-3">
+                  Gallery Images *{" "}
+                  <span className="text-gray-500">(Up to 5 images)</span>
+                </label>
+                {(!formData.galleryImageUrls ||
+                  formData.galleryImageUrls.length < 5) && (
+                  <ImageUpload
+                    folder="gallery"
+                    maxFiles={5}
+                    multiple={true}
+                    onUploadSuccess={(urls) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        galleryImageUrls: [
+                          ...(prev.galleryImageUrls || []),
+                          ...urls,
+                        ].slice(0, 5),
+                      }));
+                      // Clear error when images are uploaded
+                      if (errors.galleryImageUrls) {
+                        setErrors((prev) => {
+                          const newErrors = { ...prev };
+                          delete newErrors.galleryImageUrls;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    onUploadError={(error) => {
+                      setErrors((prev) => ({
+                        ...prev,
+                        galleryImageUrl: error,
+                      }));
+                    }}
+                    className="mb-4"
+                  />
+                )}
+
+                {formData.galleryImageUrls &&
+                  formData.galleryImageUrls.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 mb-2">
+                        {formData.galleryImageUrls.length} image(s) selected
+                      </p>
+                      <div className="grid grid-cols-5 gap-2">
+                        {formData.galleryImageUrls.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={getPublicImageUrl(url)}
+                              alt={`Gallery ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  galleryImageUrls: (
+                                    prev.galleryImageUrls || []
+                                  ).filter((_, i) => i !== index),
+                                }));
+                              }}
+                              className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition text-xs"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                {errors.galleryImageUrls && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.galleryImageUrls}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

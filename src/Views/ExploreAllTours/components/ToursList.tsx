@@ -1,7 +1,7 @@
 "use client";
 
+import { getToursPreview, type TourPreview } from "@/api/tours/tours";
 import Button from "@/components/ui/button";
-import { getToursPreview, type TourPreview } from "@/sanity/lib/queries";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,9 +15,12 @@ export default function ToursList() {
     async function loadTours() {
       try {
         console.log("🔍 ToursList: Fetching tours...");
-        const data = await getToursPreview();
+        const response = await getToursPreview();
+        const data = response.data || [];
         console.log("✅ ToursList: Fetched", data.length, "tours");
-        console.log("📋 First tour:", data[0]);
+        if (data.length > 0) {
+          console.log("📋 First tour:", data[0]);
+        }
         setTours(data);
       } catch (error) {
         console.error("❌ ToursList: Error loading tours:", error);

@@ -1,7 +1,7 @@
 "use client";
 
+import { getFeaturedTours, type TourPreview } from "@/api/tours/tours";
 import Button from "@/components/ui/button";
-import { getFeaturedTours, type TourPreview } from "@/sanity/lib/queries";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -16,7 +16,8 @@ export default function Tours() {
     async function loadTours() {
       try {
         console.log("🔍 LandingPage Tours: Fetching featured tours...");
-        const data = await getFeaturedTours();
+        const response = await getFeaturedTours();
+        const data = response.data || [];
         console.log(
           "✅ LandingPage Tours: Fetched",
           data.length,

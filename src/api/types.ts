@@ -66,7 +66,7 @@ export interface TourPreview {
 
 export interface Tour extends TourPreview {
   fullDescription: string;
-  location: string;
+  location?: string; // Optional - not currently in Supabase table
   duration: string;
   difficulty: string;
   tourType?: "standard" | "adventure" | "hiking" | "water";

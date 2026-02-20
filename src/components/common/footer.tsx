@@ -1,7 +1,7 @@
 "use client";
 
-import type { TourPreview } from "@/sanity/lib/queries";
-import { getFeaturedTours } from "@/sanity/lib/queries";
+import { getFeaturedTours } from "@/api/tours/tours";
+import type { TourPreview } from "@/api/types";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -61,7 +61,8 @@ export default function Footer({
   useEffect(() => {
     const loadFeaturedTours = async () => {
       try {
-        const tours = await getFeaturedTours();
+        const response = await getFeaturedTours();
+        const tours = response.data || [];
         // Show first 4 featured tours
         setFeaturedTours(tours.slice(0, 4));
       } catch (error) {

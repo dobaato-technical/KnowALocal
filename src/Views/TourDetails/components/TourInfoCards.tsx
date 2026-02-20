@@ -22,7 +22,7 @@ export default function TourInfoCards({ tour }: any) {
     {
       icon: <Compass className="w-6 h-6" />,
       label: "Location",
-      value: tour.location,
+      value: tour.location || "N/A",
       color: "text-primary",
     },
     {

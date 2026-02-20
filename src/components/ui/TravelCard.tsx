@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import Button from "./Button";
+import Button from "./button";
 
 type CardVariant = "default" | "featured" | "compact";
 

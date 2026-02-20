@@ -2,14 +2,15 @@
 
 import Button from "@/components/ui/button";
 import Table, { Column } from "@/components/ui/table";
+import { supabase } from "@/lib/supabase";
 import { Edit2, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AddTourModal, { TourFormData } from "./components/AddTourModal";
 
 interface Tour {
   id: string;
   name: string;
-  location: string;
+  location: string | null;
   duration: string;
   price: number;
   availability: number;
@@ -17,94 +18,61 @@ interface Tour {
   createdAt: string;
 }
 
-// Sample data - replace with API call later
-const sampleTours: Tour[] = [
-  {
-    id: "1",
-    name: "Whale Watching Tour",
-    location: "Brier Island",
-    duration: "4 hours",
-    price: 79.99,
-    availability: 12,
-    status: "active",
-    createdAt: "2024-01-15",
-  },
-  {
-    id: "2",
-    name: "Beach Exploration",
-    location: "Port Maitland",
-    duration: "3 hours",
-    price: 49.99,
-    availability: 8,
-    status: "active",
-    createdAt: "2024-01-16",
-  },
-  {
-    id: "3",
-    name: "Lake Adventures",
-    location: "Lake District",
-    duration: "5 hours",
-    price: 89.99,
-    availability: 0,
-    status: "inactive",
-    createdAt: "2024-01-17",
-  },
-  {
-    id: "4",
-    name: "Cape Forchu Hiking",
-    location: "Cape Forchu",
-    duration: "2 hours",
-    price: 39.99,
-    availability: 15,
-    status: "active",
-    createdAt: "2024-01-18",
-  },
-  {
-    id: "5",
-    name: "Art & Culture Walk",
-    location: "Downtown",
-    duration: "3.5 hours",
-    price: 59.99,
-    availability: 5,
-    status: "draft",
-    createdAt: "2024-01-19",
-  },
-  {
-    id: "6",
-    name: "Sunset Boat Cruise",
-    location: "Harbor",
-    duration: "2.5 hours",
-    price: 69.99,
-    availability: 6,
-    status: "active",
-    createdAt: "2024-01-20",
-  },
-  {
-    id: "7",
-    name: "Local Cuisine Tour",
-    location: "Market Square",
-    duration: "3 hours",
-    price: 64.99,
-    availability: 10,
-    status: "active",
-    createdAt: "2024-01-21",
-  },
-  {
-    id: "8",
-    name: "Photography Walking Tour",
-    location: "Historic Area",
-    duration: "4 hours",
-    price: 74.99,
-    availability: 4,
-    status: "active",
-    createdAt: "2024-01-22",
-  },
-];
-
 export default function Tours() {
-  const [tours, setTours] = useState<Tour[]>(sampleTours);
+  const [tours, setTours] = useState<Tour[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch tours from Supabase on component mount
+  const fetchTours = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const { data, error: supabaseError } = await supabase
+        .from("tours")
+        .select(
+          "id, title, duration, price, group_size, featured, created_at",
+        )
+        .order("created_at", { ascending: false });
+
+      if (supabaseError) {
+        console.error("Error fetching tours:", supabaseError);
+        setError("Failed to fetch tours");
+        setTours([]);
+        return;
+      }
+
+
+      // Transform Supabase data to Tour interface
+      const transformedTours: Tour[] = (data || []).map((tour: any) => ({
+        id: tour.id?.toString() || "",
+        name: tour.title || "",
+        location: null,
+        duration: tour.duration || "",
+        price: tour.price || 0,
+        availability: tour.group_size || 0,
+        status: tour.featured ? "active" : "draft",
+        createdAt: tour.created_at
+          ? new Date(tour.created_at).toISOString().split("T")[0]
+          : "",
+      }));
+
+      setTours(transformedTours);
+    } catch (err) {
+      console.error("Error fetching tours:", err);
+      setError("An error occurred while fetching tours");
+      setTours([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Fetch tours on component mount
+  useEffect(() => {
+    fetchTours();
+  }, [fetchTours]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -128,6 +96,7 @@ export default function Tours() {
     {
       key: "location",
       label: "Location",
+      render: (value) => value || "N/A",
     },
     {
       key: "duration",
@@ -188,35 +157,43 @@ export default function Tours() {
   const handleAddTour = async (tourData: TourFormData) => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API call to Sanity
-      console.log("Creating tour with data:", tourData);
+      // Call backend API route to create the tour (uses service role key)
+      const response = await fetch("/api/tours/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: tourData.title,
+          description: tourData.description,
+          fullDescription: tourData.fullDescription,
+          basePrice: tourData.basePrice,
+          duration: tourData.duration,
+          difficulty: tourData.difficulty,
+          tourType: tourData.tourType,
+          rating: tourData.rating,
+          maxGroupSize: tourData.maxGroupSize,
+          isFeatured: tourData.isFeatured,
+          itinerary: tourData.itinerary,
+          specialities: tourData.specialities,
+          included: tourData.included,
+          requirements: tourData.requirements,
+          hero_image: tourData.heroImageUrl,
+          gallery_images: tourData.galleryImageUrls,
+        }),
+      });
 
-      // Example API structure:
-      // const response = await fetch('/api/admin/tours', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(tourData),
-      // });
+      const result = await response.json();
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.ok || !result.success) {
+        console.error("Failed to create tour:", result.message);
+        // TODO: Show error toast
+        return;
+      }
 
-      // Add to local state (replace with actual data from Sanity)
-      const newTour: Tour = {
-        id: Date.now().toString(),
-        name: tourData.title,
-        location: tourData.location,
-        duration: tourData.duration,
-        price: tourData.basePrice,
-        availability: tourData.maxGroupSize,
-        status: tourData.isFeatured ? "active" : "draft",
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-
-      setTours((prev) => [newTour, ...prev]);
+      // Refresh tours list
+      await fetchTours();
       setIsModalOpen(false);
+      console.log("Tour created successfully!", result.data?.id);
       // TODO: Show success toast
-      console.log("Tour created successfully!");
     } catch (error) {
       console.error("Error creating tour:", error);
       // TODO: Show error toast
@@ -239,14 +216,28 @@ export default function Tours() {
         </Button>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-red-800">{error}</div>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="rounded-lg bg-blue-50 p-8 text-center text-blue-800">
+          Loading tours...
+        </div>
+      )}
+
       {/* Table */}
-      <Table<Tour>
-        columns={columns}
-        data={tours}
-        itemsPerPage={10}
-        onRowClick={handleRowClick}
-        emptyMessage="No tours found. Create your first tour to get started."
-      />
+      {!isLoading && (
+        <Table<Tour>
+          columns={columns}
+          data={tours}
+          itemsPerPage={10}
+          onRowClick={handleRowClick}
+          emptyMessage="No tours found. Create your first tour to get started."
+        />
+      )}
 
       {/* Add Tour Modal */}
       <AddTourModal

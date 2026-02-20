@@ -1,4 +1,4 @@
-import { getTourBySlug } from "@/sanity/lib/queries";
+import { getTourBySlug } from "@/api/tours/tours";
 import TourDetailsPage from "@/Views/TourDetails/TourDetailsPage";
 
 interface TourDetailsPageProps {
@@ -14,9 +14,9 @@ export async function generateStaticParams() {
 
 export default async function Page({ params }: TourDetailsPageProps) {
   const resolvedParams = await params;
-  const tour = await getTourBySlug(resolvedParams.slug);
+  const response = await getTourBySlug(resolvedParams.slug);
 
-  if (!tour) {
+  if (!response.success || !response.data) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
         <div className="text-center">
@@ -29,5 +29,5 @@ export default async function Page({ params }: TourDetailsPageProps) {
     );
   }
 
-  return <TourDetailsPage tour={tour} />;
+  return <TourDetailsPage tour={response.data} />;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Tour } from "@/sanity/lib/queries";
+import { Tour } from "@/api/types";
 import dynamic from "next/dynamic";
 
 /* -------- Dynamic Imports -------- */
