@@ -15,6 +15,7 @@ export interface Booking {
   payment_info: string;
   status: string;
   additional_info: string;
+  is_deleted?: boolean;
 }
 
 export interface BookingWithDetails extends Booking {
@@ -27,11 +28,14 @@ export interface BookingWithDetails extends Booking {
  * Fetches all bookings from Supabase
  * @returns API response with array of bookings
  */
-export async function getAllBookings(): Promise<ApiResponse<BookingWithDetails[]>> {
+export async function getAllBookings(): Promise<
+  ApiResponse<BookingWithDetails[]>
+> {
   try {
     const { data, error } = await supabase
       .from("bookings")
       .select("*")
+      .eq("is_deleted", false)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -46,7 +50,7 @@ export async function getAllBookings(): Promise<ApiResponse<BookingWithDetails[]
 
     // Fetch tour and shift details for each booking
     const bookingsWithDetails: BookingWithDetails[] = [];
-    
+
     for (const booking of data || []) {
       // Get tour details
       const { data: tourData } = await supabase
@@ -90,12 +94,15 @@ export async function getAllBookings(): Promise<ApiResponse<BookingWithDetails[]
  * @param bookingId - ID of the booking
  * @returns API response with booking details
  */
-export async function getBookingById(bookingId: number): Promise<ApiResponse<BookingWithDetails | null>> {
+export async function getBookingById(
+  bookingId: number,
+): Promise<ApiResponse<BookingWithDetails | null>> {
   try {
     const { data, error } = await supabase
       .from("bookings")
       .select("*")
       .eq("id", bookingId)
+      .eq("is_deleted", false)
       .single();
 
     if (error) {
@@ -150,7 +157,7 @@ export async function getBookingById(bookingId: number): Promise<ApiResponse<Boo
  */
 export async function updateBookingStatus(
   bookingId: number,
-  status: string
+  status: string,
 ): Promise<ApiResponse<Booking | null>> {
   try {
     const { data, error } = await supabase
@@ -187,15 +194,69 @@ export async function updateBookingStatus(
 }
 
 /**
- * Delete booking
+ * Create a new booking
+ * @param booking - Booking data to create
+ * @returns API response with created booking
+ */
+export async function createBooking(
+  booking: Omit<Booking, "id" | "created_at" | "is_deleted">,
+): Promise<ApiResponse<Booking | null>> {
+  try {
+    const { data, error } = await supabase
+      .from("bookings")
+      .insert([
+        {
+          tour_id: booking.tour_id,
+          date: booking.date,
+          shift_id: booking.shift_id,
+          payment_info: booking.payment_info,
+          status: booking.status,
+          additional_info: booking.additional_info,
+          is_deleted: false,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return {
+        success: false,
+        message: "Failed to create booking",
+        error: "CREATE_ERROR",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Booking created successfully",
+      data,
+    };
+  } catch (error) {
+    console.error("Bookings API error:", error);
+    return {
+      success: false,
+      message: "Failed to create booking",
+      error: "CREATE_ERROR",
+      data: null,
+    };
+  }
+}
+
+/**
+ * Delete booking (soft delete)
+ * Marks booking as deleted instead of removing from database
  * @param bookingId - ID of the booking
  * @returns API response
  */
-export async function deleteBooking(bookingId: number): Promise<ApiResponse<null>> {
+export async function deleteBooking(
+  bookingId: number,
+): Promise<ApiResponse<null>> {
   try {
     const { error } = await supabase
       .from("bookings")
-      .delete()
+      .update({ is_deleted: true })
       .eq("id", bookingId);
 
     if (error) {
