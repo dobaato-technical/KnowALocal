@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/TagInput";
 import { getPublicImageUrl } from "@/lib/storage-config";
 import { X } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface AddTourModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (tourData: TourFormData) => void;
   isLoading?: boolean;
+  editingData?: TourFormData;
 }
 
 export interface TourFormData {
@@ -60,9 +61,21 @@ export default function AddTourModal({
   onClose,
   onSubmit,
   isLoading = false,
+  editingData,
 }: AddTourModalProps) {
-  const [formData, setFormData] = useState<TourFormData>(initialFormData);
+  const [formData, setFormData] = useState<TourFormData>(
+    editingData || initialFormData,
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Update form data when editingData changes
+  React.useEffect(() => {
+    if (editingData) {
+      setFormData(editingData);
+    } else {
+      setFormData(initialFormData);
+    }
+  }, [editingData]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -101,13 +114,22 @@ export default function AddTourModal({
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    console.log("=== AddTourModal handleSubmit START ===");
+    console.log("editingData:", editingData);
+    console.log("formData:", formData);
+
     e.preventDefault();
 
     if (validateForm()) {
+      console.log("Form validation passed");
+      console.log("Calling onSubmit with formData:", formData);
       onSubmit(formData);
       setFormData(initialFormData);
       setErrors({});
+    } else {
+      console.log("Form validation failed - errors:", errors);
     }
+    console.log("=== AddTourModal handleSubmit END ===");
   };
 
   const handleChange = (
@@ -188,7 +210,9 @@ export default function AddTourModal({
         `}</style>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-gray-900">Create New Tour</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            {editingData ? "Edit Tour" : "Create New Tour"}
+          </h2>
           <button
             onClick={onClose}
             disabled={isLoading}
@@ -655,7 +679,13 @@ export default function AddTourModal({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading} variant="primary">
-              {isLoading ? "Creating..." : "Create Tour"}
+              {isLoading
+                ? editingData
+                  ? "Updating..."
+                  : "Creating..."
+                : editingData
+                  ? "Update Tour"
+                  : "Create Tour"}
             </Button>
           </div>
         </form>

@@ -499,3 +499,50 @@ export async function getAllTours(): Promise<ApiResponse<Tour[]>> {
     };
   }
 }
+
+/**
+ * Delete a tour by setting is_deleted to true (soft delete)
+ * @param tourId - Tour ID to delete
+ * @returns API response with success status
+ */
+export async function deleteTour(tourId: string): Promise<ApiResponse<null>> {
+  try {
+    if (!tourId) {
+      return {
+        success: false,
+        message: "Invalid tour ID",
+        error: "INVALID_ID",
+        data: null,
+      };
+    }
+
+    const { error } = await supabase
+      .from("tours")
+      .update({ is_deleted: true })
+      .eq("id", tourId);
+
+    if (error) {
+      console.error("Supabase error deleting tour:", error);
+      return {
+        success: false,
+        message: "Failed to delete tour",
+        error: "DELETE_ERROR",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Tour deleted successfully",
+      data: null,
+    };
+  } catch (error) {
+    console.error("Tours API error:", error);
+    return {
+      success: false,
+      message: "Failed to delete tour",
+      error: "DELETE_ERROR",
+      data: null,
+    };
+  }
+}
