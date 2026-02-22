@@ -83,3 +83,12 @@ export interface Tour extends TourPreview {
   tourInclusions?: Inclusion[];
   keyRequirements?: SafetyWarning[];
 }
+export interface Shift {
+  id: number;
+  name: string;
+  startTime: string;
+  endTime: string;
+  type: "whole_day" | "hourly";
+  isActive: boolean;
+  createdAt: string;
+}
