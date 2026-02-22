@@ -1,9 +1,10 @@
 "use client";
 
+import { checkDateAvailability } from "@/api/bookings/bookings";
 import { getAllShifts, type Shift } from "@/api/shifts/shifts";
 import { getToursPreview } from "@/api/tours/tours";
 import Button from "@/components/ui/button";
-import { X } from "lucide-react";
+import { AlertCircle, CheckCircle, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 interface AddBookingModalProps {
@@ -43,6 +44,11 @@ export default function AddBookingModal({
   const [loadingTours, setLoadingTours] = useState(false);
   const [loadingShifts, setLoadingShifts] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [dateAvailability, setDateAvailability] = useState<{
+    isChecking: boolean;
+    isAvailable: boolean;
+    reason?: string;
+  }>({ isChecking: false, isAvailable: true });
 
   // Fetch tours and shifts when modal opens
   useEffect(() => {
@@ -80,6 +86,39 @@ export default function AddBookingModal({
     }
   };
 
+  const checkAvailability = async (date: string) => {
+    if (!date) {
+      setDateAvailability({ isChecking: false, isAvailable: true });
+      return;
+    }
+
+    setDateAvailability((prev) => ({ ...prev, isChecking: true }));
+    try {
+      const response = await checkDateAvailability(date);
+
+      if (response.success) {
+        setDateAvailability({
+          isChecking: false,
+          isAvailable: response.data.isAvailable,
+          reason: response.data.reason,
+        });
+      } else {
+        setDateAvailability({
+          isChecking: false,
+          isAvailable: false,
+          reason: "Failed to check availability",
+        });
+      }
+    } catch (err) {
+      console.error("Error checking availability:", err);
+      setDateAvailability({
+        isChecking: false,
+        isAvailable: false,
+        reason: "Error checking availability",
+      });
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -88,6 +127,9 @@ export default function AddBookingModal({
     }
     if (!formData.date) {
       newErrors.date = "Please select a date";
+    }
+    if (!dateAvailability.isAvailable) {
+      newErrors.date = `This date is not available: ${dateAvailability.reason || "No bookings allowed"}`;
     }
     if (!formData.shift_id) {
       newErrors.shift_id = "Please select a shift";
@@ -126,6 +168,11 @@ export default function AddBookingModal({
       setFormData({ ...formData, [name]: Number(value) });
     } else {
       setFormData({ ...formData, [name]: value });
+    }
+
+    // Check availability when date changes
+    if (name === "date") {
+      checkAvailability(value);
     }
   };
 
@@ -190,6 +237,32 @@ export default function AddBookingModal({
                 errors.date ? "border-red-500" : "border-gray-300"
               }`}
             />
+
+            {/* Availability Status */}
+            {formData.date && (
+              <div className="mt-2 flex items-center gap-2">
+                {dateAvailability.isChecking ? (
+                  <p className="text-gray-600 text-sm">
+                    Checking availability...
+                  </p>
+                ) : dateAvailability.isAvailable ? (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={16} className="text-green-600" />
+                    <p className="text-green-600 text-sm font-medium">
+                      Available for booking
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <AlertCircle size={16} className="text-red-600" />
+                    <p className="text-red-600 text-sm font-medium">
+                      Not available: {dateAvailability.reason}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {errors.date && (
               <p className="text-red-500 text-sm mt-1">{errors.date}</p>
             )}
@@ -287,7 +360,12 @@ export default function AddBookingModal({
             <Button
               variant="primary"
               type="submit"
-              disabled={isLoading || loadingTours || loadingShifts}
+              disabled={
+                isLoading ||
+                loadingTours ||
+                loadingShifts ||
+                !dateAvailability.isAvailable
+              }
             >
               {isLoading ? "Creating..." : "Create Booking"}
             </Button>

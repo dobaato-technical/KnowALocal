@@ -4,6 +4,7 @@
  */
 
 import { supabase } from "@/lib/supabase";
+import { getAvailabilityByDate } from "../availability/availability";
 import { ApiResponse } from "../types";
 
 export interface Booking {
@@ -194,6 +195,57 @@ export async function updateBookingStatus(
 }
 
 /**
+ * Check if a date is available for booking
+ * @param date - Date in YYYY-MM-DD format
+ * @returns API response with availability status
+ */
+export async function checkDateAvailability(
+  date: string,
+): Promise<ApiResponse<{ isAvailable: boolean; reason?: string }>> {
+  try {
+    const availabilityResponse = await getAvailabilityByDate(date);
+
+    if (!availabilityResponse.success || !availabilityResponse.data) {
+      // No availability record means date is available
+      return {
+        success: true,
+        message: "Date is available",
+        data: { isAvailable: true },
+      };
+    }
+
+    const availability = availabilityResponse.data;
+
+    // If avaibality is true, date is marked as unavailable
+    if (availability.avaibality === true) {
+      return {
+        success: true,
+        message: "Date is not available",
+        data: {
+          isAvailable: false,
+          reason: availability.reason,
+        },
+      };
+    }
+
+    // Otherwise date is available
+    return {
+      success: true,
+      message: "Date is available",
+      data: { isAvailable: true },
+    };
+  } catch (error) {
+    console.error("Bookings API error:", error);
+    return {
+      success: false,
+      message: "Failed to check date availability",
+      error: "CHECK_ERROR",
+      data: { isAvailable: false },
+    };
+  }
+}
+
+/**
  * Create a new booking
  * @param booking - Booking data to create
  * @returns API response with created booking
@@ -202,6 +254,31 @@ export async function createBooking(
   booking: Omit<Booking, "id" | "created_at" | "is_deleted">,
 ): Promise<ApiResponse<Booking | null>> {
   try {
+    console.log("=== createBooking START ===");
+    console.log("Checking date availability for:", booking.date);
+
+    // Check if date is available for booking
+    const availabilityCheck = await checkDateAvailability(booking.date);
+
+    if (
+      !availabilityCheck.success ||
+      !availabilityCheck.data ||
+      !availabilityCheck.data.isAvailable
+    ) {
+      console.error(
+        "Date not available:",
+        availabilityCheck.data?.reason || "Unknown reason",
+      );
+      return {
+        success: false,
+        message: `Booking cannot be created: ${availabilityCheck.data?.reason || "Date is not available"}`,
+        error: "UNAVAILABLE_DATE",
+        data: null,
+      };
+    }
+
+    console.log("Date is available, proceeding with booking creation");
+
     const { data, error } = await supabase
       .from("bookings")
       .insert([
