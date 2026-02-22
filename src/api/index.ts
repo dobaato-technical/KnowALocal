@@ -24,5 +24,22 @@ export {
   getToursPreview,
 } from "./tours/tours";
 
-// Types
-export type { ApiResponse, Tour, TourPreview } from "./types";
+// Availability API
+export {
+  getAllAvailability,
+  getAvailabilityByDate,
+  getUnavailableDatesForMonth,
+  setAvailable,
+  setUnavailable,
+  toggleAvailability,
+} from "./availability/availability";
+export type { Availability } from "./availability/availability";
+
+// Bookings API
+export {
+  deleteBooking,
+  getAllBookings,
+  getBookingById,
+  updateBookingStatus,
+} from "./bookings/bookings";
+export type { Booking, BookingWithDetails } from "./bookings/bookings";
