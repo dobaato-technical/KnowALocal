@@ -1,4 +1,4 @@
-import { getTourBySlug } from "@/api/tours/tours";
+import { getTourById } from "@/api/tours/tours";
 import TourDetailsPage from "@/Views/TourDetails/TourDetailsPage";
 
 interface TourDetailsPageProps {
@@ -8,13 +8,26 @@ interface TourDetailsPageProps {
 }
 
 export async function generateStaticParams() {
-  // Static generation can be added later by fetching all tour slugs
+  // Static generation can be added later by fetching all tour IDs
   return [];
 }
 
 export default async function Page({ params }: TourDetailsPageProps) {
   const resolvedParams = await params;
-  const response = await getTourBySlug(resolvedParams.slug);
+  const tourId = parseInt(resolvedParams.slug, 10);
+
+  if (isNaN(tourId)) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Invalid Tour ID</h1>
+          <p className="text-gray-600">The tour ID must be a number.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const response = await getTourById(tourId);
 
   if (!response.success || !response.data) {
     return (

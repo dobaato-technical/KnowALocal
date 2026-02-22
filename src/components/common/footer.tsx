@@ -346,7 +346,7 @@ export default function Footer({
                 featuredTours.map((tour) => (
                   <li key={tour._id}>
                     <Link
-                      href={`/tour-details/${tour.slug.current}`}
+                      href={`/tour-details/${tour._id}`}
                       className="relative text-sm text-bg/80 hover:text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
                     >
                       {tour.title}

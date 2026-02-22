@@ -94,7 +94,7 @@ export default function ToursList() {
                 whileHover={{ y: -4 }}
                 className="group"
               >
-                <Link href={`/tour-details/${tour.slug.current}`}>
+                <Link href={`/tour-details/${tour._id}`}>
                   <div className="relative h-70 rounded-2xl overflow-hidden cursor-pointer bg-gray-200">
                     {tour.image?.asset?.url ? (
                       <Image
@@ -141,7 +141,7 @@ export default function ToursList() {
                 </p>
 
                 <div className="mt-4">
-                  <Link href={`/tour-details/${tour.slug.current}`}>
+                  <Link href={`/tour-details/${tour._id}`}>
                     <Button variant="subtle">View Detail</Button>
                   </Link>
                 </div>
