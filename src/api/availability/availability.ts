@@ -271,7 +271,7 @@ export async function getUnavailableDatesForMonth(
     // Last day of the month: new Date(year, month, 0) gives last day of month-1
     // Since month is 1-indexed, we need month+1 to get last day of the correct month
     const lastDay = new Date(year, month, 0);
-    const endDate = lastDay.toISOString().split("T")[0];
+    const endDate = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, "0")}-${String(lastDay.getDate()).padStart(2, "0")}`;
 
     console.log(
       `Fetching unavailable dates for ${year}-${month}: ${startDate} to ${endDate}`,

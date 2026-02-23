@@ -136,7 +136,7 @@ export default function ToursList() {
 
                 <h3 className="mt-6 font-heading text-xl">{tour.title}</h3>
 
-                <p className="mt-2 text-sm text-dark/70 max-w-md">
+                <p className="mt-2 text-sm text-dark/70 max-w-md line-clamp-2">
                   {tour.description}
                 </p>
 

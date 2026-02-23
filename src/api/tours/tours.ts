@@ -160,9 +160,16 @@ export async function getTourBySlug(
         },
       })),
       specialties: (data.specialities || []).map((specialty: any) => {
-        // Handle both stringified JSON and objects
-        const parsed =
-          typeof specialty === "string" ? JSON.parse(specialty) : specialty;
+        // Handle both stringified JSON and plain text
+        let parsed = specialty;
+        if (typeof specialty === "string") {
+          try {
+            parsed = JSON.parse(specialty);
+          } catch {
+            // If JSON parse fails, treat as plain text string
+            parsed = { name: specialty, description: "", price: 0 };
+          }
+        }
         return {
           name: parsed.name || "N/A",
           description: parsed.description || "N/A",
@@ -172,8 +179,16 @@ export async function getTourBySlug(
         };
       }),
       itinerary: (data.itinerary || []).map((day: any) => {
-        // Handle both stringified JSON and objects
-        const parsed = typeof day === "string" ? JSON.parse(day) : day;
+        // Handle both stringified JSON and plain text
+        let parsed = day;
+        if (typeof day === "string") {
+          try {
+            parsed = JSON.parse(day);
+          } catch {
+            // If JSON parse fails, treat as plain text title
+            parsed = { title: day, activities: [] };
+          }
+        }
         return {
           title: parsed.title || "N/A",
           activities: (parsed.activities || []).map((activity: any) => ({
@@ -182,20 +197,32 @@ export async function getTourBySlug(
         };
       }),
       tourInclusions: (data.included || []).map((inclusion: any) => {
-        // Handle both stringified JSON and objects
-        const parsed =
-          typeof inclusion === "string" ? JSON.parse(inclusion) : inclusion;
+        // Handle both stringified JSON and plain text
+        let parsed = inclusion;
+        if (typeof inclusion === "string") {
+          try {
+            parsed = JSON.parse(inclusion);
+          } catch {
+            // If JSON parse fails, treat as plain text string
+            parsed = { title: inclusion, description: "" };
+          }
+        }
         return {
           title: parsed.title || "N/A",
           description: parsed.description || "N/A",
         };
       }),
       keyRequirements: (data.requirements || []).map((requirement: any) => {
-        // Handle both stringified JSON and objects
-        const parsed =
-          typeof requirement === "string"
-            ? JSON.parse(requirement)
-            : requirement;
+        // Handle both stringified JSON and plain text
+        let parsed = requirement;
+        if (typeof requirement === "string") {
+          try {
+            parsed = JSON.parse(requirement);
+          } catch {
+            // If JSON parse fails, treat as plain text string
+            parsed = { title: requirement, description: "", severity: "info" };
+          }
+        }
         return {
           title: parsed.title || "N/A",
           description: parsed.description || "N/A",
@@ -289,9 +316,16 @@ export async function getTourById(
         },
       })),
       specialties: (data.specialities || []).map((specialty: any) => {
-        // Handle both stringified JSON and objects
-        const parsed =
-          typeof specialty === "string" ? JSON.parse(specialty) : specialty;
+        // Handle both stringified JSON and plain text
+        let parsed = specialty;
+        if (typeof specialty === "string") {
+          try {
+            parsed = JSON.parse(specialty);
+          } catch {
+            // If JSON parse fails, treat as plain text string
+            parsed = { name: specialty, description: "", price: 0 };
+          }
+        }
         return {
           name: parsed.name || "N/A",
           description: parsed.description || "N/A",
@@ -301,8 +335,16 @@ export async function getTourById(
         };
       }),
       itinerary: (data.itinerary || []).map((day: any) => {
-        // Handle both stringified JSON and objects
-        const parsed = typeof day === "string" ? JSON.parse(day) : day;
+        // Handle both stringified JSON and plain text
+        let parsed = day;
+        if (typeof day === "string") {
+          try {
+            parsed = JSON.parse(day);
+          } catch {
+            // If JSON parse fails, treat as plain text title
+            parsed = { title: day, activities: [] };
+          }
+        }
         return {
           title: parsed.title || "N/A",
           activities: (parsed.activities || []).map((activity: any) => ({
@@ -311,20 +353,32 @@ export async function getTourById(
         };
       }),
       tourInclusions: (data.included || []).map((inclusion: any) => {
-        // Handle both stringified JSON and objects
-        const parsed =
-          typeof inclusion === "string" ? JSON.parse(inclusion) : inclusion;
+        // Handle both stringified JSON and plain text
+        let parsed = inclusion;
+        if (typeof inclusion === "string") {
+          try {
+            parsed = JSON.parse(inclusion);
+          } catch {
+            // If JSON parse fails, treat as plain text string
+            parsed = { title: inclusion, description: "" };
+          }
+        }
         return {
           title: parsed.title || "N/A",
           description: parsed.description || "N/A",
         };
       }),
       keyRequirements: (data.requirements || []).map((requirement: any) => {
-        // Handle both stringified JSON and objects
-        const parsed =
-          typeof requirement === "string"
-            ? JSON.parse(requirement)
-            : requirement;
+        // Handle both stringified JSON and plain text
+        let parsed = requirement;
+        if (typeof requirement === "string") {
+          try {
+            parsed = JSON.parse(requirement);
+          } catch {
+            // If JSON parse fails, treat as plain text string
+            parsed = { title: requirement, description: "", severity: "info" };
+          }
+        }
         return {
           title: parsed.title || "N/A",
           description: parsed.description || "N/A",

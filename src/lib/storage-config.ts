@@ -20,7 +20,7 @@ export function getPublicImageUrl(filePath: string | null | undefined): string {
     "Generating public URL for file path:",
     STORAGE_CONFIG.BUCKET_NAME,
   );
-  return `${STORAGE_CONFIG.SUPABASE_URL}/storage/v1/object/public/${STORAGE_CONFIG.BUCKET_NAME}`;
+  return `${STORAGE_CONFIG.SUPABASE_URL}/storage/v1/object/public/${STORAGE_CONFIG.BUCKET_NAME}/${filePath}`;
 }
 
 /**

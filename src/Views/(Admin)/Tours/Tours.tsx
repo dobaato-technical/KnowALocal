@@ -3,9 +3,10 @@
 import { deleteTour } from "@/api/tours/tours";
 import Button from "@/components/ui/button";
 import Table, { Column } from "@/components/ui/table";
+import { getHeroImageUrl } from "@/lib/storage-urls";
 import { supabase } from "@/lib/supabase";
 import { showToast } from "@/lib/toast-utils";
-import { Edit2, Plus, Trash2 } from "lucide-react";
+import { Edit2, Eye, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import AddTourModal, { TourFormData } from "./components/AddTourModal";
 
@@ -18,6 +19,7 @@ interface Tour {
   availability: number;
   status: "active" | "inactive" | "draft";
   createdAt: string;
+  heroImage?: string;
 }
 
 export default function Tours() {
@@ -29,6 +31,10 @@ export default function Tours() {
   const [editingTourData, setEditingTourData] = useState<
     TourFormData | undefined
   >(undefined);
+  const [isViewingTourId, setIsViewingTourId] = useState<string | null>(null);
+  const [viewingTourData, setViewingTourData] = useState<
+    TourFormData | undefined
+  >(undefined);
 
   // Fetch tours from Supabase on component mount
   const fetchTours = useCallback(async () => {
@@ -38,7 +44,9 @@ export default function Tours() {
 
       const { data, error: supabaseError } = await supabase
         .from("tours")
-        .select("id, title, duration, price, group_size, featured, created_at")
+        .select(
+          "id, title, duration, price, group_size, featured, created_at, hero_image",
+        )
         .eq("is_deleted", false)
         .order("created_at", { ascending: false });
 
@@ -61,6 +69,9 @@ export default function Tours() {
         createdAt: tour.created_at
           ? new Date(tour.created_at).toISOString().split("T")[0]
           : "",
+        heroImage: tour.hero_image
+          ? getHeroImageUrl(tour.hero_image)
+          : undefined,
       }));
 
       setTours(transformedTours);
@@ -158,6 +169,73 @@ export default function Tours() {
     }
   };
 
+  const handleViewTour = async (tour: Tour) => {
+    console.log("=== handleViewTour START ===");
+    console.log("Viewing tour:", tour);
+
+    try {
+      console.log("Fetching full tour details for ID:", tour.id);
+
+      // Fetch full tour details from Supabase
+      const { data, error: fetchError } = await supabase
+        .from("tours")
+        .select(
+          "id, title, short_desc, long_desc, price, duration, difficulty, tour_type, rating, group_size, featured, itinerary, specialities, included, requirements, hero_image, gallery_images",
+        )
+        .eq("id", tour.id)
+        .single();
+
+      console.log("Fetch response - data:", data, "error:", fetchError);
+
+      if (fetchError || !data) {
+        console.error("Failed to fetch tour details - error:", fetchError);
+        showToast("Failed to fetch tour details", "error");
+        return;
+      }
+
+      console.log("Tour details fetched successfully:", data);
+
+      // Transform fetched data to TourFormData for viewing
+      const tourFormData: TourFormData = {
+        title: data.title || "",
+        location: "", // Location not stored in DB, will be empty
+        description: data.short_desc || "",
+        fullDescription: data.long_desc || "",
+        basePrice: data.price || 0,
+        duration: data.duration || "",
+        difficulty:
+          (data.difficulty as "Easy" | "Moderate" | "Challenging") || "Easy",
+        tourType:
+          (data.tour_type as "standard" | "adventure" | "hiking" | "water") ||
+          "standard",
+        rating: data.rating || 0,
+        maxGroupSize: data.group_size
+          ? parseInt(data.group_size.toString())
+          : 0,
+        isFeatured: data.featured || false,
+        itinerary: data.itinerary || [],
+        specialities: data.specialities || [],
+        included: data.included || [],
+        requirements: data.requirements || [],
+        heroImageUrl: data.hero_image ? getHeroImageUrl(data.hero_image) : "",
+        galleryImageUrls: data.gallery_images || [],
+      };
+
+      console.log("Tour form data prepared for viewing:", tourFormData);
+
+      setViewingTourData(tourFormData);
+      setIsViewingTourId(tour.id);
+      setIsModalOpen(true);
+
+      console.log("Modal opened in view mode with isViewingTourId:", tour.id);
+      console.log("=== handleViewTour END (SUCCESS) ===");
+    } catch (err) {
+      console.error("Error fetching tour details:", err);
+      console.log("=== handleViewTour END (ERROR) ===");
+      showToast("An error occurred while fetching tour details", "error");
+    }
+  };
+
   const handleDeleteTour = async (tourId: string, tourName: string) => {
     if (!confirm(`Are you sure you want to delete "${tourName}"?`)) {
       return;
@@ -232,6 +310,13 @@ export default function Tours() {
       label: "Actions",
       render: (_, row) => (
         <div className="flex items-center space-x-2">
+          <button
+            onClick={() => handleViewTour(row)}
+            className="rounded-lg p-2 text-green-600 hover:bg-green-50 transition-colors"
+            title="View tour details"
+          >
+            <Eye size={16} />
+          </button>
           <button
             onClick={() => handleEditTour(row)}
             className="rounded-lg p-2 text-blue-600 hover:bg-blue-50 transition-colors"
@@ -390,10 +475,13 @@ export default function Tours() {
           setIsModalOpen(false);
           setEditingTourId(null);
           setEditingTourData(undefined);
+          setIsViewingTourId(null);
+          setViewingTourData(undefined);
         }}
         onSubmit={handleAddTour}
         isLoading={isLoading}
-        editingData={editingTourData}
+        editingData={isViewingTourId ? viewingTourData : editingTourData}
+        readOnly={!!isViewingTourId}
       />
     </div>
   );

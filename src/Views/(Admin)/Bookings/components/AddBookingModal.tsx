@@ -96,7 +96,7 @@ export default function AddBookingModal({
     try {
       const response = await checkDateAvailability(date);
 
-      if (response.success) {
+      if (response.success && response.data) {
         setDateAvailability({
           isChecking: false,
           isAvailable: response.data.isAvailable,

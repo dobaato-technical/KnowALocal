@@ -443,6 +443,13 @@ export default function BookingsPage() {
                   </label>
                   <p className="text-gray-900 font-medium">
                     {selectedBooking.shiftName}
+                    {selectedBooking.shiftStartTime &&
+                      selectedBooking.shiftEndTime && (
+                        <span className="text-gray-600 text-sm ml-2">
+                          ({selectedBooking.shiftStartTime.slice(0, 5)} -{" "}
+                          {selectedBooking.shiftEndTime.slice(0, 5)})
+                        </span>
+                      )}
                   </p>
                 </div>
               </div>

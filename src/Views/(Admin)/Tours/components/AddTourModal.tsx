@@ -14,6 +14,7 @@ interface AddTourModalProps {
   onSubmit: (tourData: TourFormData) => void;
   isLoading?: boolean;
   editingData?: TourFormData;
+  readOnly?: boolean;
 }
 
 export interface TourFormData {
@@ -62,6 +63,7 @@ export default function AddTourModal({
   onSubmit,
   isLoading = false,
   editingData,
+  readOnly = false,
 }: AddTourModalProps) {
   const [formData, setFormData] = useState<TourFormData>(
     editingData || initialFormData,
@@ -211,7 +213,11 @@ export default function AddTourModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h2 className="text-xl font-bold text-gray-900">
-            {editingData ? "Edit Tour" : "Create New Tour"}
+            {readOnly
+              ? "View Tour"
+              : editingData
+                ? "Edit Tour"
+                : "Create New Tour"}
           </h2>
           <button
             onClick={onClose}
@@ -237,7 +243,7 @@ export default function AddTourModal({
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="e.g., Whale Watching Tour"
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                   className={errors.title ? "border-red-500" : ""}
                 />
                 {errors.title && (
@@ -255,7 +261,7 @@ export default function AddTourModal({
                   value={formData.location}
                   onChange={handleChange}
                   placeholder="e.g., Brier Island"
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                   className={errors.location ? "border-red-500" : ""}
                 />
                 {errors.location && (
@@ -274,7 +280,7 @@ export default function AddTourModal({
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Brief description of the tour..."
-                disabled={isLoading}
+                disabled={isLoading || readOnly}
                 rows={2}
                 className={`w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100 ${
                   errors.description ? "border-red-500" : ""
@@ -297,7 +303,7 @@ export default function AddTourModal({
                 value={formData.fullDescription}
                 onChange={handleChange}
                 placeholder="Detailed description of the tour experience..."
-                disabled={isLoading}
+                disabled={isLoading || readOnly}
                 rows={4}
                 className={`w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100 ${
                   errors.fullDescription ? "border-red-500" : ""
@@ -322,7 +328,7 @@ export default function AddTourModal({
                 tags={formData.itinerary}
                 onTagsChange={(tags) => handleTagsChange("itinerary", tags)}
                 placeholder="e.g., Day 1: Arrival and orientation"
-                disabled={isLoading}
+                disabled={isLoading || readOnly}
               />
               {errors.itinerary && (
                 <p className="mt-1 text-sm text-red-600">{errors.itinerary}</p>
@@ -344,7 +350,7 @@ export default function AddTourModal({
                     handleTagsChange("specialities", tags)
                   }
                   placeholder="e.g., Expert guides, Small groups, Photography focus"
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                 />
                 {errors.specialities && (
                   <p className="mt-1 text-sm text-red-600">
@@ -366,7 +372,7 @@ export default function AddTourModal({
                     handleTagsChange("requirements", tags)
                   }
                   placeholder="e.g., Moderate fitness, Hiking boots, Age 12+"
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                 />
                 {errors.requirements && (
                   <p className="mt-1 text-sm text-red-600">
@@ -388,7 +394,7 @@ export default function AddTourModal({
                 tags={formData.included}
                 onTagsChange={(tags) => handleTagsChange("included", tags)}
                 placeholder="e.g., Hotel pickup (+$20), Meals included, Photography service"
-                disabled={isLoading}
+                disabled={isLoading || readOnly}
               />
               {errors.included && (
                 <p className="mt-1 text-sm text-red-600">{errors.included}</p>
@@ -408,7 +414,7 @@ export default function AddTourModal({
                   onChange={handleChange}
                   placeholder="Enter price"
                   min="0"
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                   className={errors.basePrice ? "border-red-500" : ""}
                 />
                 {errors.basePrice && (
@@ -428,7 +434,7 @@ export default function AddTourModal({
                   value={formData.duration}
                   onChange={handleChange}
                   placeholder="e.g., 2 Hours"
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                 />
               </div>
 
@@ -444,7 +450,7 @@ export default function AddTourModal({
                   placeholder="Enter rating"
                   min="0"
                   max="5"
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                   className={errors.rating ? "border-red-500" : ""}
                 />
                 {errors.rating && (
@@ -463,7 +469,7 @@ export default function AddTourModal({
                   name="difficulty"
                   value={formData.difficulty}
                   onChange={handleChange}
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100"
                 >
                   <option value="Easy">Easy</option>
@@ -480,7 +486,7 @@ export default function AddTourModal({
                   name="tourType"
                   value={formData.tourType}
                   onChange={handleChange}
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100"
                 >
                   <option value="standard">Standard</option>
@@ -501,7 +507,7 @@ export default function AddTourModal({
                   onChange={handleChange}
                   placeholder="e.g., 15"
                   min="0"
-                  disabled={isLoading}
+                  disabled={isLoading || readOnly}
                 />
               </div>
             </div>
@@ -513,7 +519,7 @@ export default function AddTourModal({
                 name="isFeatured"
                 checked={formData.isFeatured}
                 onChange={handleChange}
-                disabled={isLoading}
+                disabled={isLoading || readOnly}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600"
               />
               <label className="text-sm font-medium text-gray-900">
@@ -676,17 +682,23 @@ export default function AddTourModal({
               disabled={isLoading}
               variant="secondary"
             >
-              Cancel
+              {readOnly ? "Close" : "Cancel"}
             </Button>
-            <Button type="submit" disabled={isLoading} variant="primary">
-              {isLoading
-                ? editingData
-                  ? "Updating..."
-                  : "Creating..."
-                : editingData
-                  ? "Update Tour"
-                  : "Create Tour"}
-            </Button>
+            {!readOnly && (
+              <Button
+                type="submit"
+                disabled={isLoading || readOnly}
+                variant="primary"
+              >
+                {isLoading
+                  ? editingData
+                    ? "Updating..."
+                    : "Creating..."
+                  : editingData
+                    ? "Update Tour"
+                    : "Create Tour"}
+              </Button>
+            )}
           </div>
         </form>
       </div>

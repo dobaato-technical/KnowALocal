@@ -22,6 +22,8 @@ export interface Booking {
 export interface BookingWithDetails extends Booking {
   tourTitle?: string;
   shiftName?: string;
+  shiftStartTime?: string;
+  shiftEndTime?: string;
 }
 
 /**
@@ -63,7 +65,7 @@ export async function getAllBookings(): Promise<
       // Get shift details
       const { data: shiftData } = await supabase
         .from("Shifts")
-        .select("name")
+        .select("name, start_time, end_time")
         .eq("id", booking.shift_id)
         .single();
 
@@ -71,6 +73,8 @@ export async function getAllBookings(): Promise<
         ...booking,
         tourTitle: tourData?.title || "Unknown Tour",
         shiftName: shiftData?.name || "Unknown Shift",
+        shiftStartTime: shiftData?.start_time || undefined,
+        shiftEndTime: shiftData?.end_time || undefined,
       });
     }
 
@@ -126,7 +130,7 @@ export async function getBookingById(
     // Get shift details
     const { data: shiftData } = await supabase
       .from("Shifts")
-      .select("name")
+      .select("name, start_time, end_time")
       .eq("id", data.shift_id)
       .single();
 
@@ -137,6 +141,8 @@ export async function getBookingById(
         ...data,
         tourTitle: tourData?.title || "Unknown Tour",
         shiftName: shiftData?.name || "Unknown Shift",
+        shiftStartTime: shiftData?.start_time || undefined,
+        shiftEndTime: shiftData?.end_time || undefined,
       },
     };
   } catch (error) {
@@ -358,6 +364,248 @@ export async function deleteBooking(
       message: "Failed to delete booking",
       error: "DELETE_ERROR",
       data: null,
+    };
+  }
+}
+
+/**
+ * Get all bookings for a specific date and shift
+ * @param date - Date in YYYY-MM-DD format
+ * @param shiftId - Shift ID
+ * @returns API response with array of bookings
+ */
+export async function getBookingsForDateAndShift(
+  date: string,
+  shiftId: number,
+): Promise<ApiResponse<Booking[]>> {
+  try {
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("*")
+      .eq("date", date)
+      .eq("shift_id", shiftId)
+      .eq("is_deleted", false)
+      .in("status", ["pending", "confirmed"]);
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return {
+        success: false,
+        message: "Failed to fetch bookings for shift",
+        error: "FETCH_ERROR",
+        data: [],
+      };
+    }
+
+    return {
+      success: true,
+      message: "Bookings fetched successfully",
+      data: data || [],
+    };
+  } catch (error) {
+    console.error("Bookings API error:", error);
+    return {
+      success: false,
+      message: "Failed to fetch bookings for shift",
+      error: "FETCH_ERROR",
+      data: [],
+    };
+  }
+}
+
+/**
+ * Check if a shift has available slots for a date
+ * @param date - Date in YYYY-MM-DD format
+ * @param shiftId - Shift ID
+ * @param maxBookings - Maximum bookings allowed per shift (default: 5)
+ * @returns API response with available slots info
+ */
+export async function checkShiftSlotAvailability(
+  date: string,
+  shiftId: number,
+  maxBookings: number = 5,
+): Promise<
+  ApiResponse<{
+    hasSlots: boolean;
+    bookedCount: number;
+    availableSlots: number;
+    bookings: Booking[];
+  }>
+> {
+  try {
+    const bookingsResponse = await getBookingsForDateAndShift(date, shiftId);
+
+    if (!bookingsResponse.success) {
+      return {
+        success: false,
+        message: "Failed to check slot availability",
+        error: "CHECK_ERROR",
+        data: {
+          hasSlots: false,
+          bookedCount: 0,
+          availableSlots: 0,
+          bookings: [],
+        },
+      };
+    }
+
+    const bookings = bookingsResponse.data || [];
+    const bookedCount = bookings.length;
+    const availableSlots = Math.max(0, maxBookings - bookedCount);
+    const hasSlots = availableSlots > 0;
+
+    return {
+      success: true,
+      message: hasSlots ? "Slots available" : "No slots available",
+      data: {
+        hasSlots,
+        bookedCount,
+        availableSlots,
+        bookings,
+      },
+    };
+  } catch (error) {
+    console.error("Bookings API error:", error);
+    return {
+      success: false,
+      message: "Failed to check slot availability",
+      error: "CHECK_ERROR",
+      data: {
+        hasSlots: false,
+        bookedCount: 0,
+        availableSlots: 0,
+        bookings: [],
+      },
+    };
+  }
+}
+
+/**
+ * Check if there's a whole day booking for a specific date
+ * @param date - Date in YYYY-MM-DD format
+ * @returns API response with whole day booking info
+ */
+export async function getWholeDayBookingsForDate(
+  date: string,
+): Promise<ApiResponse<Booking[]>> {
+  try {
+    // First get all shifts with type "whole_day"
+    const { data: wholeShifts, error: shiftError } = await supabase
+      .from("Shifts")
+      .select("id")
+      .eq("type", "whole_day")
+      .eq("is_active", true);
+
+    if (shiftError) {
+      console.error("Supabase error:", shiftError);
+      return {
+        success: false,
+        message: "Failed to fetch whole day shifts",
+        error: "FETCH_ERROR",
+        data: [],
+      };
+    }
+
+    if (!wholeShifts || wholeShifts.length === 0) {
+      return {
+        success: true,
+        message: "No whole day books found",
+        data: [],
+      };
+    }
+
+    const wholeShiftIds = wholeShifts.map((s) => s.id);
+
+    // Get bookings for whole day shifts on this date
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("*")
+      .eq("date", date)
+      .in("shift_id", wholeShiftIds)
+      .eq("is_deleted", false)
+      .in("status", ["pending", "confirmed"]);
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return {
+        success: false,
+        message: "Failed to fetch whole day bookings",
+        error: "FETCH_ERROR",
+        data: [],
+      };
+    }
+
+    return {
+      success: true,
+      message: "Whole day bookings fetched successfully",
+      data: data || [],
+    };
+  } catch (error) {
+    console.error("Bookings API error:", error);
+    return {
+      success: false,
+      message: "Failed to fetch whole day bookings",
+      error: "FETCH_ERROR",
+      data: [],
+    };
+  }
+}
+
+/**
+ * Get other shifts that should be disabled for a date (when whole day is already booked)
+ * @param date - Date in YYYY-MM-DD format
+ * @returns API response with disabled shift IDs
+ */
+export async function getDisabledShiftsForDate(
+  date: string,
+): Promise<ApiResponse<number[]>> {
+  try {
+    const wholeDayResponse = await getWholeDayBookingsForDate(date);
+
+    if (
+      !wholeDayResponse.success ||
+      !wholeDayResponse.data ||
+      wholeDayResponse.data.length === 0
+    ) {
+      // No whole day bookings, all shifts are available
+      return {
+        success: true,
+        message: "No disabled shifts",
+        data: [],
+      };
+    }
+
+    // If there are whole day bookings, disable all non-whole-day shifts for this date
+    const { data: otherShifts, error } = await supabase
+      .from("Shifts")
+      .select("id")
+      .eq("type", "hourly")
+      .eq("is_active", true);
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return {
+        success: false,
+        message: "Failed to fetch other shifts",
+        error: "FETCH_ERROR",
+        data: [],
+      };
+    }
+
+    const disabledShiftIds = (otherShifts || []).map((s) => s.id);
+
+    return {
+      success: true,
+      message: "Disabled shifts fetched successfully",
+      data: disabledShiftIds,
+    };
+  } catch (error) {
+    console.error("Bookings API error:", error);
+    return {
+      success: false,
+      message: "Failed to get disabled shifts",
+      error: "CHECK_ERROR",
+      data: [],
     };
   }
 }
