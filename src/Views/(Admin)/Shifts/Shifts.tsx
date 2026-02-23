@@ -4,9 +4,9 @@ import {
   createShift,
   deleteShift,
   getAllShifts,
-  Shift,
   updateShift,
-} from "@/api/shifts/shifts";
+  type Shift,
+} from "@/api";
 import Button from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";

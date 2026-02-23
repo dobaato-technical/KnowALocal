@@ -1,6 +1,6 @@
 "use client";
 
-import { getFeaturedTours, type TourPreview } from "@/api/tours/tours";
+import { getFeaturedTours, type TourPreview } from "@/api";
 import Button from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";

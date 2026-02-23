@@ -1,8 +1,11 @@
 "use client";
 
-import { checkDateAvailability } from "@/api/bookings/bookings";
-import { getAllShifts, type Shift } from "@/api/shifts/shifts";
-import { getToursPreview } from "@/api/tours/tours";
+import {
+  checkDateAvailability,
+  getAllShifts,
+  getToursPreview,
+  type Shift,
+} from "@/api";
 import Button from "@/components/ui/button";
 import { AlertCircle, CheckCircle, X } from "lucide-react";
 import React, { useEffect, useState } from "react";

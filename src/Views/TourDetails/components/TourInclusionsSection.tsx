@@ -3,13 +3,8 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 
-interface Inclusion {
-  title: string;
-  description: string;
-}
-
 interface TourInclusionsSectionProps {
-  inclusions: Inclusion[];
+  inclusions: string[];
 }
 
 export default function TourInclusionsSection({
@@ -67,11 +62,8 @@ export default function TourInclusionsSection({
 
                 {/* Content */}
                 <div className="flex-1">
-                  <h3 className="font-semibold text-[#335358] text-base md:text-lg mb-1">
-                    {inclusion.title}
-                  </h3>
-                  <p className="text-[#335358]/70 text-sm md:text-base leading-relaxed font-normal">
-                    {inclusion.description}
+                  <p className="text-[#335358] text-base md:text-lg font-medium leading-relaxed">
+                    {inclusion}
                   </p>
                 </div>
               </motion.div>

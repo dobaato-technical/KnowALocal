@@ -1,14 +1,12 @@
 /**
- * Tours API
+ * Tours API Service
  * Handles all tour-related API calls
  */
 
+import { ApiResponse } from "@/api/types";
 import { getGalleryImageUrl, getHeroImageUrl } from "@/lib/storage-urls";
 import { supabase } from "@/lib/supabase";
-import { ApiResponse, Tour, TourPreview } from "../types";
-
-// Re-export types for convenience
-export type { ApiResponse, Tour, TourPreview };
+import type { Tour, TourPreview } from "./tours.types";
 
 /**
  * Get all tours (preview data for list views)
@@ -19,7 +17,9 @@ export async function getToursPreview(): Promise<ApiResponse<TourPreview[]>> {
   try {
     const { data, error } = await supabase
       .from("tours")
-      .select("id, title, short_desc, hero_image, price, rating")
+      .select(
+        "id, title, short_desc, long_desc, hero_image, price, rating, duration, difficulty, group_size, tour_type, gallery_images, itinerary, specialities, included, requirements, featured, location, created_at",
+      )
       .eq("is_deleted", false)
       .order("created_at", { ascending: false });
 
@@ -34,21 +34,77 @@ export async function getToursPreview(): Promise<ApiResponse<TourPreview[]>> {
     }
 
     // Transform Supabase response to match TourPreview interface
-    const tours: TourPreview[] = (data || []).map((tour: any) => ({
-      _id: tour.id.toString(),
-      title: tour.title || "N/A",
-      slug: {
-        current: (tour.title || "untitled").toLowerCase().replace(/\s+/g, "-"),
-      },
-      description: tour.short_desc || "N/A",
-      image: {
-        asset: {
-          url: tour.hero_image ? getHeroImageUrl(tour.hero_image) : "",
-        },
-      },
-      rating: tour.rating || 0,
-      basePrice: tour.price || 0,
-    }));
+    const tours: TourPreview[] = (data || []).map((tour: any) => {
+      try {
+        return {
+          _id: tour.id.toString(),
+          title: tour.title || "N/A",
+          slug: {
+            current: (tour.title || "untitled")
+              .toLowerCase()
+              .replace(/\s+/g, "-"),
+          },
+          description: tour.short_desc || "N/A",
+          image: {
+            asset: {
+              url: tour.hero_image ? getHeroImageUrl(tour.hero_image) : "",
+            },
+          },
+          rating: tour.rating || 0,
+          basePrice: tour.price || 0,
+          fullDescription: tour.long_desc || "N/A",
+          location: tour.location || "N/A",
+          duration: tour.duration || "N/A",
+          difficulty: tour.difficulty || "N/A",
+          tourType:
+            (tour.tour_type as "standard" | "adventure" | "hiking" | "water") ||
+            "standard",
+          maxGroupSize: tour.group_size
+            ? parseInt(tour.group_size.toString())
+            : 0,
+          galleryImages: (Array.isArray(tour.gallery_images)
+            ? tour.gallery_images
+            : []
+          )
+            .map((img: string) => {
+              try {
+                return {
+                  asset: {
+                    url: getGalleryImageUrl(img),
+                  },
+                };
+              } catch (err) {
+                console.warn(`Failed to process gallery image: ${img}`, err);
+                return {
+                  asset: {
+                    url: "",
+                  },
+                };
+              }
+            })
+            .filter((img: any) => img.asset.url),
+          specialties: Array.isArray(tour.specialities)
+            ? tour.specialities
+            : [],
+          itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
+          tourInclusions: Array.isArray(tour.included) ? tour.included : [],
+          keyRequirements: Array.isArray(tour.requirements)
+            ? tour.requirements
+            : [],
+        };
+      } catch (err) {
+        console.error(`Failed to transform tour:`, tour, err);
+        return {
+          _id: tour.id?.toString() || "unknown",
+          title: tour.title || "Unknown Tour",
+          slug: { current: "unknown" },
+          description: "Tour data is corrupted",
+          image: { asset: { url: "" } },
+          rating: 0,
+          basePrice: 0,
+        };
+      }
+    });
 
     return {
       success: true,
@@ -160,13 +216,11 @@ export async function getTourBySlug(
         },
       })),
       specialties: (data.specialities || []).map((specialty: any) => {
-        // Handle both stringified JSON and plain text
         let parsed = specialty;
         if (typeof specialty === "string") {
           try {
             parsed = JSON.parse(specialty);
           } catch {
-            // If JSON parse fails, treat as plain text string
             parsed = { name: specialty, description: "", price: 0 };
           }
         }
@@ -178,58 +232,15 @@ export async function getTourBySlug(
           isClimbing: parsed.isClimbing,
         };
       }),
-      itinerary: (data.itinerary || []).map((day: any) => {
-        // Handle both stringified JSON and plain text
-        let parsed = day;
-        if (typeof day === "string") {
-          try {
-            parsed = JSON.parse(day);
-          } catch {
-            // If JSON parse fails, treat as plain text title
-            parsed = { title: day, activities: [] };
-          }
-        }
-        return {
-          title: parsed.title || "N/A",
-          activities: (parsed.activities || []).map((activity: any) => ({
-            activity: activity.activity || "N/A",
-          })),
-        };
-      }),
-      tourInclusions: (data.included || []).map((inclusion: any) => {
-        // Handle both stringified JSON and plain text
-        let parsed = inclusion;
-        if (typeof inclusion === "string") {
-          try {
-            parsed = JSON.parse(inclusion);
-          } catch {
-            // If JSON parse fails, treat as plain text string
-            parsed = { title: inclusion, description: "" };
-          }
-        }
-        return {
-          title: parsed.title || "N/A",
-          description: parsed.description || "N/A",
-        };
-      }),
-      keyRequirements: (data.requirements || []).map((requirement: any) => {
-        // Handle both stringified JSON and plain text
-        let parsed = requirement;
-        if (typeof requirement === "string") {
-          try {
-            parsed = JSON.parse(requirement);
-          } catch {
-            // If JSON parse fails, treat as plain text string
-            parsed = { title: requirement, description: "", severity: "info" };
-          }
-        }
-        return {
-          title: parsed.title || "N/A",
-          description: parsed.description || "N/A",
-          severity: parsed.severity || "info",
-          icon: parsed.icon,
-        };
-      }),
+      itinerary: (data.itinerary || []).filter(
+        (item: any) => item && typeof item === "string",
+      ),
+      tourInclusions: (data.included || []).filter(
+        (item: any) => item && typeof item === "string",
+      ),
+      keyRequirements: (data.requirements || []).filter(
+        (item: any) => item && typeof item === "string",
+      ),
       rating: data.rating || 0,
     };
 
@@ -273,7 +284,7 @@ export async function getTourById(
     const { data, error } = await supabase
       .from("tours")
       .select(
-        "id, title, short_desc, long_desc, hero_image, price, duration, difficulty, group_size, tour_type, itinerary, specialities, included, requirements, gallery_images, rating",
+        "id, title, short_desc, long_desc, hero_image, price, duration, difficulty, group_size, tour_type, itinerary, specialities, included, requirements, gallery_images, rating, location",
       )
       .eq("is_deleted", false)
       .eq("id", id)
@@ -290,6 +301,11 @@ export async function getTourById(
     }
 
     console.log(`✅ Found tour: "${data.title}"`);
+    console.log("Raw DB data:", {
+      location: data.location,
+      duration: data.duration,
+      difficulty: data.difficulty,
+    });
 
     // Transform Supabase response to match Tour interface
     const tour: Tour = {
@@ -300,6 +316,7 @@ export async function getTourById(
       },
       description: data.short_desc || "N/A",
       fullDescription: data.long_desc || "N/A",
+      location: data.location || "N/A",
       image: {
         asset: {
           url: data.hero_image ? getHeroImageUrl(data.hero_image) : "",
@@ -310,84 +327,74 @@ export async function getTourById(
       tourType: (data.tour_type as any) || "N/A",
       basePrice: data.price || 0,
       maxGroupSize: data.group_size ? parseInt(data.group_size) : undefined,
-      galleryImages: (data.gallery_images || []).map((fileName: string) => ({
-        asset: {
-          url: fileName ? getGalleryImageUrl(fileName) : "",
-        },
-      })),
-      specialties: (data.specialities || []).map((specialty: any) => {
-        // Handle both stringified JSON and plain text
-        let parsed = specialty;
-        if (typeof specialty === "string") {
+      galleryImages: (data.gallery_images || [])
+        .map((fileName: string) => {
           try {
-            parsed = JSON.parse(specialty);
-          } catch {
-            // If JSON parse fails, treat as plain text string
-            parsed = { name: specialty, description: "", price: 0 };
+            return {
+              asset: {
+                url: fileName ? getGalleryImageUrl(fileName) : "",
+              },
+            };
+          } catch (err) {
+            console.warn(`Failed to process gallery image: ${fileName}`, err);
+            return null;
           }
-        }
-        return {
-          name: parsed.name || "N/A",
-          description: parsed.description || "N/A",
-          price: parsed.price || 0,
-          icon: parsed.icon,
-          isClimbing: parsed.isClimbing,
-        };
-      }),
-      itinerary: (data.itinerary || []).map((day: any) => {
-        // Handle both stringified JSON and plain text
-        let parsed = day;
-        if (typeof day === "string") {
+        })
+        .filter((img: any) => img !== null),
+      specialties: (data.specialities || [])
+        .map((specialty: any) => {
           try {
-            parsed = JSON.parse(day);
-          } catch {
-            // If JSON parse fails, treat as plain text title
-            parsed = { title: day, activities: [] };
+            let parsed = specialty;
+            if (typeof specialty === "string") {
+              parsed = JSON.parse(specialty);
+            }
+            return {
+              name: parsed.name || "N/A",
+              description: parsed.description || "N/A",
+              price: parsed.price || 0,
+              icon: parsed.icon,
+              isClimbing: parsed.isClimbing,
+            };
+          } catch (err) {
+            console.warn(`Failed to parse specialty:`, specialty, err);
+            return null;
           }
-        }
-        return {
-          title: parsed.title || "N/A",
-          activities: (parsed.activities || []).map((activity: any) => ({
-            activity: activity.activity || "N/A",
-          })),
-        };
-      }),
-      tourInclusions: (data.included || []).map((inclusion: any) => {
-        // Handle both stringified JSON and plain text
-        let parsed = inclusion;
-        if (typeof inclusion === "string") {
-          try {
-            parsed = JSON.parse(inclusion);
-          } catch {
-            // If JSON parse fails, treat as plain text string
-            parsed = { title: inclusion, description: "" };
+        })
+        .filter((spec: any) => spec !== null),
+      itinerary: (data.itinerary || [])
+        .map((day: any) => {
+          if (typeof day === "string") {
+            return day.trim();
           }
-        }
-        return {
-          title: parsed.title || "N/A",
-          description: parsed.description || "N/A",
-        };
-      }),
-      keyRequirements: (data.requirements || []).map((requirement: any) => {
-        // Handle both stringified JSON and plain text
-        let parsed = requirement;
-        if (typeof requirement === "string") {
-          try {
-            parsed = JSON.parse(requirement);
-          } catch {
-            // If JSON parse fails, treat as plain text string
-            parsed = { title: requirement, description: "", severity: "info" };
+          return null;
+        })
+        .filter((day: any) => day !== null),
+      tourInclusions: (data.included || [])
+        .map((inclusion: any) => {
+          if (typeof inclusion === "string") {
+            return inclusion.trim();
           }
-        }
-        return {
-          title: parsed.title || "N/A",
-          description: parsed.description || "N/A",
-          severity: parsed.severity || "info",
-          icon: parsed.icon,
-        };
-      }),
+          return null;
+        })
+        .filter((inc: any) => inc !== null),
+      keyRequirements: (data.requirements || [])
+        .map((requirement: any) => {
+          if (typeof requirement === "string") {
+            return requirement.trim();
+          }
+          return null;
+        })
+        .filter((req: any) => req !== null),
       rating: data.rating || 0,
     };
+
+    console.log("Transformed tour:", {
+      location: tour.location,
+      duration: tour.duration,
+      itinerary: tour.itinerary?.length,
+      inclusions: tour.tourInclusions?.length,
+      requirements: tour.keyRequirements?.length,
+    });
 
     return {
       success: true,
@@ -413,9 +420,12 @@ export async function getFeaturedTours(): Promise<ApiResponse<TourPreview[]>> {
   try {
     const { data, error } = await supabase
       .from("tours")
-      .select("id, title, short_desc, hero_image, price, rating")
+      .select(
+        "id, title, short_desc, long_desc, hero_image, price, rating, duration, difficulty, group_size, tour_type, gallery_images, itinerary, specialities, included, requirements, featured, location, created_at",
+      )
       .eq("is_deleted", false)
-      .limit(6) // Top 6 tours for homepage
+      .eq("featured", true)
+      .limit(6)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -429,21 +439,77 @@ export async function getFeaturedTours(): Promise<ApiResponse<TourPreview[]>> {
     }
 
     // Transform Supabase response to match TourPreview interface
-    const tours: TourPreview[] = (data || []).map((tour: any) => ({
-      _id: tour.id.toString(),
-      title: tour.title || "N/A",
-      slug: {
-        current: (tour.title || "untitled").toLowerCase().replace(/\s+/g, "-"),
-      },
-      description: tour.short_desc || "N/A",
-      image: {
-        asset: {
-          url: tour.hero_image ? getHeroImageUrl(tour.hero_image) : "",
-        },
-      },
-      rating: tour.rating || 0,
-      basePrice: tour.price || 0,
-    }));
+    const tours: TourPreview[] = (data || []).map((tour: any) => {
+      try {
+        return {
+          _id: tour.id.toString(),
+          title: tour.title || "N/A",
+          slug: {
+            current: (tour.title || "untitled")
+              .toLowerCase()
+              .replace(/\s+/g, "-"),
+          },
+          description: tour.short_desc || "N/A",
+          image: {
+            asset: {
+              url: tour.hero_image ? getHeroImageUrl(tour.hero_image) : "",
+            },
+          },
+          rating: tour.rating || 0,
+          basePrice: tour.price || 0,
+          fullDescription: tour.long_desc || "N/A",
+          location: tour.location || "N/A",
+          duration: tour.duration || "N/A",
+          difficulty: tour.difficulty || "N/A",
+          tourType:
+            (tour.tour_type as "standard" | "adventure" | "hiking" | "water") ||
+            "standard",
+          maxGroupSize: tour.group_size
+            ? parseInt(tour.group_size.toString())
+            : 0,
+          galleryImages: (Array.isArray(tour.gallery_images)
+            ? tour.gallery_images
+            : []
+          )
+            .map((img: string) => {
+              try {
+                return {
+                  asset: {
+                    url: getGalleryImageUrl(img),
+                  },
+                };
+              } catch (err) {
+                console.warn(`Failed to process gallery image: ${img}`, err);
+                return {
+                  asset: {
+                    url: "",
+                  },
+                };
+              }
+            })
+            .filter((img: any) => img.asset.url),
+          specialties: Array.isArray(tour.specialities)
+            ? tour.specialities
+            : [],
+          itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
+          tourInclusions: Array.isArray(tour.included) ? tour.included : [],
+          keyRequirements: Array.isArray(tour.requirements)
+            ? tour.requirements
+            : [],
+        };
+      } catch (err) {
+        console.error(`Failed to transform featured tour:`, tour, err);
+        return {
+          _id: tour.id?.toString() || "unknown",
+          title: tour.title || "Unknown Tour",
+          slug: { current: "unknown" },
+          description: "Tour data is corrupted",
+          image: { asset: { url: "" } },
+          rating: 0,
+          basePrice: 0,
+        };
+      }
+    });
 
     return {
       success: true,
@@ -519,22 +585,15 @@ export async function getAllTours(): Promise<ApiResponse<Tour[]>> {
         icon: specialty.icon,
         isClimbing: specialty.isClimbing,
       })),
-      itinerary: (tour.itinerary || []).map((day: any) => ({
-        title: day.title || "N/A",
-        activities: (day.activities || []).map((activity: any) => ({
-          activity: activity.activity || "N/A",
-        })),
-      })),
-      tourInclusions: (tour.included || []).map((inclusion: any) => ({
-        title: inclusion.title || "N/A",
-        description: inclusion.description || "N/A",
-      })),
-      keyRequirements: (tour.requirements || []).map((requirement: any) => ({
-        title: requirement.title || "N/A",
-        description: requirement.description || "N/A",
-        severity: requirement.severity || "info",
-        icon: requirement.icon,
-      })),
+      itinerary: (tour.itinerary || []).filter(
+        (day: any) => day && typeof day === "string",
+      ),
+      tourInclusions: (tour.included || []).filter(
+        (inclusion: any) => inclusion && typeof inclusion === "string",
+      ),
+      keyRequirements: (tour.requirements || []).filter(
+        (requirement: any) => requirement && typeof requirement === "string",
+      ),
       rating: tour.rating || 0,
     }));
 

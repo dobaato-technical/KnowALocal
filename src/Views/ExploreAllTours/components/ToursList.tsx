@@ -1,6 +1,6 @@
 "use client";
 
-import { getToursPreview, type TourPreview } from "@/api/tours/tours";
+import { getToursPreview, type TourPreview } from "@/api";
 import Button from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";

@@ -1,35 +1,14 @@
 /**
- * Tours API - Image Integration
+ * Tours API - Image Integration Service
  * Handles tour creation/updates with image uploads
- * This shows how to integrate the image upload system with tours
  */
 
 import { supabase } from "@/lib/supabase";
 import { deleteImage, uploadImage } from "@/lib/supabase-storage";
-
-export interface CreateTourWithImagesInput {
-  title: string;
-  short_desc: string;
-  long_desc: string;
-  price: number;
-  duration: string;
-  difficulty: string;
-  group_size: string;
-  tour_type: string;
-  location: string;
-  heroImage?: File;
-  galleryImages?: File[];
-  itinerary?: any[];
-  specialitites?: any[];
-  included?: any[];
-  requirements?: any[];
-}
-
-export interface UpdateTourWithImagesInput extends Partial<CreateTourWithImagesInput> {
-  id: number;
-  currentHeroImagePath?: string;
-  currentGalleryImagePaths?: string[];
-}
+import type {
+  CreateTourWithImagesInput,
+  UpdateTourWithImagesInput,
+} from "./tours.types";
 
 /**
  * Create a tour with image uploads
@@ -58,7 +37,6 @@ export async function createTourWithImages(
           error: heroResult.error,
         };
       }
-      // Store only filePath (not full URL)
       heroImageUrl = heroResult.filePath || null;
     }
 
@@ -69,10 +47,8 @@ export async function createTourWithImages(
       );
       const results = await Promise.all(uploadPromises);
 
-      // Check for failures
       const failures = results.filter((r) => !r.success);
       if (failures.length > 0) {
-        // Cleanup uploaded hero image on failure
         if (heroImageUrl) {
           const heroPath = heroImageUrl.split("/").pop();
           if (heroPath) {
@@ -87,7 +63,6 @@ export async function createTourWithImages(
         };
       }
 
-      // Store only filePaths (not full URLs)
       galleryImageUrls = results
         .map((r) => r.filePath)
         .filter((path) => path !== undefined) as string[];
@@ -118,7 +93,6 @@ export async function createTourWithImages(
       .single();
 
     if (error) {
-      // Cleanup uploaded images on database error
       if (heroImageUrl) {
         const heroPath = heroImageUrl.split("/").pop();
         if (heroPath) {
@@ -169,9 +143,7 @@ export async function updateTourWithImages(
   const updateData: Record<string, any> = {};
 
   try {
-    // Handle hero image replacement
     if (input.heroImage) {
-      // Delete old hero image if it exists
       if (input.currentHeroImagePath) {
         await deleteImage(input.currentHeroImagePath);
       }
@@ -184,13 +156,10 @@ export async function updateTourWithImages(
           error: heroResult.error,
         };
       }
-      // Store only filePath (not full URL)
       updateData.hero_image = heroResult.filePath;
     }
 
-    // Handle gallery images replacement
     if (input.galleryImages && input.galleryImages.length > 0) {
-      // Delete old gallery images
       if (
         input.currentGalleryImagePaths &&
         input.currentGalleryImagePaths.length > 0
@@ -207,7 +176,6 @@ export async function updateTourWithImages(
         }
       }
 
-      // Upload new gallery images
       const uploadPromises = input.galleryImages.map((file) =>
         uploadImage(file, "gallery"),
       );
@@ -222,13 +190,11 @@ export async function updateTourWithImages(
         };
       }
 
-      // Store only filePaths (not full URLs)
       updateData.gallery_images = results
         .map((r) => r.filePath)
         .filter((path) => path !== undefined);
     }
 
-    // Add other update fields
     if (input.title) updateData.title = input.title;
     if (input.short_desc) updateData.short_desc = input.short_desc;
     if (input.long_desc) updateData.long_desc = input.long_desc;
@@ -243,7 +209,6 @@ export async function updateTourWithImages(
     if (input.included) updateData.included = input.included;
     if (input.requirements) updateData.requirements = input.requirements;
 
-    // Update tour in database
     const { error } = await supabase
       .from("tours")
       .update(updateData)
@@ -288,7 +253,6 @@ export async function deleteTourWithImages(
   error?: string;
 }> {
   try {
-    // Delete images from storage
     if (heroImagePath) {
       await deleteImage(heroImagePath);
     }
@@ -297,7 +261,6 @@ export async function deleteTourWithImages(
       await Promise.all(galleryImagePaths.map((path) => deleteImage(path)));
     }
 
-    // Delete tour from database
     const { error } = await supabase.from("tours").delete().eq("id", tourId);
 
     if (error) {

@@ -1,13 +1,15 @@
 "use client";
 
-import { getUnavailableDatesForMonth } from "@/api/availability/availability";
 import {
   checkShiftSlotAvailability,
   createBooking,
+  getAllShifts,
   getDisabledShiftsForDate,
-} from "@/api/bookings/bookings";
-import { getAllShifts, type Shift } from "@/api/shifts/shifts";
-import { getToursPreview, type TourPreview } from "@/api/tours/tours";
+  getToursPreview,
+  getUnavailableDatesForMonth,
+  type Shift,
+  type TourPreview,
+} from "@/api";
 import { showToast } from "@/lib/toast-utils";
 import { Clock, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";

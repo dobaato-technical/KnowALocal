@@ -1,6 +1,6 @@
 "use client";
 
-import { Tour } from "@/api/types";
+import { Tour } from "@/api/modules/tours/tours.types";
 import dynamic from "next/dynamic";
 
 /* -------- Dynamic Imports -------- */
@@ -80,8 +80,10 @@ export default function TourDetailsPage({ tour }: TourDetailsPageProps) {
       {tour.keyRequirements && (
         <SafetyWarningsBox warnings={tour.keyRequirements} />
       )}
-      <NoteSection note={tour.tourNote} />
-      <GallerySection images={tour.galleryImages} />
+      {tour.tourNote && <NoteSection note={tour.tourNote} />}
+      {tour.galleryImages && tour.galleryImages.length > 0 && (
+        <GallerySection images={tour.galleryImages} />
+      )}
 
       <Footer />
     </main>

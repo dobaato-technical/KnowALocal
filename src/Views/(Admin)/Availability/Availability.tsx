@@ -7,7 +7,7 @@ import {
   setUnavailable,
   toggleAvailability,
   type Availability,
-} from "@/api/availability/availability";
+} from "@/api";
 import Calendar from "@/components/Calendar/Calendar";
 import Button from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

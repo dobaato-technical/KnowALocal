@@ -1,36 +1,19 @@
 /**
- * Authentication API
+ * Authentication API Service
  * Handles all auth-related API calls
  */
 
+import { ApiResponse } from "@/api/types";
 import {
   loginAdmin as supabaseLogin,
   logoutAdmin as supabaseLogout,
 } from "@/lib/supabase-auth";
-import { ApiResponse } from "../types";
-
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  [key: string]: any;
-}
+import type { LoginCredentials, StoredSession, User } from "./auth.types";
 
 // Session storage constants
 const SESSION_STORAGE_KEY = "admin_session";
 const TOKEN_STORAGE_KEY = "admin_token";
 const SESSION_EXPIRY_DAYS = 30; // 1 month
-
-interface StoredSession {
-  user: User;
-  token: string;
-  expiresAt: number;
-  createdAt: number;
-}
 
 /**
  * Store session in localStorage with 1-month expiry

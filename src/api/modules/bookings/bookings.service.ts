@@ -1,30 +1,12 @@
 /**
- * Bookings API
+ * Bookings API Service
  * Handles all booking-related API calls
  */
 
+import { ApiResponse } from "@/api/types";
 import { supabase } from "@/lib/supabase";
-import { getAvailabilityByDate } from "../availability/availability";
-import { ApiResponse } from "../types";
-
-export interface Booking {
-  id: number;
-  created_at: string;
-  tour_id: number;
-  date: string;
-  shift_id: number;
-  payment_info: string;
-  status: string;
-  additional_info: string;
-  is_deleted?: boolean;
-}
-
-export interface BookingWithDetails extends Booking {
-  tourTitle?: string;
-  shiftName?: string;
-  shiftStartTime?: string;
-  shiftEndTime?: string;
-}
+import { getAvailabilityByDate } from "../availability/availability.service";
+import type { Booking, BookingWithDetails } from "./bookings.types";
 
 /**
  * Get all bookings
@@ -51,18 +33,15 @@ export async function getAllBookings(): Promise<
       };
     }
 
-    // Fetch tour and shift details for each booking
     const bookingsWithDetails: BookingWithDetails[] = [];
 
     for (const booking of data || []) {
-      // Get tour details
       const { data: tourData } = await supabase
         .from("tours")
         .select("title")
         .eq("id", booking.tour_id)
         .single();
 
-      // Get shift details
       const { data: shiftData } = await supabase
         .from("Shifts")
         .select("name, start_time, end_time")
@@ -120,14 +99,12 @@ export async function getBookingById(
       };
     }
 
-    // Get tour details
     const { data: tourData } = await supabase
       .from("tours")
       .select("title")
       .eq("id", data.tour_id)
       .single();
 
-    // Get shift details
     const { data: shiftData } = await supabase
       .from("Shifts")
       .select("name, start_time, end_time")
@@ -212,7 +189,6 @@ export async function checkDateAvailability(
     const availabilityResponse = await getAvailabilityByDate(date);
 
     if (!availabilityResponse.success || !availabilityResponse.data) {
-      // No availability record means date is available
       return {
         success: true,
         message: "Date is available",
@@ -222,7 +198,6 @@ export async function checkDateAvailability(
 
     const availability = availabilityResponse.data;
 
-    // If avaibality is true, date is marked as unavailable
     if (availability.avaibality === true) {
       return {
         success: true,
@@ -234,7 +209,6 @@ export async function checkDateAvailability(
       };
     }
 
-    // Otherwise date is available
     return {
       success: true,
       message: "Date is available",
@@ -263,7 +237,6 @@ export async function createBooking(
     console.log("=== createBooking START ===");
     console.log("Checking date availability for:", booking.date);
 
-    // Check if date is available for booking
     const availabilityCheck = await checkDateAvailability(booking.date);
 
     if (
@@ -489,7 +462,6 @@ export async function getWholeDayBookingsForDate(
   date: string,
 ): Promise<ApiResponse<Booking[]>> {
   try {
-    // First get all shifts with type "whole_day"
     const { data: wholeShifts, error: shiftError } = await supabase
       .from("Shifts")
       .select("id")
@@ -516,7 +488,6 @@ export async function getWholeDayBookingsForDate(
 
     const wholeShiftIds = wholeShifts.map((s) => s.id);
 
-    // Get bookings for whole day shifts on this date
     const { data, error } = await supabase
       .from("bookings")
       .select("*")
@@ -567,7 +538,6 @@ export async function getDisabledShiftsForDate(
       !wholeDayResponse.data ||
       wholeDayResponse.data.length === 0
     ) {
-      // No whole day bookings, all shifts are available
       return {
         success: true,
         message: "No disabled shifts",
@@ -575,7 +545,6 @@ export async function getDisabledShiftsForDate(
       };
     }
 
-    // If there are whole day bookings, disable all non-whole-day shifts for this date
     const { data: otherShifts, error } = await supabase
       .from("Shifts")
       .select("id")
@@ -609,5 +578,3 @@ export async function getDisabledShiftsForDate(
     };
   }
 }
-
-export type { ApiResponse };

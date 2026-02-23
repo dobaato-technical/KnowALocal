@@ -1,4 +1,4 @@
-import { getTourById } from "@/api/tours/tours";
+import { getTourById } from "@/api";
 import TourDetailsPage from "@/Views/TourDetails/TourDetailsPage";
 
 interface TourDetailsPageProps {

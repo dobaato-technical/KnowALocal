@@ -1,18 +1,11 @@
 /**
- * Availability API
+ * Availability API Service
  * Handles all availability-related API calls
  */
 
+import { ApiResponse } from "@/api/types";
 import { supabase } from "@/lib/supabase";
-import { ApiResponse } from "../types";
-
-export interface Availability {
-  id: number;
-  date: string;
-  reason: string;
-  avaibality: boolean;
-  created_at: string;
-}
+import type { Availability } from "./availability.types";
 
 /**
  * Get all availability records
@@ -105,11 +98,9 @@ export async function setUnavailable(
   reason: string = "Not available",
 ): Promise<ApiResponse<Availability | null>> {
   try {
-    // First check if date already exists
     const existing = await getAvailabilityByDate(date);
 
     if (existing.data) {
-      // Update existing record
       const { data, error } = await supabase
         .from("availability")
         .update({
@@ -136,7 +127,6 @@ export async function setUnavailable(
         data,
       };
     } else {
-      // Create new record
       const { data, error } = await supabase
         .from("availability")
         .insert([
@@ -188,7 +178,6 @@ export async function setAvailable(
     const existing = await getAvailabilityByDate(date);
 
     if (existing.data) {
-      // Update existing record to set as available
       const { data, error } = await supabase
         .from("availability")
         .update({
@@ -215,7 +204,6 @@ export async function setAvailable(
         data,
       };
     } else {
-      // Create new record with available status
       const { data, error } = await supabase
         .from("availability")
         .insert([
@@ -266,10 +254,7 @@ export async function getUnavailableDatesForMonth(
   month: number,
 ): Promise<ApiResponse<string[]>> {
   try {
-    // Calculate month boundaries (month parameter is 1-indexed from user)
     const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-    // Last day of the month: new Date(year, month, 0) gives last day of month-1
-    // Since month is 1-indexed, we need month+1 to get last day of the correct month
     const lastDay = new Date(year, month, 0);
     const endDate = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, "0")}-${String(lastDay.getDate()).padStart(2, "0")}`;
 
@@ -334,7 +319,6 @@ export async function toggleAvailability(
     const existing = await getAvailabilityByDate(date);
 
     if (!existing.data) {
-      // If date doesn't exist, create it as unavailable
       const { data, error } = await supabase
         .from("availability")
         .insert([
@@ -364,7 +348,6 @@ export async function toggleAvailability(
       };
     }
 
-    // Toggle the availability state
     const newAvailability = !existing.data.avaibality;
     const { data, error } = await supabase
       .from("availability")
@@ -402,5 +385,3 @@ export async function toggleAvailability(
     };
   }
 }
-
-export type { ApiResponse };

@@ -1,6 +1,6 @@
 "use client";
 
-import { TourPreview } from "@/api/tours/tours";
+import type { TourPreview } from "@/api";
 import AvailabilityCheckPopup from "@/components/Calendar/AvailabilityCheckPopup";
 import { Calendar } from "lucide-react";
 import { useState } from "react";

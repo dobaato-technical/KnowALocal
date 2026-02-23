@@ -1,13 +1,11 @@
 /**
- * Shifts API
+ * Shifts API Service
  * Handles all shift-related API calls
  */
 
+import { ApiResponse } from "@/api/types";
 import { supabase } from "@/lib/supabase";
-import { ApiResponse, Shift } from "../types";
-
-// Re-export types for convenience
-export type { ApiResponse, Shift };
+import type { Shift } from "./shifts.types";
 
 /**
  * Get all shifts

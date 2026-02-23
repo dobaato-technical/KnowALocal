@@ -7,7 +7,7 @@ import {
   getBookingById,
   updateBookingStatus,
   type BookingWithDetails,
-} from "@/api/bookings/bookings";
+} from "@/api";
 import Button from "@/components/ui/button";
 import Table, { Column } from "@/components/ui/table";
 import { showToast } from "@/lib/toast-utils";

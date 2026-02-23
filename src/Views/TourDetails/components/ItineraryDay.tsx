@@ -1,20 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin } from "lucide-react";
 
 export default function ItineraryDay({ tour }: any) {
   if (!tour.itinerary || tour.itinerary.length === 0) return null;
 
-  // Flatten all activities from the itinerary array
-  const activities = tour.itinerary.flatMap((item: any) =>
-    item.activities
-      ? item.activities.map((act: any) => ({
-          ...act,
-          dayTitle: item.title,
-        }))
-      : [],
-  );
+  const activities = tour.itinerary;
 
   if (activities.length === 0) return null;
 
@@ -81,16 +72,9 @@ export default function ItineraryDay({ tour }: any) {
                   className="backdrop-blur-sm rounded-xl border border-accent/20 p-3 md:p-4 transition-all duration-300 group-hover:border-accent/50 group-hover:shadow-lg group-hover:-translate-y-1"
                   whileHover={{ y: -4 }}
                 >
-                  <h4 className="text-lg font-bold text-primary mb-2">
-                    {activity.activity}
-                  </h4>
-
-                  {activity.dayTitle && (
-                    <div className="flex items-center gap-1.5 text-secondary text-sm">
-                      <MapPin className="w-3.5 h-3.5 text-accent/60" />
-                      <span className="font-medium">{activity.dayTitle}</span>
-                    </div>
-                  )}
+                  <p className="text-base md:text-lg font-medium text-primary">
+                    {activity}
+                  </p>
                 </motion.div>
               </div>
             </motion.div>

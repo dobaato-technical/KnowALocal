@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteTour } from "@/api/tours/tours";
+import { deleteTour } from "@/api";
 import Button from "@/components/ui/button";
 import Table, { Column } from "@/components/ui/table";
 import { getHeroImageUrl } from "@/lib/storage-urls";

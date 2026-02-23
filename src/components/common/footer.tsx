@@ -1,7 +1,6 @@
 "use client";
 
-import { getFeaturedTours } from "@/api/tours/tours";
-import type { TourPreview } from "@/api/types";
+import { getFeaturedTours, type TourPreview } from "@/api";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";

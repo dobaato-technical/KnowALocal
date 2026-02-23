@@ -165,58 +165,12 @@ export const tour = defineType({
     defineField({
       name: "itinerary",
       title: "Tour Itinerary",
-      description: "Timeline of activities for the 2-hour tour experience",
+      description: "List of activities for the 2-hour tour experience",
       type: "array",
       fieldset: "detailedItinerary",
       of: [
         {
-          type: "object",
-          fields: [
-            {
-              name: "title",
-              title: "Section Title",
-              type: "string",
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: "activities",
-              title: "Activities",
-              type: "array",
-              of: [
-                {
-                  type: "object",
-                  fields: [
-                    {
-                      name: "activity",
-                      title: "Activity",
-                      type: "string",
-                      validation: (Rule) => Rule.required(),
-                    },
-                  ],
-                  preview: {
-                    select: {
-                      activity: "activity",
-                    },
-                    prepare({ activity }) {
-                      return {
-                        title: activity,
-                      };
-                    },
-                  },
-                },
-              ],
-            },
-          ],
-          preview: {
-            select: {
-              title: "title",
-            },
-            prepare({ title }) {
-              return {
-                title: title,
-              };
-            },
-          },
+          type: "string",
         },
       ],
     }),
