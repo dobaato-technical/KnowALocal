@@ -1,17 +1,40 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Calendar, CheckCircle, Mail, MessageCircle } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle,
+  CreditCard,
+  Mail,
+  MessageCircle,
+} from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function BookingSuccess() {
   const [open, setOpen] = useState(false);
+  const [bookingData, setBookingData] = useState<{
+    bookingId?: string;
+    tourId?: string;
+  } | null>(null);
+
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const bookingId = searchParams.get("bookingId");
+    const tourId = searchParams.get("tourId");
+
+    if (bookingId || tourId) {
+      setBookingData({
+        bookingId: bookingId || undefined,
+        tourId: tourId || undefined,
+      });
+    }
+
     const timer = setTimeout(() => setOpen(true), 300);
     return () => clearTimeout(timer);
-  }, []);
+  }, [searchParams]);
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f8f1dd] to-[#e6dbc3] overflow-hidden">
@@ -36,17 +59,27 @@ export default function BookingSuccess() {
 
             {/* Heading */}
             <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-800">
-              Your booking is done 🎉
+              Payment Successful! 🎉
             </h1>
 
             {/* Description */}
             <p className="mt-4 text-center text-gray-600">
-              We’ve sent a confirmation email with all the details of your tour.
-              If you have any questions, feel free to reach out.
+              Thank you for your booking! We've sent a confirmation email with
+              all the details of your tour.
             </p>
 
             {/* Info Cards */}
             <div className="mt-6 space-y-3">
+              {bookingData?.bookingId && (
+                <div className="flex items-center gap-3 bg-blue-50 p-3 rounded-xl border border-blue-200">
+                  <CreditCard className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm text-blue-700">
+                    <span className="font-semibold">Booking ID:</span>{" "}
+                    {bookingData.bookingId}
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
                 <Calendar className="w-5 h-5 text-gray-600" />
                 <span className="text-sm text-gray-700">
@@ -71,10 +104,19 @@ export default function BookingSuccess() {
                 Back to Home
               </Link>
 
+              {bookingData?.tourId && (
+                <Link
+                  href={`/tour-details/${bookingData.tourId}`}
+                  className="w-full border border-[#335358] text-[#335358] py-3 rounded-xl font-medium text-center hover:bg-[#335358]/10 transition"
+                >
+                  View Tour Details
+                </Link>
+              )}
+
               <a
                 href="https://wa.me/977XXXXXXXXXX"
                 target="_blank"
-                className="w-full border border-[#335358] text-[#335358] py-3 rounded-xl font-medium text-center flex items-center justify-center gap-2 hover:bg-[#335358]/10 transition"
+                className="w-full border border-green-600 text-green-600 py-3 rounded-xl font-medium text-center flex items-center justify-center gap-2 hover:bg-green-50 transition"
               >
                 <MessageCircle className="w-4 h-4" />
                 Contact on WhatsApp

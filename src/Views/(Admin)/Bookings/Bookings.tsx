@@ -125,7 +125,10 @@ export default function BookingsPage() {
     }
   };
 
-  const handleStatusChange = async (bookingId: number, newStatus: string) => {
+  const handleStatusChange = async (
+    bookingId: number,
+    newStatus: "pending" | "confirmed" | "cancelled" | "completed",
+  ) => {
     console.log("=== handleStatusChange START ===");
     console.log("Booking ID:", bookingId);
     console.log("New status:", newStatus);
@@ -149,13 +152,24 @@ export default function BookingsPage() {
       // Update bookings list
       setBookings(
         bookings.map((b) =>
-          b.id === bookingId ? { ...b, status: newStatus } : b,
+          b.id === bookingId
+            ? {
+                ...b,
+                booking_status: newStatus as
+                  | "pending"
+                  | "confirmed"
+                  | "cancelled",
+              }
+            : b,
         ),
       );
 
       // Update selected booking if it's the one being edited
       if (selectedBooking?.id === bookingId) {
-        setSelectedBooking({ ...selectedBooking, status: newStatus });
+        setSelectedBooking({
+          ...selectedBooking,
+          booking_status: newStatus as "pending" | "confirmed" | "cancelled",
+        });
       }
 
       showToast("Booking status updated successfully", "success");
@@ -254,7 +268,11 @@ export default function BookingsPage() {
         date: bookingData.date,
         shift_id: bookingData.shift_id,
         payment_info: bookingData.payment_info,
-        status: bookingData.status,
+        booking_status: bookingData.booking_status as
+          | "pending"
+          | "confirmed"
+          | "cancelled"
+          | "completed",
         additional_info: bookingData.additional_info,
       };
 
@@ -296,7 +314,7 @@ export default function BookingsPage() {
   const filteredBookings =
     filterStatus === "all"
       ? bookings
-      : bookings.filter((b) => b.status === filterStatus);
+      : bookings.filter((b) => b.booking_status === filterStatus);
 
   const columns: Column<BookingWithDetails>[] = [
     {
@@ -319,7 +337,7 @@ export default function BookingsPage() {
       label: "Shift",
     },
     {
-      key: "status",
+      key: "booking_status",
       label: "Status",
       render: (value) => (
         <span
@@ -327,7 +345,7 @@ export default function BookingsPage() {
             value,
           )}`}
         >
-          {value}
+          {value || "Unknown"}
         </span>
       ),
     },
@@ -364,7 +382,9 @@ export default function BookingsPage() {
     console.log("Row clicked:", row);
   };
 
-  const getStatusBadgeClass = (status: string) => {
+  const getStatusBadgeClass = (status: string | undefined | null) => {
+    if (!status) return "bg-gray-100 text-gray-800";
+
     switch (status.toLowerCase()) {
       case "confirmed":
         return "bg-green-100 text-green-800";
@@ -521,11 +541,18 @@ export default function BookingsPage() {
                       <button
                         key={status}
                         onClick={() =>
-                          handleStatusChange(selectedBooking.id, status)
+                          handleStatusChange(
+                            selectedBooking.id,
+                            status as
+                              | "pending"
+                              | "confirmed"
+                              | "completed"
+                              | "cancelled",
+                          )
                         }
                         disabled={statusBeingUpdated !== null}
                         className={`px-3 py-1 rounded text-xs font-semibold capitalize transition-colors disabled:opacity-50 ${
-                          selectedBooking.status === status
+                          selectedBooking.booking_status === status
                             ? "bg-blue-500 text-white"
                             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                         }`}

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { privacyPolicyData } from "./data/mock";
+import { privacyPolicyData } from "./data";
 
 /* -------- Dynamic Imports -------- */
 

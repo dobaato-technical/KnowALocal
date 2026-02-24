@@ -23,7 +23,7 @@ export interface BookingFormData {
   date: string;
   shift_id: number;
   payment_info: string;
-  status: string;
+  booking_status: string;
   additional_info: string;
 }
 
@@ -32,7 +32,7 @@ const initialFormData: BookingFormData = {
   date: "",
   shift_id: 0,
   payment_info: "",
-  status: "pending",
+  booking_status: "pending",
   additional_info: "",
 };
 
@@ -191,8 +191,8 @@ export default function AddBookingModal({
     if (!shiftAvailability.isAvailable) {
       newErrors.shift_id = `This shift is not available: ${shiftAvailability.reason || "Conflict with existing booking"}`;
     }
-    if (!formData.status) {
-      newErrors.status = "Please select a status";
+    if (!formData.booking_status) {
+      newErrors.booking_status = "Please select a status";
     }
 
     setErrors(newErrors);
@@ -397,11 +397,11 @@ export default function AddBookingModal({
               Status *
             </label>
             <select
-              name="status"
-              value={formData.status}
+              name="booking_status"
+              value={formData.booking_status}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.status ? "border-red-500" : "border-gray-300"
+                errors.booking_status ? "border-red-500" : "border-gray-300"
               }`}
             >
               <option value="pending">Pending</option>
@@ -409,8 +409,10 @@ export default function AddBookingModal({
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>
-            {errors.status && (
-              <p className="text-red-500 text-sm mt-1">{errors.status}</p>
+            {errors.booking_status && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.booking_status}
+              </p>
             )}
           </div>
 

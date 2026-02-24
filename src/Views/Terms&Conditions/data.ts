@@ -1,4 +1,4 @@
-import { TCData } from "../types";
+import { TCData } from "./types";
 
 export const termsAndConditionsData: TCData = {
   lastUpdated: "February 9, 2026",

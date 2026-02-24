@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { legalDisclaimerData } from "./data/mock";
+import { legalDisclaimerData } from "./data";
 
 /* -------- Dynamic Imports -------- */
 

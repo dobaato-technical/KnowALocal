@@ -1,4 +1,4 @@
-import { PrivacyPolicyData } from "../types";
+import { PrivacyPolicyData } from "./types";
 
 export const privacyPolicyData: PrivacyPolicyData = {
   lastUpdated: "February 9, 2026",

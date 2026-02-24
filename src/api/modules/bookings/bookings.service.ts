@@ -455,7 +455,7 @@ export async function createBooking(
           date: booking.date,
           shift_id: booking.shift_id,
           payment_info: booking.payment_info,
-          status: booking.status,
+          booking_status: booking.booking_status || booking.status,
           additional_info: booking.additional_info,
           is_deleted: false,
         },

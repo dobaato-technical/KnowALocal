@@ -2,7 +2,6 @@
 
 import {
   checkShiftSlotAvailability,
-  createBooking,
   getAllShifts,
   getDisabledShiftsForDate,
   getToursPreview,
@@ -11,11 +10,10 @@ import {
   type TourPreview,
 } from "@/api";
 import { showToast } from "@/lib/toast-utils";
-import { Clock, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import Calendar from "./Calendar";
 
-interface AvailabilityCheckPopupProps {
+interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   preSelectedTour?: TourPreview | null;
@@ -34,11 +32,11 @@ interface ShiftAvailability {
   availableSlots: number;
 }
 
-export default function AvailabilityCheckPopup({
+export default function BookingModal({
   isOpen,
   onClose,
   preSelectedTour,
-}: AvailabilityCheckPopupProps) {
+}: BookingModalProps) {
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -58,15 +56,47 @@ export default function AvailabilityCheckPopup({
     tour: preSelectedTour || null,
   });
 
-  // All data fetching is now inline in useEffects - removed unused callbacks
+  // Fetch initial data
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchInitialData = async () => {
+      try {
+        setLoading(true);
+
+        const [shiftsResponse, toursResponse, unavailableResponse] =
+          await Promise.all([
+            getAllShifts(),
+            getToursPreview(),
+            getUnavailableDatesForMonth(currentYear, currentMonth),
+          ]);
+
+        if (shiftsResponse.success) {
+          setShifts(shiftsResponse.data || []);
+        }
+
+        if (toursResponse.success) {
+          setTours(toursResponse.data || []);
+        }
+
+        if (unavailableResponse.success) {
+          setUnavailableDates(unavailableResponse.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+        showToast("Failed to load booking data", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [isOpen, currentYear, currentMonth]);
 
   // Check shift availability for selected date
-  // OPTIMIZED: Fetches all shift availabilities in parallel instead of sequentially
-  // Before: 1 + N calls | After: 2 calls
   const checkShiftAvailability = useCallback(
     async (date: string) => {
       try {
-        // Get disabled shifts and check all shift availabilities in parallel
         const [disabledResponse, availabilityResponses] = await Promise.all([
           getDisabledShiftsForDate(date),
           Promise.all(
@@ -101,109 +131,19 @@ export default function AvailabilityCheckPopup({
     [shifts],
   );
 
-  // Initial load - fetches data when popup opens
-  // OPTIMIZED: Removed callback functions from dependencies to prevent re-render cascades
-  // OPTIMIZED: Skip fetching tours if preSelectedTour is already provided
-  useEffect(() => {
-    if (isOpen && loading) {
-      const initializeData = async () => {
-        // If a tour is pre-selected, don't fetch all tours
-        const shouldFetchTours = !preSelectedTour;
-
-        const apiCalls = [
-          getUnavailableDatesForMonth(currentYear, currentMonth),
-          getAllShifts(),
-          ...(shouldFetchTours ? [getToursPreview()] : []),
-        ];
-
-        const results = await Promise.all(apiCalls);
-
-        // Type-safe destructuring based on whether we fetched tours
-        const unavailableDatesRes = results[0];
-        const shiftsRes = results[1];
-        const toursRes = shouldFetchTours ? (results[2] as any) : null;
-
-        if (unavailableDatesRes.success) {
-          setUnavailableDates((unavailableDatesRes.data || []) as string[]);
-        }
-
-        if (shiftsRes.success) {
-          const activeShifts = ((shiftsRes.data || []) as Shift[]).filter(
-            (shift: Shift) => shift.isActive,
-          );
-          setShifts(activeShifts);
-        }
-
-        // Only set tours from API if we fetched them, otherwise use preSelectedTour
-        if (shouldFetchTours && toursRes?.success) {
-          setTours((toursRes.data || []) as TourPreview[]);
-        } else if (preSelectedTour) {
-          // Use only the pre-selected tour
-          setTours([preSelectedTour]);
-        }
-
-        setLoading(false);
-      };
-
-      initializeData().catch((error) => {
-        console.error("Error initializing availability popup:", error);
-        showToast("Failed to load availability data", "error");
-      });
+  // Handle date selection
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = e.target.value;
+    if (date && !unavailableDates.includes(date)) {
+      setSelectedDate(date);
+      setSelectedBooking((prev) => ({ ...prev, date, shift: null }));
+      checkShiftAvailability(date);
+    } else if (unavailableDates.includes(date)) {
+      showToast("This date is not available", "error");
     }
-  }, [isOpen, loading, preSelectedTour, currentYear, currentMonth]);
-
-  // Check shift availability when date is selected
-  // OPTIMIZED: Removed callback from dependencies - just call directly
-  useEffect(() => {
-    if (selectedDate && shifts.length > 0) {
-      const checkAvailability = async () => {
-        try {
-          // Get disabled shifts and check all shift availabilities in parallel
-          const [disabledResponse, availabilityResponses] = await Promise.all([
-            getDisabledShiftsForDate(selectedDate),
-            Promise.all(
-              shifts.map((shift) =>
-                checkShiftSlotAvailability(selectedDate, shift.id),
-              ),
-            ),
-          ]);
-
-          if (disabledResponse.success) {
-            setDisabledShiftIds(disabledResponse.data || []);
-          }
-
-          const availabilityMap = new Map<number, ShiftAvailability>();
-
-          availabilityResponses.forEach((response, index) => {
-            const shift = shifts[index];
-            if (response.success && response.data && shift) {
-              availabilityMap.set(shift.id, {
-                shiftId: shift.id,
-                hasSlots: response.data.hasSlots,
-                bookedCount: response.data.bookedCount,
-                availableSlots: response.data.availableSlots,
-              });
-            }
-          });
-
-          setShiftAvailability(availabilityMap);
-        } catch (error) {
-          console.error("Error checking shift availability:", error);
-          showToast("Failed to check shift availability", "error");
-        }
-      };
-
-      checkAvailability();
-    }
-  }, [selectedDate, shifts]);
-
-  const handleDateClick = (date: string) => {
-    setSelectedDate(date);
-    setSelectedBooking((prev) => ({ ...prev, date, shift: null }));
   };
 
   const handleShiftClick = (shift: Shift) => {
-    // Don't allow clicking disabled shifts
     if (disabledShiftIds.includes(shift.id)) {
       showToast(
         "This shift is disabled because a whole day booking exists",
@@ -235,70 +175,40 @@ export default function AvailabilityCheckPopup({
       return;
     }
 
-    setIsBooking(true);
     try {
-      // Extract tour ID from _id (format is "id")
-      const tourId = parseInt(selectedBooking.tour._id, 10);
+      setIsBooking(true);
 
-      if (isNaN(tourId)) {
-        showToast("Invalid tour selected", "error");
-        setIsBooking(false);
-        return;
-      }
-
-      // Create booking
-      const bookingResponse = await createBooking({
-        tour_id: tourId,
-        date: selectedBooking.date,
-        shift_id: selectedBooking.shift.id,
-        payment_info: "", // Will be filled during checkout
-        status: "pending",
-        additional_info: "",
+      const response = await fetch("/api/payments/checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tour_id: parseInt(selectedBooking.tour._id, 10),
+          shift_id: selectedBooking.shift.id,
+          date: selectedBooking.date,
+          tour_price: selectedBooking.tour.basePrice,
+          tour_title: selectedBooking.tour.title,
+        }),
       });
 
-      if (bookingResponse.success) {
-        showToast(
-          `Booking created successfully! Booking ID: ${bookingResponse.data?.id}`,
-          "success",
-        );
+      const data = await response.json();
 
-        // Store booking data for reference
-        const bookingData = {
-          date: selectedBooking.date,
-          shift: selectedBooking.shift,
-          tour: selectedBooking.tour,
-          bookingId: bookingResponse.data?.id,
-        };
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
 
-        localStorage.setItem("pendingBooking", JSON.stringify(bookingData));
-
-        // Close modal after successful booking
-        const tourIdStr = selectedBooking.tour._id;
-        setTimeout(() => {
-          onClose();
-          // Optionally navigate to tour details or booking confirmation
-          window.location.href = `/tour-details/${tourIdStr}`;
-        }, 1500);
+      if (data.url) {
+        window.location.href = data.url;
       } else {
-        showToast(
-          bookingResponse.message || "Failed to create booking",
-          "error",
-        );
+        throw new Error("No checkout URL returned");
       }
     } catch (error) {
-      console.error("Booking error:", error);
+      console.error("Checkout error:", error);
       showToast(
-        error instanceof Error ? error.message : "Failed to create booking",
+        error instanceof Error ? error.message : "Failed to proceed to payment",
         "error",
       );
-    } finally {
       setIsBooking(false);
     }
-  };
-
-  const handleMonthChange = (year: number, month: number) => {
-    setCurrentYear(year);
-    setCurrentMonth(month);
   };
 
   if (!isOpen) return null;
@@ -314,6 +224,9 @@ export default function AvailabilityCheckPopup({
       })
     : null;
 
+  // Get minimum date (today)
+  const minDate = new Date().toISOString().split("T")[0];
+
   return (
     <>
       {/* Modal Overlay */}
@@ -323,12 +236,10 @@ export default function AvailabilityCheckPopup({
       />
 
       {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary/5 to-accent/5">
-          <h2 className="text-2xl font-bold text-primary">
-            Check Availability & Book Your Tour
-          </h2>
+          <h2 className="text-2xl font-bold text-primary">Book Your Tour</h2>
           <button
             onClick={onClose}
             className="text-primary hover:text-accent transition-colors p-2 hover:bg-white rounded-lg"
@@ -339,41 +250,44 @@ export default function AvailabilityCheckPopup({
 
         {/* Modal Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Calendar - Left Column */}
-            <div className="lg:col-span-2">
-              <Calendar
-                unavailableDates={unavailableDates}
-                onDateClick={handleDateClick}
-                selectedDate={selectedDate || undefined}
-                currentYear={currentYear}
-                currentMonth={currentMonth}
-                onMonthChange={handleMonthChange}
-              />
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-secondary/70">Loading booking data...</p>
             </div>
-
-            {/* Right Sidebar - Shifts & Tours */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Selected Date Info */}
-              {selectedDate && (
-                <div className="bg-gradient-to-br from-accent/10 to-primary/5 rounded-lg p-4 border border-accent/20">
-                  <p className="text-sm text-secondary/70 mb-1">
-                    Selected Date
-                  </p>
-                  <p className="text-xl font-bold text-primary">
-                    {dateFormatted}
-                  </p>
-                  <p
-                    className={`text-xs font-semibold mt-2 ${
-                      isDateAvailable
-                        ? "text-green-700 bg-green-100 px-2 py-1 rounded w-fit"
-                        : "text-red-700 bg-red-100 px-2 py-1 rounded w-fit"
-                    }`}
-                  >
-                    {isDateAvailable ? "✓ Available" : "✗ Unavailable"}
-                  </p>
-                </div>
-              )}
+          ) : (
+            <div className="space-y-6">
+              {/* Date Selection */}
+              <div>
+                <label className="block text-sm font-semibold text-primary mb-2">
+                  Select a Date
+                </label>
+                <input
+                  type="date"
+                  min={minDate}
+                  value={selectedDate || ""}
+                  onChange={handleDateChange}
+                  className="w-full px-4 py-2 border-2 border-secondary/20 rounded-lg focus:border-accent focus:outline-none bg-white"
+                />
+                {selectedDate && (
+                  <div className="mt-2 p-2 bg-gradient-to-br from-accent/10 to-primary/5 rounded border border-accent/20">
+                    <p className="text-xs text-secondary/70 mb-1">
+                      Selected Date
+                    </p>
+                    <p className="text-lg font-bold text-primary">
+                      {dateFormatted}
+                    </p>
+                    <p
+                      className={`text-xs font-semibold mt-2 w-fit px-2 py-1 rounded ${
+                        isDateAvailable
+                          ? "text-green-700 bg-green-100"
+                          : "text-red-700 bg-red-100"
+                      }`}
+                    >
+                      {isDateAvailable ? "✓ Available" : "✗ Unavailable"}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {/* Shifts Section */}
               {selectedDate && isDateAvailable && (
@@ -403,7 +317,6 @@ export default function AvailabilityCheckPopup({
                             }`}
                           >
                             <div className="flex items-center gap-2 mb-1">
-                              <Clock className="w-4 h-4 text-accent" />
                               <span className="font-semibold text-primary">
                                 {shift.name}
                               </span>
@@ -413,12 +326,12 @@ export default function AvailabilityCheckPopup({
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-secondary/70 ml-6">
+                            <p className="text-xs text-secondary/70">
                               {shift.startTime} - {shift.endTime}
                             </p>
                             {availability && (
                               <p
-                                className={`text-xs mt-1 ml-6 font-semibold ${
+                                className={`text-xs mt-1 font-semibold ${
                                   availability.hasSlots
                                     ? "text-green-600"
                                     : "text-red-600"
@@ -508,21 +421,14 @@ export default function AvailabilityCheckPopup({
                       !selectedBooking.tour ||
                       isBooking
                     }
-                    className="w-full py-3 bg-accent text-white font-bold rounded-lg hover:opacity-90 active:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-accent text-white font-bold rounded-lg hover:opacity-90 active:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
-                    {isBooking ? (
-                      <>
-                        <span className="inline-block animate-spin">⏳</span>
-                        Creating Booking...
-                      </>
-                    ) : (
-                      "Book This Tour"
-                    )}
+                    {isBooking ? "Processing..." : "💳 Proceed to Payment"}
                   </button>
                 </div>
               )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>

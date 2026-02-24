@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { termsAndConditionsData } from "./data/mock";
+import { termsAndConditionsData } from "./data";
 
 /* -------- Dynamic Imports -------- */
 

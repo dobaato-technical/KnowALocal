@@ -1,4 +1,4 @@
-import { LegalDisclaimerData } from "../types";
+import { LegalDisclaimerData } from "./types";
 
 export const legalDisclaimerData: LegalDisclaimerData = {
   lastUpdated: "February 9, 2026",
