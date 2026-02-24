@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
-export default function Tours() {
+function Tours() {
   const [tours, setTours] = useState<TourPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -193,3 +193,5 @@ export default function Tours() {
     </div>
   );
 }
+
+export default memo(Tours);

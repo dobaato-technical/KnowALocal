@@ -9,6 +9,7 @@ import {
   type BookingWithDetails,
 } from "@/api";
 import Button from "@/components/ui/button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Table, { Column } from "@/components/ui/table";
 import { showToast } from "@/lib/toast-utils";
 import { Eye, Plus, Trash2 } from "lucide-react";
@@ -30,6 +31,12 @@ export default function BookingsPage() {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
+    isOpen: boolean;
+    bookingId: number | null;
+    bookingLabel: string;
+  }>({ isOpen: false, bookingId: null, bookingLabel: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch bookings on mount
   const fetchBookings = useCallback(async () => {
@@ -70,6 +77,22 @@ export default function BookingsPage() {
     console.log("Selected booking:", booking);
 
     try {
+      // OPTIMIZED: Use cached booking data from list instead of making another API call
+      // The booking from getAllBookings already has all details we need
+      if (
+        booking.tourTitle &&
+        booking.shiftName &&
+        booking.shiftStartTime &&
+        booking.shiftEndTime
+      ) {
+        console.log("Using cached booking details from list");
+        setSelectedBooking(booking);
+        setShowDetails(true);
+        console.log("=== handleViewDetails END (SUCCESS - CACHED) ===");
+        return;
+      }
+
+      // Fallback: Only fetch if details are missing (shouldn't happen with optimized getAllBookings)
       console.log("Fetching full booking details for ID:", booking.id);
 
       const response = await getBookingById(booking.id);
@@ -147,15 +170,22 @@ export default function BookingsPage() {
   };
 
   const handleDelete = async (bookingId: number, bookingLabel: string) => {
-    if (!confirm(`Are you sure you want to delete booking ${bookingLabel}?`)) {
-      return;
-    }
+    setDeleteConfirmDialog({
+      isOpen: true,
+      bookingId,
+      bookingLabel,
+    });
+  };
 
+  const confirmDelete = async () => {
+    if (!deleteConfirmDialog.bookingId) return;
+
+    setIsDeleting(true);
     console.log("=== handleDelete START ===");
-    console.log("Deleting booking with ID:", bookingId);
+    console.log("Deleting booking with ID:", deleteConfirmDialog.bookingId);
 
     try {
-      const response = await deleteBooking(bookingId);
+      const response = await deleteBooking(deleteConfirmDialog.bookingId);
 
       console.log("Delete response - success:", response.success);
 
@@ -163,25 +193,52 @@ export default function BookingsPage() {
         console.error("Failed to delete booking:", response.message);
         showToast(`Failed to delete booking: ${response.message}`, "error");
         console.log("=== handleDelete END (ERROR) ===");
+        setDeleteConfirmDialog({
+          isOpen: false,
+          bookingId: null,
+          bookingLabel: "",
+        });
         return;
       }
 
       console.log("Booking deleted successfully");
 
-      setBookings(bookings.filter((b) => b.id !== bookingId));
+      setBookings(
+        bookings.filter((b) => b.id !== deleteConfirmDialog.bookingId),
+      );
 
-      if (selectedBooking?.id === bookingId) {
+      if (selectedBooking?.id === deleteConfirmDialog.bookingId) {
         setShowDetails(false);
         setSelectedBooking(null);
       }
 
       showToast("Booking deleted successfully", "success");
       console.log("=== handleDelete END (SUCCESS) ===");
+      setDeleteConfirmDialog({
+        isOpen: false,
+        bookingId: null,
+        bookingLabel: "",
+      });
     } catch (err) {
       console.error("Error deleting booking:", err);
       console.log("=== handleDelete END (ERROR) ===");
       showToast("An error occurred while deleting the booking", "error");
+      setDeleteConfirmDialog({
+        isOpen: false,
+        bookingId: null,
+        bookingLabel: "",
+      });
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmDialog({
+      isOpen: false,
+      bookingId: null,
+      bookingLabel: "",
+    });
   };
 
   const handleAddBooking = async (bookingData: BookingFormData) => {
@@ -536,6 +593,19 @@ export default function BookingsPage() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleAddBooking}
         isLoading={isLoadingModal}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmDialog.isOpen}
+        title="Delete Booking"
+        message={`Are you sure you want to delete booking ${deleteConfirmDialog.bookingLabel}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDangerous={true}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isLoading={isDeleting}
       />
     </div>
   );

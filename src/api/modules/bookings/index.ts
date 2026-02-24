@@ -4,6 +4,7 @@
 
 export {
   checkDateAvailability,
+  checkShiftConflicts,
   checkShiftSlotAvailability,
   createBooking,
   deleteBooking,

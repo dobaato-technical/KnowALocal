@@ -58,65 +58,31 @@ export default function AvailabilityCheckPopup({
     tour: preSelectedTour || null,
   });
 
-  // Fetch unavailable dates
-  const fetchUnavailableDates = useCallback(async () => {
-    try {
-      const response = await getUnavailableDatesForMonth(
-        currentYear,
-        currentMonth,
-      );
-      if (response.success) {
-        setUnavailableDates(response.data || []);
-      }
-    } catch (error) {
-      console.error("Error fetching unavailable dates:", error);
-      showToast("Failed to load availability", "error");
-    }
-  }, [currentYear, currentMonth]);
-
-  // Fetch shifts (only once)
-  const fetchShifts = useCallback(async () => {
-    try {
-      const response = await getAllShifts();
-      if (response.success) {
-        const activeShifts = (response.data || []).filter(
-          (shift: Shift) => shift.isActive,
-        );
-        setShifts(activeShifts);
-      }
-    } catch (error) {
-      console.error("Error fetching shifts:", error);
-      showToast("Failed to load shifts", "error");
-    }
-  }, []);
-
-  // Fetch tours (only once)
-  const fetchTours = useCallback(async () => {
-    try {
-      const response = await getToursPreview();
-      if (response.success) {
-        setTours(response.data || []);
-      }
-    } catch (error) {
-      console.error("Error fetching tours:", error);
-      showToast("Failed to load tours", "error");
-    }
-  }, []);
+  // All data fetching is now inline in useEffects - removed unused callbacks
 
   // Check shift availability for selected date
+  // OPTIMIZED: Fetches all shift availabilities in parallel instead of sequentially
+  // Before: 1 + N calls | After: 2 calls
   const checkShiftAvailability = useCallback(
     async (date: string) => {
       try {
-        const disabledResponse = await getDisabledShiftsForDate(date);
+        // Get disabled shifts and check all shift availabilities in parallel
+        const [disabledResponse, availabilityResponses] = await Promise.all([
+          getDisabledShiftsForDate(date),
+          Promise.all(
+            shifts.map((shift) => checkShiftSlotAvailability(date, shift.id)),
+          ),
+        ]);
+
         if (disabledResponse.success) {
           setDisabledShiftIds(disabledResponse.data || []);
         }
 
         const availabilityMap = new Map<number, ShiftAvailability>();
 
-        for (const shift of shifts) {
-          const response = await checkShiftSlotAvailability(date, shift.id);
-          if (response.success && response.data) {
+        availabilityResponses.forEach((response, index) => {
+          const shift = shifts[index];
+          if (response.success && response.data && shift) {
             availabilityMap.set(shift.id, {
               shiftId: shift.id,
               hasSlots: response.data.hasSlots,
@@ -124,7 +90,7 @@ export default function AvailabilityCheckPopup({
               availableSlots: response.data.availableSlots,
             });
           }
-        }
+        });
 
         setShiftAvailability(availabilityMap);
       } catch (error) {
@@ -135,30 +101,101 @@ export default function AvailabilityCheckPopup({
     [shifts],
   );
 
-  // Initial load
+  // Initial load - fetches data when popup opens
+  // OPTIMIZED: Removed callback functions from dependencies to prevent re-render cascades
+  // OPTIMIZED: Skip fetching tours if preSelectedTour is already provided
   useEffect(() => {
     if (isOpen && loading) {
-      Promise.all([fetchUnavailableDates(), fetchShifts(), fetchTours()]).then(
-        () => {
-          setLoading(false);
-        },
-      );
-    }
-  }, [isOpen, loading, fetchUnavailableDates, fetchShifts, fetchTours]);
+      const initializeData = async () => {
+        // If a tour is pre-selected, don't fetch all tours
+        const shouldFetchTours = !preSelectedTour;
 
-  // Fetch unavailable dates when month changes
-  useEffect(() => {
-    if (isOpen && !loading) {
-      fetchUnavailableDates();
+        const apiCalls = [
+          getUnavailableDatesForMonth(currentYear, currentMonth),
+          getAllShifts(),
+          ...(shouldFetchTours ? [getToursPreview()] : []),
+        ];
+
+        const results = await Promise.all(apiCalls);
+
+        // Type-safe destructuring based on whether we fetched tours
+        const unavailableDatesRes = results[0];
+        const shiftsRes = results[1];
+        const toursRes = shouldFetchTours ? (results[2] as any) : null;
+
+        if (unavailableDatesRes.success) {
+          setUnavailableDates((unavailableDatesRes.data || []) as string[]);
+        }
+
+        if (shiftsRes.success) {
+          const activeShifts = ((shiftsRes.data || []) as Shift[]).filter(
+            (shift: Shift) => shift.isActive,
+          );
+          setShifts(activeShifts);
+        }
+
+        // Only set tours from API if we fetched them, otherwise use preSelectedTour
+        if (shouldFetchTours && toursRes?.success) {
+          setTours((toursRes.data || []) as TourPreview[]);
+        } else if (preSelectedTour) {
+          // Use only the pre-selected tour
+          setTours([preSelectedTour]);
+        }
+
+        setLoading(false);
+      };
+
+      initializeData().catch((error) => {
+        console.error("Error initializing availability popup:", error);
+        showToast("Failed to load availability data", "error");
+      });
     }
-  }, [currentYear, currentMonth, isOpen, loading, fetchUnavailableDates]);
+  }, [isOpen, loading, preSelectedTour, currentYear, currentMonth]);
 
   // Check shift availability when date is selected
+  // OPTIMIZED: Removed callback from dependencies - just call directly
   useEffect(() => {
-    if (selectedDate) {
-      checkShiftAvailability(selectedDate);
+    if (selectedDate && shifts.length > 0) {
+      const checkAvailability = async () => {
+        try {
+          // Get disabled shifts and check all shift availabilities in parallel
+          const [disabledResponse, availabilityResponses] = await Promise.all([
+            getDisabledShiftsForDate(selectedDate),
+            Promise.all(
+              shifts.map((shift) =>
+                checkShiftSlotAvailability(selectedDate, shift.id),
+              ),
+            ),
+          ]);
+
+          if (disabledResponse.success) {
+            setDisabledShiftIds(disabledResponse.data || []);
+          }
+
+          const availabilityMap = new Map<number, ShiftAvailability>();
+
+          availabilityResponses.forEach((response, index) => {
+            const shift = shifts[index];
+            if (response.success && response.data && shift) {
+              availabilityMap.set(shift.id, {
+                shiftId: shift.id,
+                hasSlots: response.data.hasSlots,
+                bookedCount: response.data.bookedCount,
+                availableSlots: response.data.availableSlots,
+              });
+            }
+          });
+
+          setShiftAvailability(availabilityMap);
+        } catch (error) {
+          console.error("Error checking shift availability:", error);
+          showToast("Failed to check shift availability", "error");
+        }
+      };
+
+      checkAvailability();
     }
-  }, [selectedDate, checkShiftAvailability]);
+  }, [selectedDate, shifts]);
 
   const handleDateClick = (date: string) => {
     setSelectedDate(date);
@@ -388,8 +425,8 @@ export default function AvailabilityCheckPopup({
                                 }`}
                               >
                                 {availability.hasSlots
-                                  ? `${availability.availableSlots} slots available`
-                                  : "No slots available"}
+                                  ? "✓ Available"
+                                  : "✗ Full"}
                               </p>
                             )}
                           </button>

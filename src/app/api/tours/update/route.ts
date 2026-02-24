@@ -68,6 +68,7 @@ export async function PUT(request: NextRequest) {
 
     const updateData = {
       title: body.title,
+      location: body.location || null,
       short_desc: body.description || "",
       long_desc: body.fullDescription || "",
       price: body.basePrice,

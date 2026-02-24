@@ -12,7 +12,7 @@ import Calendar from "@/components/Calendar/Calendar";
 import Button from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function AvailabilityPage() {
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
@@ -30,11 +30,8 @@ export default function AvailabilityPage() {
   const [allAvailability, setAllAvailability] = useState<Availability[]>([]);
 
   // Fetch unavailable dates for current month
-  useEffect(() => {
-    fetchUnavailableDates();
-  }, [currentYear, currentMonth]);
-
-  const fetchUnavailableDates = async () => {
+  // OPTIMIZED: Wrapped fetchUnavailableDates with useCallback for stable function reference
+  const fetchUnavailableDates = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getUnavailableDatesForMonth(
@@ -60,7 +57,11 @@ export default function AvailabilityPage() {
       setTimeout(() => setMessage(null), 5000);
     }
     setLoading(false);
-  };
+  }, [currentYear, currentMonth]);
+
+  useEffect(() => {
+    fetchUnavailableDates();
+  }, [fetchUnavailableDates]);
 
   const fetchAllAvailability = async () => {
     const response = await getAllAvailability();
@@ -180,7 +181,7 @@ export default function AvailabilityPage() {
     selectedDate && allAvailability.find((a) => a.date === selectedDate);
 
   return (
-    <div className="min-h-screen bg-bg p-6">
+    <div className="min-h-screen bg-white p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -190,19 +191,6 @@ export default function AvailabilityPage() {
           <p className="text-secondary/70 mb-4">
             Set dates as unavailable to prevent customer bookings
           </p>
-
-          {/* Instructions */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-900">
-              <strong>📅 How to use:</strong> Click on any date in the calendar.
-              <br /> • <strong className="text-red-600">Red dates</strong> are
-              unavailable - click to set as available
-              <br /> • <strong className="text-green-600">
-                Green dates
-              </strong>{" "}
-              are available - click to set as unavailable with a reason
-            </p>
-          </div>
         </div>
 
         {/* Alert Message */}

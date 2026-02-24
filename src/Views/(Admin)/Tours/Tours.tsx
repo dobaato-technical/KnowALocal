@@ -2,6 +2,7 @@
 
 import { deleteTour } from "@/api";
 import Button from "@/components/ui/button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Table, { Column } from "@/components/ui/table";
 import { getHeroImageUrl } from "@/lib/storage-urls";
 import { supabase } from "@/lib/supabase";
@@ -35,6 +36,12 @@ export default function Tours() {
   const [viewingTourData, setViewingTourData] = useState<
     TourFormData | undefined
   >(undefined);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
+    isOpen: boolean;
+    tourId: string | null;
+    tourName: string;
+  }>({ isOpen: false, tourId: null, tourName: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch tours from Supabase on component mount
   const fetchTours = useCallback(async () => {
@@ -45,7 +52,7 @@ export default function Tours() {
       const { data, error: supabaseError } = await supabase
         .from("tours")
         .select(
-          "id, title, duration, price, group_size, featured, created_at, hero_image",
+          "id, title, location, duration, price, group_size, featured, created_at, hero_image",
         )
         .eq("is_deleted", false)
         .order("created_at", { ascending: false });
@@ -61,7 +68,7 @@ export default function Tours() {
       const transformedTours: Tour[] = (data || []).map((tour: any) => ({
         id: tour.id?.toString() || "",
         name: tour.title || "",
-        location: null,
+        location: tour.location || "",
         duration: tour.duration || "",
         price: tour.price || 0,
         availability: tour.group_size || 0,
@@ -113,7 +120,7 @@ export default function Tours() {
       const { data, error: fetchError } = await supabase
         .from("tours")
         .select(
-          "id, title, short_desc, long_desc, price, duration, difficulty, tour_type, rating, group_size, featured, itinerary, specialities, included, requirements, hero_image, gallery_images",
+          "id, title, location, short_desc, long_desc, price, duration, difficulty, tour_type, rating, group_size, featured, itinerary, specialities, included, requirements, hero_image, gallery_images",
         )
         .eq("id", tour.id)
         .single();
@@ -131,7 +138,7 @@ export default function Tours() {
       // Transform fetched data to TourFormData for editing
       const tourFormData: TourFormData = {
         title: data.title || "",
-        location: "", // Location not stored in DB, will be empty
+        location: data.location || "",
         description: data.short_desc || "",
         fullDescription: data.long_desc || "",
         basePrice: data.price || 0,
@@ -180,7 +187,7 @@ export default function Tours() {
       const { data, error: fetchError } = await supabase
         .from("tours")
         .select(
-          "id, title, short_desc, long_desc, price, duration, difficulty, tour_type, rating, group_size, featured, itinerary, specialities, included, requirements, hero_image, gallery_images",
+          "id, title, location, short_desc, long_desc, price, duration, difficulty, tour_type, rating, group_size, featured, itinerary, specialities, included, requirements, hero_image, gallery_images",
         )
         .eq("id", tour.id)
         .single();
@@ -198,7 +205,7 @@ export default function Tours() {
       // Transform fetched data to TourFormData for viewing
       const tourFormData: TourFormData = {
         title: data.title || "",
-        location: "", // Location not stored in DB, will be empty
+        location: data.location || "",
         description: data.short_desc || "",
         fullDescription: data.long_desc || "",
         basePrice: data.price || 0,
@@ -237,26 +244,41 @@ export default function Tours() {
   };
 
   const handleDeleteTour = async (tourId: string, tourName: string) => {
-    if (!confirm(`Are you sure you want to delete "${tourName}"?`)) {
-      return;
-    }
+    setDeleteConfirmDialog({
+      isOpen: true,
+      tourId,
+      tourName,
+    });
+  };
 
+  const confirmDeleteTour = async () => {
+    if (!deleteConfirmDialog.tourId) return;
+
+    setIsDeleting(true);
     try {
-      console.log("Deleting tour with ID:", tourId);
-      const response = await deleteTour(tourId);
+      console.log("Deleting tour with ID:", deleteConfirmDialog.tourId);
+      const response = await deleteTour(deleteConfirmDialog.tourId);
 
       if (response.success) {
         console.log("Tour deleted successfully");
-        setTours(tours.filter((t) => t.id !== tourId));
+        setTours(tours.filter((t) => t.id !== deleteConfirmDialog.tourId));
         showToast("Tour deleted successfully", "success");
       } else {
         console.error("Failed to delete tour:", response.message);
         showToast(`Failed to delete tour: ${response.message}`, "error");
       }
+      setDeleteConfirmDialog({ isOpen: false, tourId: null, tourName: "" });
     } catch (err) {
       console.error("Error deleting tour:", err);
       showToast("An error occurred while deleting the tour", "error");
+      setDeleteConfirmDialog({ isOpen: false, tourId: null, tourName: "" });
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const cancelDeleteTour = () => {
+    setDeleteConfirmDialog({ isOpen: false, tourId: null, tourName: "" });
   };
 
   const columns: Column<Tour>[] = [
@@ -359,6 +381,7 @@ export default function Tours() {
 
       const payload: any = {
         title: tourData.title,
+        location: tourData.location,
         description: tourData.description,
         fullDescription: tourData.fullDescription,
         basePrice: tourData.basePrice,
@@ -482,6 +505,19 @@ export default function Tours() {
         isLoading={isLoading}
         editingData={isViewingTourId ? viewingTourData : editingTourData}
         readOnly={!!isViewingTourId}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmDialog.isOpen}
+        title="Delete Tour"
+        message={`Are you sure you want to delete "${deleteConfirmDialog.tourName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDangerous={true}
+        onConfirm={confirmDeleteTour}
+        onCancel={cancelDeleteTour}
+        isLoading={isDeleting}
       />
     </div>
   );

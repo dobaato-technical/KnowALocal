@@ -3,11 +3,13 @@
 import { motion } from "framer-motion";
 
 export default function ItineraryDay({ tour }: any) {
-  if (!tour.itinerary || tour.itinerary.length === 0) return null;
+  // Show section if there's either itinerary or description
+  const hasItinerary = tour.itinerary && tour.itinerary.length > 0;
+  const hasDescription = tour.fullDescription;
 
-  const activities = tour.itinerary;
+  if (!hasItinerary && !hasDescription) return null;
 
-  if (activities.length === 0) return null;
+  const activities = tour.itinerary || [];
 
   return (
     <section className="pt-0 pb-20 md:pb-28 relative overflow-hidden font-[family-name:var(--font-merriweather)]">
@@ -45,41 +47,43 @@ export default function ItineraryDay({ tour }: any) {
         </motion.div>
 
         {/* Timeline Items */}
-        <div className="space-y-4 relative">
-          {/* Vertical Line */}
-          <div className="absolute left-3.5 top-12 bottom-0 w-0.5 bg-gradient-to-b from-accent via-accent/50 to-transparent" />
+        {activities.length > 0 && (
+          <div className="space-y-4 relative">
+            {/* Vertical Line */}
+            <div className="absolute left-3.5 top-12 bottom-0 w-0.5 bg-gradient-to-b from-accent via-accent/50 to-transparent" />
 
-          {/* Activities */}
-          {activities.map((activity: any, index: number) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="flex gap-5 group relative"
-            >
-              {/* Timeline Dot */}
-              <div className="flex-shrink-0 pt-1 relative z-10">
-                <div className="w-8 h-8 rounded-full bg-accent shadow-lg flex items-center justify-center text-neutral-light text-xs font-bold transition-all duration-300 group-hover:scale-125 group-hover:shadow-xl gold-glow border-2 border-white">
-                  {index + 1}
+            {/* Activities */}
+            {activities.map((activity: any, index: number) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className="flex gap-5 group relative"
+              >
+                {/* Timeline Dot */}
+                <div className="flex-shrink-0 pt-1 relative z-10">
+                  <div className="w-8 h-8 rounded-full bg-accent shadow-lg flex items-center justify-center text-neutral-light text-xs font-bold transition-all duration-300 group-hover:scale-125 group-hover:shadow-xl gold-glow border-2 border-white">
+                    {index + 1}
+                  </div>
                 </div>
-              </div>
 
-              {/* Content Card */}
-              <div className="flex-1 min-w-0">
-                <motion.div
-                  className="backdrop-blur-sm rounded-xl border border-accent/20 p-3 md:p-4 transition-all duration-300 group-hover:border-accent/50 group-hover:shadow-lg group-hover:-translate-y-1"
-                  whileHover={{ y: -4 }}
-                >
-                  <p className="text-base md:text-lg font-medium text-primary">
-                    {activity}
-                  </p>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                {/* Content Card */}
+                <div className="flex-1 min-w-0">
+                  <motion.div
+                    className="backdrop-blur-sm rounded-xl border border-accent/20 p-3 md:p-4 transition-all duration-300 group-hover:border-accent/50 group-hover:shadow-lg group-hover:-translate-y-1"
+                    whileHover={{ y: -4 }}
+                  >
+                    <p className="text-base md:text-lg font-medium text-primary">
+                      {activity}
+                    </p>
+                  </motion.div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

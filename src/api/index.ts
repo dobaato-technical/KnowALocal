@@ -60,6 +60,7 @@ export type { Availability } from "./modules/availability";
 // Bookings Module
 export {
   checkDateAvailability,
+  checkShiftConflicts,
   checkShiftSlotAvailability,
   createBooking,
   deleteBooking,

@@ -28,25 +28,25 @@ export default function TourInfoCards({ tour }: any) {
     {
       icon: <Timer className="w-6 h-6" />,
       label: "Duration",
-      value: tour.duration,
+      value: tour.duration || "N/A",
       color: "text-primary",
     },
     {
       icon: <Mountain className="w-6 h-6" />,
       label: "Difficulty",
-      value: tour.difficulty,
+      value: tour.difficulty || "N/A",
       color: "text-primary",
     },
     {
       icon: <Award className="w-6 h-6" />,
       label: "Rating",
-      value: `${tour.rating}/5`,
+      value: tour.rating ? `${tour.rating}/5` : "N/A",
       color: "text-primary",
     },
     {
       icon: <ShieldCheck className="w-6 h-6" />,
-      label: "Verified",
-      value: "Local Guide",
+      label: "Tour Type",
+      value: tour.tourType || "N/A",
       color: "text-primary",
     },
     {

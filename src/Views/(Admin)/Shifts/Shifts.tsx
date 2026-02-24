@@ -8,8 +8,9 @@ import {
   type Shift,
 } from "@/api";
 import Button from "@/components/ui/button";
-
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { Input } from "@/components/ui/input";
+import { showToast } from "@/lib/toast-utils";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -17,6 +18,11 @@ export default function ShiftsPage() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
+    isOpen: boolean;
+    shiftId: number | null;
+  }>({ isOpen: false, shiftId: null });
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     startTime: "10:00:00",
@@ -55,22 +61,43 @@ export default function ShiftsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Are you sure you want to delete this shift?")) {
-      const response = await deleteShift(id);
+    setDeleteConfirmDialog({
+      isOpen: true,
+      shiftId: id,
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmDialog.shiftId) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await deleteShift(deleteConfirmDialog.shiftId);
       if (response.success) {
-        setShifts(shifts.filter((s) => s.id !== id));
-        alert("Shift deleted successfully");
+        setShifts(shifts.filter((s) => s.id !== deleteConfirmDialog.shiftId));
+        showToast("Shift deleted successfully", "success");
       } else {
-        alert("Failed to delete shift");
+        showToast("Failed to delete shift", "error");
       }
+      setDeleteConfirmDialog({ isOpen: false, shiftId: null });
+    } catch (err) {
+      console.error("Error deleting shift:", err);
+      showToast("An error occurred while deleting the shift", "error");
+      setDeleteConfirmDialog({ isOpen: false, shiftId: null });
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmDialog({ isOpen: false, shiftId: null });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      alert("Please enter a shift name");
+      showToast("Please enter a shift name", "error");
       return;
     }
 
@@ -79,18 +106,18 @@ export default function ShiftsPage() {
       const response = await updateShift(editingId, formData);
       if (response.success && response.data) {
         setShifts(shifts.map((s) => (s.id === editingId ? response.data! : s)));
-        alert("Shift updated successfully");
+        showToast("Shift updated successfully", "success");
       } else {
-        alert("Failed to update shift");
+        showToast("Failed to update shift", "error");
       }
     } else {
       // Create new shift
       const response = await createShift(formData);
       if (response.success && response.data) {
         setShifts([response.data, ...shifts]);
-        alert("Shift created successfully");
+        showToast("Shift created successfully", "success");
       } else {
-        alert("Failed to create shift");
+        showToast("Failed to create shift", "error");
       }
     }
 
@@ -131,7 +158,7 @@ export default function ShiftsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg p-6">
+    <div className="min-h-screen bg-white p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -374,6 +401,19 @@ export default function ShiftsPage() {
             </p>
           </div>
         )}
+
+        {/* Delete Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={deleteConfirmDialog.isOpen}
+          title="Delete Shift"
+          message="Are you sure you want to delete this shift? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          isDangerous={true}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+          isLoading={isDeleting}
+        />
       </div>
     </div>
   );

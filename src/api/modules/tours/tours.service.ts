@@ -4,6 +4,7 @@
  */
 
 import { ApiResponse } from "@/api/types";
+import { apiCache } from "@/lib/api-cache";
 import { getGalleryImageUrl, getHeroImageUrl } from "@/lib/storage-urls";
 import { supabase } from "@/lib/supabase";
 import type { Tour, TourPreview } from "./tours.types";
@@ -11,115 +12,50 @@ import type { Tour, TourPreview } from "./tours.types";
 /**
  * Get all tours (preview data for list views)
  * Fetches lightweight data optimized for list displays
+ * OPTIMIZED: Cached for 10 seconds to prevent duplicate requests
  * @returns API response with array of tour previews
  */
 export async function getToursPreview(): Promise<ApiResponse<TourPreview[]>> {
-  try {
-    const { data, error } = await supabase
-      .from("tours")
-      .select(
-        "id, title, short_desc, long_desc, hero_image, price, rating, duration, difficulty, group_size, tour_type, gallery_images, itinerary, specialities, included, requirements, featured, location, created_at",
-      )
-      .eq("is_deleted", false)
-      .order("created_at", { ascending: false });
+  return apiCache
+    .get(
+      "tours/preview",
+      async () => {
+        const { data, error } = await supabase
+          .from("tours")
+          .select(
+            "id, title, short_desc, long_desc, hero_image, price, rating, duration, difficulty, group_size, tour_type, gallery_images, itinerary, specialities, included, requirements, featured, location, created_at",
+          )
+          .eq("is_deleted", false)
+          .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Supabase error:", error);
+        if (error) {
+          console.error("Supabase error:", error);
+          throw new Error("Failed to fetch tours");
+        }
+
+        // Transform Supabase response to match TourPreview interface
+        const tours: TourPreview[] = (data || []).map((tour: any) =>
+          transformTourToPreview(tour),
+        );
+
+        return tours;
+      },
+      { ttl: 10000 },
+    )
+    .then((tours) => ({
+      success: true,
+      message: "Tours fetched successfully",
+      data: tours,
+    }))
+    .catch((error) => {
+      console.error("Tours API error:", error);
       return {
         success: false,
         message: "Failed to fetch tours",
         error: "FETCH_ERROR",
         data: [],
       };
-    }
-
-    // Transform Supabase response to match TourPreview interface
-    const tours: TourPreview[] = (data || []).map((tour: any) => {
-      try {
-        return {
-          _id: tour.id.toString(),
-          title: tour.title || "N/A",
-          slug: {
-            current: (tour.title || "untitled")
-              .toLowerCase()
-              .replace(/\s+/g, "-"),
-          },
-          description: tour.short_desc || "N/A",
-          image: {
-            asset: {
-              url: tour.hero_image ? getHeroImageUrl(tour.hero_image) : "",
-            },
-          },
-          rating: tour.rating || 0,
-          basePrice: tour.price || 0,
-          fullDescription: tour.long_desc || "N/A",
-          location: tour.location || "N/A",
-          duration: tour.duration || "N/A",
-          difficulty: tour.difficulty || "N/A",
-          tourType:
-            (tour.tour_type as "standard" | "adventure" | "hiking" | "water") ||
-            "standard",
-          maxGroupSize: tour.group_size
-            ? parseInt(tour.group_size.toString())
-            : 0,
-          galleryImages: (Array.isArray(tour.gallery_images)
-            ? tour.gallery_images
-            : []
-          )
-            .map((img: string) => {
-              try {
-                return {
-                  asset: {
-                    url: getGalleryImageUrl(img),
-                  },
-                };
-              } catch (err) {
-                console.warn(`Failed to process gallery image: ${img}`, err);
-                return {
-                  asset: {
-                    url: "",
-                  },
-                };
-              }
-            })
-            .filter((img: any) => img.asset.url),
-          specialties: Array.isArray(tour.specialities)
-            ? tour.specialities
-            : [],
-          itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
-          tourInclusions: Array.isArray(tour.included) ? tour.included : [],
-          keyRequirements: Array.isArray(tour.requirements)
-            ? tour.requirements
-            : [],
-        };
-      } catch (err) {
-        console.error(`Failed to transform tour:`, tour, err);
-        return {
-          _id: tour.id?.toString() || "unknown",
-          title: tour.title || "Unknown Tour",
-          slug: { current: "unknown" },
-          description: "Tour data is corrupted",
-          image: { asset: { url: "" } },
-          rating: 0,
-          basePrice: 0,
-        };
-      }
     });
-
-    return {
-      success: true,
-      message: "Tours fetched successfully",
-      data: tours,
-    };
-  } catch (error) {
-    console.error("Tours API error:", error);
-    return {
-      success: false,
-      message: "Failed to fetch tours",
-      error: "FETCH_ERROR",
-      data: [],
-    };
-  }
 }
 
 /**
@@ -344,19 +280,37 @@ export async function getTourById(
       specialties: (data.specialities || [])
         .map((specialty: any) => {
           try {
-            let parsed = specialty;
+            // Handle both plain strings and JSON strings
             if (typeof specialty === "string") {
-              parsed = JSON.parse(specialty);
+              // Try to parse as JSON first
+              try {
+                const parsed = JSON.parse(specialty);
+                return {
+                  name: parsed.name || "N/A",
+                  description: parsed.description || "N/A",
+                  price: parsed.price || 0,
+                  icon: parsed.icon,
+                  isClimbing: parsed.isClimbing,
+                };
+              } catch {
+                // If JSON parse fails, treat as plain string
+                return {
+                  name: specialty.trim(),
+                  description: "N/A",
+                  price: 0,
+                };
+              }
             }
+            // If already an object (shouldn't happen, but handle it)
             return {
-              name: parsed.name || "N/A",
-              description: parsed.description || "N/A",
-              price: parsed.price || 0,
-              icon: parsed.icon,
-              isClimbing: parsed.isClimbing,
+              name: specialty.name || "N/A",
+              description: specialty.description || "N/A",
+              price: specialty.price || 0,
+              icon: specialty.icon,
+              isClimbing: specialty.isClimbing,
             };
           } catch (err) {
-            console.warn(`Failed to parse specialty:`, specialty, err);
+            console.warn(`Failed to parse specialty:`, specialty);
             return null;
           }
         })
@@ -364,25 +318,48 @@ export async function getTourById(
       itinerary: (data.itinerary || [])
         .map((day: any) => {
           if (typeof day === "string") {
-            return day.trim();
+            // Try to parse as JSON first (structured itineraries)
+            try {
+              const parsed = JSON.parse(day);
+              return parsed.title || day.trim();
+            } catch {
+              // If not JSON, just return the string
+              return day.trim();
+            }
           }
           return null;
         })
         .filter((day: any) => day !== null),
       tourInclusions: (data.included || [])
         .map((inclusion: any) => {
+          // Handle both plain strings and JSON strings
           if (typeof inclusion === "string") {
-            return inclusion.trim();
+            // Try to parse as JSON first
+            try {
+              const parsed = JSON.parse(inclusion);
+              return parsed.title || parsed;
+            } catch {
+              // If JSON parse fails, treat as plain string
+              return inclusion.trim();
+            }
           }
-          return null;
+          return inclusion;
         })
         .filter((inc: any) => inc !== null),
       keyRequirements: (data.requirements || [])
         .map((requirement: any) => {
+          // Handle both plain strings and JSON strings
           if (typeof requirement === "string") {
-            return requirement.trim();
+            // Try to parse as JSON first
+            try {
+              const parsed = JSON.parse(requirement);
+              return parsed.title || parsed;
+            } catch {
+              // If JSON parse fails, treat as plain string
+              return requirement.trim();
+            }
           }
-          return null;
+          return requirement;
         })
         .filter((req: any) => req !== null),
       rating: data.rating || 0,
@@ -417,114 +394,48 @@ export async function getTourById(
  * @returns API response with array of featured tours
  */
 export async function getFeaturedTours(): Promise<ApiResponse<TourPreview[]>> {
-  try {
-    const { data, error } = await supabase
-      .from("tours")
-      .select(
-        "id, title, short_desc, long_desc, hero_image, price, rating, duration, difficulty, group_size, tour_type, gallery_images, itinerary, specialities, included, requirements, featured, location, created_at",
-      )
-      .eq("is_deleted", false)
-      .eq("featured", true)
-      .limit(6)
-      .order("created_at", { ascending: false });
+  return apiCache
+    .get(
+      "tours/featured",
+      async () => {
+        const { data, error } = await supabase
+          .from("tours")
+          .select(
+            "id, title, short_desc, long_desc, hero_image, price, rating, duration, difficulty, group_size, tour_type, gallery_images, itinerary, specialities, included, requirements, featured, location, created_at",
+          )
+          .eq("is_deleted", false)
+          .eq("featured", true)
+          .limit(6)
+          .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Supabase error:", error);
+        if (error) {
+          console.error("Supabase error:", error);
+          throw new Error("Failed to fetch featured tours");
+        }
+
+        // Transform Supabase response to match TourPreview interface
+        const tours: TourPreview[] = (data || []).map((tour: any) =>
+          transformTourToPreview(tour),
+        );
+
+        return tours;
+      },
+      { ttl: 10000 },
+    )
+    .then((tours) => ({
+      success: true,
+      message: "Featured tours fetched successfully",
+      data: tours,
+    }))
+    .catch((error) => {
+      console.error("Tours API error:", error);
       return {
         success: false,
         message: "Failed to fetch featured tours",
         error: "FETCH_ERROR",
         data: [],
       };
-    }
-
-    // Transform Supabase response to match TourPreview interface
-    const tours: TourPreview[] = (data || []).map((tour: any) => {
-      try {
-        return {
-          _id: tour.id.toString(),
-          title: tour.title || "N/A",
-          slug: {
-            current: (tour.title || "untitled")
-              .toLowerCase()
-              .replace(/\s+/g, "-"),
-          },
-          description: tour.short_desc || "N/A",
-          image: {
-            asset: {
-              url: tour.hero_image ? getHeroImageUrl(tour.hero_image) : "",
-            },
-          },
-          rating: tour.rating || 0,
-          basePrice: tour.price || 0,
-          fullDescription: tour.long_desc || "N/A",
-          location: tour.location || "N/A",
-          duration: tour.duration || "N/A",
-          difficulty: tour.difficulty || "N/A",
-          tourType:
-            (tour.tour_type as "standard" | "adventure" | "hiking" | "water") ||
-            "standard",
-          maxGroupSize: tour.group_size
-            ? parseInt(tour.group_size.toString())
-            : 0,
-          galleryImages: (Array.isArray(tour.gallery_images)
-            ? tour.gallery_images
-            : []
-          )
-            .map((img: string) => {
-              try {
-                return {
-                  asset: {
-                    url: getGalleryImageUrl(img),
-                  },
-                };
-              } catch (err) {
-                console.warn(`Failed to process gallery image: ${img}`, err);
-                return {
-                  asset: {
-                    url: "",
-                  },
-                };
-              }
-            })
-            .filter((img: any) => img.asset.url),
-          specialties: Array.isArray(tour.specialities)
-            ? tour.specialities
-            : [],
-          itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
-          tourInclusions: Array.isArray(tour.included) ? tour.included : [],
-          keyRequirements: Array.isArray(tour.requirements)
-            ? tour.requirements
-            : [],
-        };
-      } catch (err) {
-        console.error(`Failed to transform featured tour:`, tour, err);
-        return {
-          _id: tour.id?.toString() || "unknown",
-          title: tour.title || "Unknown Tour",
-          slug: { current: "unknown" },
-          description: "Tour data is corrupted",
-          image: { asset: { url: "" } },
-          rating: 0,
-          basePrice: 0,
-        };
-      }
     });
-
-    return {
-      success: true,
-      message: "Featured tours fetched successfully",
-      data: tours,
-    };
-  } catch (error) {
-    console.error("Tours API error:", error);
-    return {
-      success: false,
-      message: "Failed to fetch featured tours",
-      error: "FETCH_ERROR",
-      data: [],
-    };
-  }
 }
 
 /**
@@ -656,6 +567,77 @@ export async function deleteTour(tourId: string): Promise<ApiResponse<null>> {
       message: "Failed to delete tour",
       error: "DELETE_ERROR",
       data: null,
+    };
+  }
+}
+
+/**
+ * Helper function to transform raw tour data to TourPreview format
+ * @param tour - Raw tour data from Supabase
+ * @returns Transformed TourPreview object
+ */
+function transformTourToPreview(tour: any): TourPreview {
+  try {
+    return {
+      _id: tour.id.toString(),
+      title: tour.title || "N/A",
+      slug: {
+        current: (tour.title || "untitled").toLowerCase().replace(/\s+/g, "-"),
+      },
+      description: tour.short_desc || "N/A",
+      image: {
+        asset: {
+          url: tour.hero_image ? getHeroImageUrl(tour.hero_image) : "",
+        },
+      },
+      rating: tour.rating || 0,
+      basePrice: tour.price || 0,
+      fullDescription: tour.long_desc || "N/A",
+      location: tour.location || "N/A",
+      duration: tour.duration || "N/A",
+      difficulty: tour.difficulty || "N/A",
+      tourType:
+        (tour.tour_type as "standard" | "adventure" | "hiking" | "water") ||
+        "standard",
+      maxGroupSize: tour.group_size ? parseInt(tour.group_size.toString()) : 0,
+      galleryImages: (Array.isArray(tour.gallery_images)
+        ? tour.gallery_images
+        : []
+      )
+        .map((img: string) => {
+          try {
+            return {
+              asset: {
+                url: getGalleryImageUrl(img),
+              },
+            };
+          } catch (err) {
+            console.warn(`Failed to process gallery image: ${img}`, err);
+            return {
+              asset: {
+                url: "",
+              },
+            };
+          }
+        })
+        .filter((img: any) => img.asset.url),
+      specialties: Array.isArray(tour.specialities) ? tour.specialities : [],
+      itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
+      tourInclusions: Array.isArray(tour.included) ? tour.included : [],
+      keyRequirements: Array.isArray(tour.requirements)
+        ? tour.requirements
+        : [],
+    };
+  } catch (err) {
+    console.error(`Failed to transform tour:`, tour, err);
+    return {
+      _id: tour.id?.toString() || "unknown",
+      title: tour.title || "Unknown Tour",
+      slug: { current: "unknown" },
+      description: "Tour data is corrupted",
+      image: { asset: { url: "" } },
+      rating: 0,
+      basePrice: 0,
     };
   }
 }

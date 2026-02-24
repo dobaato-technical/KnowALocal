@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
       .insert([
         {
           title: body.title,
+          location: body.location || null,
           short_desc: body.description || "",
           long_desc: body.fullDescription || "",
           price: body.basePrice,

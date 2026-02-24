@@ -2,6 +2,7 @@
 
 import {
   checkDateAvailability,
+  checkShiftConflicts,
   getAllShifts,
   getToursPreview,
   type Shift,
@@ -48,6 +49,11 @@ export default function AddBookingModal({
   const [loadingShifts, setLoadingShifts] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dateAvailability, setDateAvailability] = useState<{
+    isChecking: boolean;
+    isAvailable: boolean;
+    reason?: string;
+  }>({ isChecking: false, isAvailable: true });
+  const [shiftAvailability, setShiftAvailability] = useState<{
     isChecking: boolean;
     isAvailable: boolean;
     reason?: string;
@@ -122,6 +128,51 @@ export default function AddBookingModal({
     }
   };
 
+  const checkShiftAvailability = async (date: string, shiftId: number) => {
+    if (!date || !shiftId) {
+      setShiftAvailability({ isChecking: false, isAvailable: true });
+      return;
+    }
+
+    setShiftAvailability((prev) => ({ ...prev, isChecking: true }));
+    try {
+      const response = await checkShiftConflicts(date, shiftId);
+
+      if (response.success && response.data) {
+        const hasConflict = response.data.hasConflict;
+        const reasonMap: Record<string, string> = {
+          CONFLICT_WITH_EXISTING_BOOKING:
+            "Cannot book whole day - another booking already exists for this date",
+          DATE_ALREADY_BOOKED:
+            "This date is no longer available - a booking already exists",
+          INVALID_SHIFT: "Invalid shift selected",
+        };
+
+        setShiftAvailability({
+          isChecking: false,
+          isAvailable: !hasConflict,
+          reason: hasConflict
+            ? reasonMap[response.data.reason || ""] ||
+              "This shift is not available"
+            : undefined,
+        });
+      } else {
+        setShiftAvailability({
+          isChecking: false,
+          isAvailable: false,
+          reason: "Failed to check shift availability",
+        });
+      }
+    } catch (err) {
+      console.error("Error checking shift availability:", err);
+      setShiftAvailability({
+        isChecking: false,
+        isAvailable: false,
+        reason: "Error checking shift availability",
+      });
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -136,6 +187,9 @@ export default function AddBookingModal({
     }
     if (!formData.shift_id) {
       newErrors.shift_id = "Please select a shift";
+    }
+    if (!shiftAvailability.isAvailable) {
+      newErrors.shift_id = `This shift is not available: ${shiftAvailability.reason || "Conflict with existing booking"}`;
     }
     if (!formData.status) {
       newErrors.status = "Please select a status";
@@ -169,6 +223,11 @@ export default function AddBookingModal({
 
     if (name === "tour_id" || name === "shift_id") {
       setFormData({ ...formData, [name]: Number(value) });
+
+      // Check shift availability when shift changes
+      if (name === "shift_id" && formData.date && Number(value)) {
+        checkShiftAvailability(formData.date, Number(value));
+      }
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -176,6 +235,10 @@ export default function AddBookingModal({
     // Check availability when date changes
     if (name === "date") {
       checkAvailability(value);
+      // Also re-check shift availability if a shift is already selected
+      if (formData.shift_id) {
+        checkShiftAvailability(value, formData.shift_id);
+      }
     }
   };
 
@@ -297,6 +360,32 @@ export default function AddBookingModal({
                 ))}
               </select>
             )}
+
+            {/* Shift Availability Status */}
+            {formData.shift_id && formData.date && (
+              <div className="mt-2 flex items-center gap-2">
+                {shiftAvailability.isChecking ? (
+                  <p className="text-gray-600 text-sm">
+                    Checking shift availability...
+                  </p>
+                ) : shiftAvailability.isAvailable ? (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={16} className="text-green-600" />
+                    <p className="text-green-600 text-sm font-medium">
+                      ✓ Available for booking
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <AlertCircle size={16} className="text-red-600" />
+                    <p className="text-red-600 text-sm font-medium">
+                      ✗ Not available: {shiftAvailability.reason}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {errors.shift_id && (
               <p className="text-red-500 text-sm mt-1">{errors.shift_id}</p>
             )}

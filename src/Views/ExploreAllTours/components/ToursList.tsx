@@ -5,9 +5,9 @@ import Button from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
-export default function ToursList() {
+function ToursList() {
   const [tours, setTours] = useState<TourPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -153,3 +153,5 @@ export default function ToursList() {
     </section>
   );
 }
+
+export default memo(ToursList);
