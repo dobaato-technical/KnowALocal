@@ -1,30 +1,26 @@
 "use client";
 
-import Button from "@/components/ui/Button";
-import { getToursPreview, type TourPreview } from "@/sanity/lib/queries";
+import { getFeaturedTours, type TourPreview } from "@/api";
+import Button from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
-export default function Tours() {
+function Tours() {
   const [tours, setTours] = useState<TourPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     async function loadTours() {
       try {
-        console.log("🔍 LandingPage Tours: Fetching tours...");
-        const data = await getToursPreview();
-        console.log("✅ LandingPage Tours: Fetched", data.length, "tours");
-        if (data.length > 0) {
-          console.log("📋 First tour:", data[0]);
-        }
-        setTours(data);
+        const response = await getFeaturedTours();
+        const data = response.data || [];
+        // Shuffle and pick up to 4 random featured tours
+        const shuffled = [...data].sort(() => Math.random() - 0.5).slice(0, 4);
+        setTours(shuffled);
       } catch (error) {
-        console.error("❌ LandingPage Tours: Error loading tours:", error);
         setTours([]);
       } finally {
         setIsLoading(false);
@@ -32,8 +28,6 @@ export default function Tours() {
     }
     loadTours();
   }, []);
-
-  const visibleTours = showAll ? tours : tours.slice(0, 4);
 
   return (
     <div className="w-full text-dark">
@@ -123,14 +117,14 @@ export default function Tours() {
         {/* Cards */}
         {!isLoading && tours.length > 0 && (
           <div className="mt-16 grid gap-12 md:grid-cols-4">
-            {visibleTours.map((tour) => (
+            {tours.map((tour) => (
               <motion.div
                 key={tour._id}
                 whileHover={{ y: -4 }}
                 transition={{ duration: 0.3 }}
                 className="group"
               >
-                <Link href={`/tour-details/${tour.slug.current}`}>
+                <Link href={`/tour-details/${tour._id}`}>
                   <div className="relative h-70 rounded-2xl overflow-hidden cursor-pointer bg-gray-200">
                     {tour.image?.asset?.url ? (
                       <Image
@@ -148,6 +142,9 @@ export default function Tours() {
                       </div>
                     )}
 
+                    {/* Gradient Overlay for badge legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
                     {/* Rating Badge */}
                     {tour.rating && tour.rating > 0 && (
                       <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3.5 py-2 rounded-2xl shadow-md flex items-center gap-1.5">
@@ -157,18 +154,25 @@ export default function Tours() {
                         </span>
                       </div>
                     )}
+
+                    {/* Price Tag */}
+                    {tour.basePrice && (
+                      <div className="absolute top-4 left-4 bg-accent/90 text-white px-3.5 py-2 rounded-2xl shadow-md font-bold">
+                        ${tour.basePrice}
+                      </div>
+                    )}
                   </div>
                 </Link>
 
                 <h3 className="mt-6 font-heading text-xl">{tour.title}</h3>
 
-                <p className="mt-2 text-sm text-dark/70 max-w-md">
+                <p className="mt-2 text-sm text-dark/70 max-w-md line-clamp-2">
                   {tour.description}
                 </p>
 
                 <div className="mt-4">
-                  <Link href={`/tour-details/${tour.slug.current}`}>
-                    <Button variant="subtle">Learn More</Button>
+                  <Link href={`/tour-details/${tour._id}`}>
+                    <Button variant="subtle">View Detail</Button>
                   </Link>
                 </div>
               </motion.div>
@@ -179,3 +183,5 @@ export default function Tours() {
     </div>
   );
 }
+
+export default memo(Tours);

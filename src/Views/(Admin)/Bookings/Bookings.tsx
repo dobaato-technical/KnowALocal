@@ -1,0 +1,661 @@
+"use client";
+
+import {
+  createBooking,
+  deleteBooking,
+  getAllBookings,
+  getBookingById,
+  updateBookingStatus,
+  type BookingWithDetails,
+} from "@/api";
+import Button from "@/components/ui/button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Table, { Column } from "@/components/ui/table";
+import { showToast } from "@/lib/toast-utils";
+import { Eye, Plus, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import AddBookingModal, {
+  type BookingFormData,
+} from "./components/AddBookingModal";
+
+export default function BookingsPage() {
+  const [bookings, setBookings] = useState<BookingWithDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] =
+    useState<BookingWithDetails | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [statusBeingUpdated, setStatusBeingUpdated] = useState<string | null>(
+    null,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
+    isOpen: boolean;
+    bookingId: number | null;
+    bookingLabel: string;
+  }>({ isOpen: false, bookingId: null, bookingLabel: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Fetch bookings on mount
+  const fetchBookings = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await getAllBookings();
+
+      if (!response.success) {
+        console.error("Failed to fetch bookings:", response.message);
+        setError(response.message);
+        setBookings([]);
+        return;
+      }
+
+      setBookings(response.data || []);
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+      setError("An error occurred while fetching bookings");
+      setBookings([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
+
+  const handleViewDetails = async (booking: BookingWithDetails) => {
+    try {
+      // OPTIMIZED: Use cached booking data from list instead of making another API call
+      // The booking from getAllBookings already has all details we need
+      if (
+        booking.tourTitle &&
+        booking.shiftName &&
+        booking.shiftStartTime &&
+        booking.shiftEndTime
+      ) {
+        setSelectedBooking(booking);
+        setShowDetails(true);
+        return;
+      }
+
+      // Fallback: Only fetch if details are missing (shouldn't happen with optimized getAllBookings)
+      const response = await getBookingById(booking.id);
+
+      if (!response.success || !response.data) {
+        console.error("Failed to fetch booking details");
+        showToast("Failed to fetch booking details", "error");
+        return;
+      }
+
+      setSelectedBooking(response.data);
+      setShowDetails(true);
+    } catch (err) {
+      console.error("Error fetching booking details:", err);
+      showToast("An error occurred while fetching booking details", "error");
+    }
+  };
+
+  const handleStatusChange = async (
+    bookingId: number,
+    newStatus: "pending" | "confirmed" | "cancelled" | "completed",
+  ) => {
+    try {
+      setStatusBeingUpdated(newStatus);
+
+      const response = await updateBookingStatus(bookingId, newStatus);
+
+      if (!response.success) {
+        console.error("Failed to update booking status:", response.message);
+        showToast(`Failed to update booking: ${response.message}`, "error");
+        return;
+      }
+
+      // Update bookings list
+      setBookings(
+        bookings.map((b) =>
+          b.id === bookingId
+            ? {
+                ...b,
+                booking_status: newStatus as
+                  | "pending"
+                  | "confirmed"
+                  | "cancelled",
+              }
+            : b,
+        ),
+      );
+
+      // Update selected booking if it's the one being edited
+      if (selectedBooking?.id === bookingId) {
+        setSelectedBooking({
+          ...selectedBooking,
+          booking_status: newStatus as "pending" | "confirmed" | "cancelled",
+        });
+      }
+
+      showToast("Booking status updated successfully", "success");
+    } catch (err) {
+      console.error("Error updating booking status:", err);
+      showToast("An error occurred while updating booking status", "error");
+    } finally {
+      setStatusBeingUpdated(null);
+    }
+  };
+
+  const handleDelete = async (bookingId: number, bookingLabel: string) => {
+    setDeleteConfirmDialog({
+      isOpen: true,
+      bookingId,
+      bookingLabel,
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmDialog.bookingId) return;
+
+    setIsDeleting(true);
+
+    try {
+      const response = await deleteBooking(deleteConfirmDialog.bookingId);
+
+      if (!response.success) {
+        console.error("Failed to delete booking:", response.message);
+        showToast(`Failed to delete booking: ${response.message}`, "error");
+        setDeleteConfirmDialog({
+          isOpen: false,
+          bookingId: null,
+          bookingLabel: "",
+        });
+        return;
+      }
+
+      setBookings(
+        bookings.filter((b) => b.id !== deleteConfirmDialog.bookingId),
+      );
+
+      if (selectedBooking?.id === deleteConfirmDialog.bookingId) {
+        setShowDetails(false);
+        setSelectedBooking(null);
+      }
+
+      showToast("Booking deleted successfully", "success");
+      setDeleteConfirmDialog({
+        isOpen: false,
+        bookingId: null,
+        bookingLabel: "",
+      });
+    } catch (err) {
+      console.error("Error deleting booking:", err);
+      showToast("An error occurred while deleting the booking", "error");
+      setDeleteConfirmDialog({
+        isOpen: false,
+        bookingId: null,
+        bookingLabel: "",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmDialog({
+      isOpen: false,
+      bookingId: null,
+      bookingLabel: "",
+    });
+  };
+
+  const handleAddBooking = async (bookingData: BookingFormData) => {
+    setIsLoadingModal(true);
+    try {
+      const specialtiesTotal = (bookingData.selected_specialties || []).reduce(
+        (sum, s) => sum + (s.price || 0),
+        0,
+      );
+      const totalPrice = bookingData.tour_price + specialtiesTotal;
+
+      const payload = {
+        tour_id: bookingData.tour_id,
+        date: bookingData.date,
+        shift_id: bookingData.shift_id,
+        payment_info: bookingData.payment_info,
+        booking_status: bookingData.booking_status as
+          | "pending"
+          | "confirmed"
+          | "cancelled"
+          | "completed",
+        additional_info: bookingData.additional_info,
+        customer_name: bookingData.customer_name.trim(),
+        customer_email: bookingData.customer_email.trim().toLowerCase(),
+        guest_number: bookingData.guest_number,
+        tour_price: totalPrice,
+        selected_specialties:
+          bookingData.selected_specialties.length > 0
+            ? bookingData.selected_specialties
+            : null,
+      };
+
+      const response = await createBooking(payload);
+
+      if (!response.success) {
+        console.error("Failed to create booking:", response.message);
+        showToast(`Failed to create booking: ${response.message}`, "error");
+        return;
+      }
+
+      // Refresh bookings list
+      await fetchBookings();
+
+      // Close modal
+      setIsModalOpen(false);
+
+      showToast("Booking created successfully!", "success");
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      showToast("An error occurred while creating the booking", "error");
+    } finally {
+      setIsLoadingModal(false);
+    }
+  };
+
+  // Filter bookings based on status
+  const filteredBookings =
+    filterStatus === "all"
+      ? bookings
+      : bookings.filter((b) => b.booking_status === filterStatus);
+
+  const columns: Column<BookingWithDetails>[] = [
+    {
+      key: "id",
+      label: "Booking ID",
+      render: (value) => `#${value}`,
+      className: "font-semibold",
+    },
+    {
+      key: "tourTitle",
+      label: "Tour",
+    },
+    {
+      key: "date",
+      label: "Date",
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
+      key: "shiftName",
+      label: "Shift",
+    },
+    {
+      key: "booking_status",
+      label: "Status",
+      render: (value) => (
+        <span
+          className={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${getStatusBadgeClass(
+            value,
+          )}`}
+        >
+          {value || "Unknown"}
+        </span>
+      ),
+    },
+    {
+      key: "created_at",
+      label: "Created",
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_, row) => (
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => handleViewDetails(row)}
+            className="rounded-lg p-2 text-blue-600 hover:bg-blue-50 transition-colors"
+            title="View details"
+          >
+            <Eye size={16} />
+          </button>
+          <button
+            onClick={() => handleDelete(row.id, `#${row.id}`)}
+            className="rounded-lg p-2 text-red-600 hover:bg-red-50 transition-colors"
+            title="Delete booking"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const handleRowClick = (row: BookingWithDetails) => {
+    console.log("Row clicked:", row);
+  };
+
+  const getStatusBadgeClass = (status: string | undefined | null) => {
+    if (!status) return "bg-gray-100 text-gray-800";
+
+    switch (status.toLowerCase()) {
+      case "confirmed":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      case "completed":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Bookings Management
+            </h1>
+            <p className="text-gray-600">View and manage all tour bookings</p>
+          </div>
+        </div>
+
+        {/* Loading State */}
+        <div className="rounded-lg bg-blue-50 p-8 text-center text-blue-800">
+          Loading bookings...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Bookings Management
+          </h1>
+          <p className="text-gray-600">View and manage all tour bookings</p>
+        </div>
+        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+          <Plus size={20} />
+          <span>Add New Booking</span>
+        </Button>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2 pb-2 overflow-x-auto">
+        {["all", "pending", "confirmed", "completed", "cancelled"].map(
+          (status) => (
+            <button
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors capitalize whitespace-nowrap ${
+                filterStatus === status
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {status}
+            </button>
+          ),
+        )}
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-red-800">{error}</div>
+      )}
+
+      {/* Table */}
+      <Table<BookingWithDetails>
+        columns={columns}
+        data={filteredBookings}
+        itemsPerPage={10}
+        onRowClick={handleRowClick}
+        emptyMessage="No bookings found."
+      />
+
+      {/* Details Modal */}
+      {showDetails && selectedBooking && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Booking Details
+            </h2>
+
+            <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">
+                    Booking ID
+                  </label>
+                  <p className="text-gray-900 font-medium">
+                    #{selectedBooking.id}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">
+                    Tour
+                  </label>
+                  <p className="text-gray-900 font-medium">
+                    {selectedBooking.tourTitle}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">
+                    Date
+                  </label>
+                  <p className="text-gray-900 font-medium">
+                    {new Date(selectedBooking.date).toLocaleDateString(
+                      "en-US",
+                      {
+                        weekday: "short",
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">
+                    Shift
+                  </label>
+                  <p className="text-gray-900 font-medium">
+                    {selectedBooking.shiftName}
+                    {selectedBooking.shiftStartTime &&
+                      selectedBooking.shiftEndTime && (
+                        <span className="text-gray-600 text-sm ml-2">
+                          ({selectedBooking.shiftStartTime.slice(0, 5)} -{" "}
+                          {selectedBooking.shiftEndTime.slice(0, 5)})
+                        </span>
+                      )}
+                  </p>
+                </div>
+
+                {selectedBooking.customer_name && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Customer
+                    </label>
+                    <p className="text-gray-900 font-medium">
+                      {selectedBooking.customer_name}
+                    </p>
+                  </div>
+                )}
+
+                {selectedBooking.customer_email && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Email
+                    </label>
+                    <p className="text-gray-900 text-sm break-all">
+                      {selectedBooking.customer_email}
+                    </p>
+                  </div>
+                )}
+
+                {selectedBooking.guest_number && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Guests
+                    </label>
+                    <p className="text-gray-900 font-medium">
+                      {selectedBooking.guest_number}{" "}
+                      {selectedBooking.guest_number === 1 ? "person" : "people"}
+                    </p>
+                  </div>
+                )}
+
+                {selectedBooking.tour_price != null && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Total Paid
+                    </label>
+                    <p className="text-gray-900 font-bold text-base">
+                      ${selectedBooking.tour_price}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Add-ons / specialties */}
+              {Array.isArray((selectedBooking as any).selected_specialties) &&
+                (selectedBooking as any).selected_specialties.length > 0 && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Add-ons Selected
+                    </label>
+                    <div className="mt-2 space-y-1">
+                      {(selectedBooking as any).selected_specialties.map(
+                        (s: any) => (
+                          <div
+                            key={s.name}
+                            className="flex items-center justify-between text-sm bg-gray-50 border border-gray-200 rounded px-3 py-1.5"
+                          >
+                            <span className="text-gray-800">{s.name}</span>
+                            <span className="font-semibold text-gray-700">
+                              {s.price > 0 ? `$${s.price}` : "Free"}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              <div>
+                <label className="text-sm font-semibold text-gray-600">
+                  Status
+                </label>
+                <div className="flex gap-2 mt-2">
+                  {["pending", "confirmed", "completed", "cancelled"].map(
+                    (status) => (
+                      <button
+                        key={status}
+                        onClick={() =>
+                          handleStatusChange(
+                            selectedBooking.id,
+                            status as
+                              | "pending"
+                              | "confirmed"
+                              | "completed"
+                              | "cancelled",
+                          )
+                        }
+                        disabled={statusBeingUpdated !== null}
+                        className={`px-3 py-1 rounded text-xs font-semibold capitalize transition-colors disabled:opacity-50 ${
+                          selectedBooking.booking_status === status
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        }`}
+                      >
+                        {status}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              {selectedBooking.payment_info && (
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">
+                    Payment Info
+                  </label>
+                  <p className="text-gray-900 text-sm wrap-break-word">
+                    {selectedBooking.payment_info}
+                  </p>
+                </div>
+              )}
+
+              {selectedBooking.additional_info && (
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">
+                    Additional Info
+                  </label>
+                  <p className="text-gray-900 text-sm wrap-break-word">
+                    {selectedBooking.additional_info}
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm font-semibold text-gray-600">
+                  Created
+                </label>
+                <p className="text-gray-900 text-sm">
+                  {new Date(selectedBooking.created_at).toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setShowDetails(false)}>
+                Close
+              </Button>
+              <button
+                onClick={() => {
+                  handleDelete(selectedBooking.id, `#${selectedBooking.id}`);
+                  setShowDetails(false);
+                }}
+                className="px-6 py-3 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Booking Modal */}
+      <AddBookingModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleAddBooking}
+        isLoading={isLoadingModal}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmDialog.isOpen}
+        title="Delete Booking"
+        message={`Are you sure you want to delete booking ${deleteConfirmDialog.bookingLabel}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDangerous={true}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isLoading={isDeleting}
+      />
+    </div>
+  );
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Tour } from "@/sanity/lib/queries";
+import { Tour } from "@/api/modules/tours/tours.types";
 import dynamic from "next/dynamic";
 
 /* -------- Dynamic Imports -------- */
@@ -52,6 +52,11 @@ const SafetyWarningsBox = dynamic(
   { ssr: false },
 );
 
+const NoteSection = dynamic(
+  () => import("@/Views/TourDetails/components/NoteSection"),
+  { ssr: false },
+);
+
 const Footer = dynamic(() => import("@/components/common/footer"), {
   ssr: true,
 });
@@ -72,10 +77,13 @@ export default function TourDetailsPage({ tour }: TourDetailsPageProps) {
       {tour.tourInclusions && (
         <TourInclusionsSection inclusions={tour.tourInclusions} />
       )}
-      {tour.safetyWarnings && (
-        <SafetyWarningsBox warnings={tour.safetyWarnings} />
+      {tour.keyRequirements && (
+        <SafetyWarningsBox warnings={tour.keyRequirements} />
       )}
-      <GallerySection images={tour.galleryImages} />
+      {tour.tourNote && <NoteSection note={tour.tourNote} />}
+      {tour.galleryImages && tour.galleryImages.length > 0 && (
+        <GallerySection images={tour.galleryImages} />
+      )}
 
       <Footer />
     </main>

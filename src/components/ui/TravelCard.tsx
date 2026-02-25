@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import Button from "./Button";
+import Button from "./button";
 
 type CardVariant = "default" | "featured" | "compact";
 
@@ -20,6 +20,7 @@ interface TravelCardProps {
   variant?: CardVariant;
   className?: string;
   rating?: number; // 0-5 star rating
+  price?: number;
   location?: TravelLocation; // Full location object for scalability
 }
 
@@ -30,6 +31,7 @@ export default function TravelCard({
   variant = "default",
   className,
   rating = 0,
+  price,
   location,
 }: TravelCardProps) {
   // Use rating from location object if available, otherwise use the prop
@@ -95,6 +97,13 @@ export default function TravelCard({
             </span>
           </div>
         )}
+
+        {/* Price Badge */}
+        {price && (
+          <div className="absolute top-4 left-4 bg-accent text-bg px-3 py-1 rounded-full text-sm font-medium shadow-lg">
+            ${price}
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -113,8 +122,8 @@ export default function TravelCard({
 
         {/* CTA Section */}
         <div className="mt-4 flex items-center justify-between">
-          <Button variant="subtle" className="group-hover:after:w-full">
-            Learn more
+          <Button variant="subtle" className="group-hover:after:w-1/2">
+            View Detail
           </Button>
 
           {/* Optional: Add an arrow icon that animates on hover */}

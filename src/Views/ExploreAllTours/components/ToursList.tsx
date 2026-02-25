@@ -1,26 +1,23 @@
 "use client";
 
-import Button from "@/components/ui/Button";
-import { getToursPreview, type TourPreview } from "@/sanity/lib/queries";
+import { getToursPreview, type TourPreview } from "@/api";
+import Button from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
-export default function ToursList() {
+function ToursList() {
   const [tours, setTours] = useState<TourPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadTours() {
       try {
-        console.log("🔍 ToursList: Fetching tours...");
-        const data = await getToursPreview();
-        console.log("✅ ToursList: Fetched", data.length, "tours");
-        console.log("📋 First tour:", data[0]);
+        const response = await getToursPreview();
+        const data = response.data || [];
         setTours(data);
       } catch (error) {
-        console.error("❌ ToursList: Error loading tours:", error);
         setTours([]);
       } finally {
         setIsLoading(false);
@@ -91,7 +88,7 @@ export default function ToursList() {
                 whileHover={{ y: -4 }}
                 className="group"
               >
-                <Link href={`/tour-details/${tour.slug.current}`}>
+                <Link href={`/tour-details/${tour._id}`}>
                   <div className="relative h-70 rounded-2xl overflow-hidden cursor-pointer bg-gray-200">
                     {tour.image?.asset?.url ? (
                       <Image
@@ -109,6 +106,9 @@ export default function ToursList() {
                       </div>
                     )}
 
+                    {/* Gradient Overlay for badge legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
                     {/* Rating Badge */}
                     {tour.rating && tour.rating > 0 && (
                       <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3.5 py-2 rounded-2xl shadow-md flex items-center gap-1.5">
@@ -118,18 +118,25 @@ export default function ToursList() {
                         </span>
                       </div>
                     )}
+
+                    {/* Price Tag */}
+                    {tour.basePrice && (
+                      <div className="absolute top-4 left-4 bg-accent/90 text-white px-3.5 py-2 rounded-2xl shadow-md font-bold">
+                        ${tour.basePrice}
+                      </div>
+                    )}
                   </div>
                 </Link>
 
                 <h3 className="mt-6 font-heading text-xl">{tour.title}</h3>
 
-                <p className="mt-2 text-sm text-dark/70 max-w-md">
+                <p className="mt-2 text-sm text-dark/70 max-w-md line-clamp-2">
                   {tour.description}
                 </p>
 
                 <div className="mt-4">
-                  <Link href={`/tour-details/${tour.slug.current}`}>
-                    <Button variant="subtle">Learn More</Button>
+                  <Link href={`/tour-details/${tour._id}`}>
+                    <Button variant="subtle">View Detail</Button>
                   </Link>
                 </div>
               </motion.div>
@@ -140,3 +147,5 @@ export default function ToursList() {
     </section>
   );
 }
+
+export default memo(ToursList);

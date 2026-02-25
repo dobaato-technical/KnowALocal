@@ -1,7 +1,8 @@
 "use client";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function CTALocalExpert() {
   return (
@@ -69,9 +70,11 @@ export default function CTALocalExpert() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="flex flex-wrap gap-4 pt-2"
           >
-            <Button variant="primary" className="shadow-lg hover:shadow-xl">
-              Get In Touch
-            </Button>
+            <Link href="/contact-us">
+              <Button variant="primary" className="shadow-lg hover:shadow-xl">
+                Get In Touch
+              </Button>
+            </Link>
           </motion.div>
 
           {/* Social proof */}

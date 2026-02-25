@@ -5,13 +5,12 @@ import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
 export default function TourDetailHero({ tour }: any) {
-  // Use galleryImages if available, otherwise fallback to main image
-  const images =
-    tour.galleryImages && tour.galleryImages.length > 0
+  // Use dedicated hero image, fallback to galleryImages if not available
+  const images = tour.image?.asset?.url
+    ? [tour.image.asset.url]
+    : tour.galleryImages && tour.galleryImages.length > 0
       ? tour.galleryImages.map((img: any) => img.asset.url)
-      : tour.image?.asset?.url
-        ? [tour.image.asset.url, tour.image.asset.url, tour.image.asset.url]
-        : [];
+      : [];
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -54,9 +53,9 @@ export default function TourDetailHero({ tour }: any) {
             </motion.div>
           </AnimatePresence>
 
-          {/* Advanced Overlay Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+          {/* Unified Overlay Gradient for consistency with Landing Page */}
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
           {/* Enhanced Dots */}
           <div className="absolute bottom-10 left-0 right-0 flex justify-center gap-2">
@@ -106,7 +105,7 @@ export default function TourDetailHero({ tour }: any) {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto drop-shadow-lg font-light font-[family-name:var(--font-merriweather)]"
             >
-              {tour.location}
+              {tour.location || "N/A"}
             </motion.p>
           </motion.div>
         </div>

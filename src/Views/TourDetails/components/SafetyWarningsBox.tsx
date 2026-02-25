@@ -3,14 +3,8 @@
 import { motion } from "framer-motion";
 import * as Icons from "lucide-react";
 
-interface SafetyWarning {
-  title: string;
-  description: string;
-  level?: "info" | "warning" | "danger";
-}
-
 interface SafetyWarningsBoxProps {
-  warnings: SafetyWarning[];
+  warnings: string[];
 }
 
 export default function SafetyWarningsBox({
@@ -68,11 +62,8 @@ export default function SafetyWarningsBox({
 
                 {/* Content */}
                 <div className="flex-1">
-                  <h3 className="font-semibold text-[#335358] text-base md:text-lg mb-1">
-                    {item.title}
-                  </h3>
-                  <p className="text-[#335358]/70 text-sm md:text-base leading-relaxed font-normal">
-                    {item.description}
+                  <p className="text-[#335358] text-base md:text-lg font-medium leading-relaxed">
+                    {item}
                   </p>
                 </div>
               </motion.div>

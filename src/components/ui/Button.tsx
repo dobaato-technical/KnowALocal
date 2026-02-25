@@ -50,7 +50,8 @@ export default function Button({
           "bg-accent text-neutral-light hover:opacity-90 active:opacity-75",
         variant === "secondary" &&
           "border-2 border-primary text-primary hover:bg-neutral-medium hover:text-primary active:bg-opacity-90",
-        variant === "subtle" && "text-secondary hover:text-primary p-0",
+        variant === "subtle" &&
+          "text-accent hover:text-accent p-0 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-accent after:w-0 hover:after:w-1/2 after:transition-all after:duration-300",
 
         className,
       )}
