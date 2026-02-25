@@ -16,4 +16,8 @@ export {
   updateBookingStatus,
 } from "./bookings.service";
 
-export type { Booking, BookingWithDetails } from "./bookings.types";
+export type {
+  Booking,
+  BookingWithDetails,
+  SelectedSpecialty,
+} from "./bookings.types";

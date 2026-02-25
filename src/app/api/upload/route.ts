@@ -25,9 +25,6 @@ function isAuthorized(request: NextRequest): boolean {
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log("=== UPLOAD REQUEST START ===");
-    console.log("Content-Type:", request.headers.get("content-type"));
-
     // Validate authorization
     if (!isAuthorized(request)) {
       return NextResponse.json(
@@ -40,7 +37,6 @@ export async function POST(request: NextRequest) {
     let formData;
     try {
       formData = await request.formData();
-      console.log("FormData parsed successfully");
     } catch (error) {
       console.error("Form data parse error:", error);
       return NextResponse.json(
@@ -51,17 +47,6 @@ export async function POST(request: NextRequest) {
 
     const file = formData.get("file");
     const folder = formData.get("folder") as string;
-
-    console.log("FormData entries:", {
-      fileExists: !!file,
-      folderExists: !!folder,
-      fileType: file
-        ? file instanceof File
-          ? "File"
-          : typeof file
-        : "undefined",
-      folderValue: folder,
-    });
 
     // Validate required fields
     if (!file) {
@@ -101,12 +86,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("Validation passed, file details:", {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-    });
-
     // Validate file using the storage utility
     const validation = validateImage(file);
     if (!validation.valid) {
@@ -116,8 +95,6 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-
-    console.log("Image validation passed");
 
     // Upload image using admin client (bypasses RLS policies)
     const uploadResult = await uploadImageAdmin(
@@ -130,7 +107,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(uploadResult, { status: 500 });
     }
 
-    console.log("Upload successful:", uploadResult);
     return NextResponse.json(uploadResult, { status: 200 });
   } catch (error) {
     console.error("=== UPLOAD ERROR ===", error);

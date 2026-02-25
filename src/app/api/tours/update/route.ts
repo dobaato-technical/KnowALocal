@@ -12,16 +12,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest) {
   try {
-    console.log("=== PUT /api/tours/update START ===");
-
     const body = await request.json();
-    console.log("Request body:", body);
-
     const { tourId } = body;
-    console.log("tourId extracted:", tourId);
 
     if (!tourId) {
-      console.error("No tourId provided");
       return NextResponse.json(
         {
           success: false,
@@ -30,8 +24,6 @@ export async function PUT(request: NextRequest) {
         { status: 400 },
       );
     }
-
-    console.log("Updating tour with ID:", tourId);
 
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
       console.warn("Service role key not configured");
@@ -46,12 +38,6 @@ export async function PUT(request: NextRequest) {
 
     // Validate required fields
     if (!body.title || body.basePrice === undefined) {
-      console.error(
-        "Missing required fields - title:",
-        body.title,
-        "basePrice:",
-        body.basePrice,
-      );
       return NextResponse.json(
         {
           success: false,
@@ -61,10 +47,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    console.log("All validations passed");
-
     const supabaseAdmin = getSupabaseAdmin();
-    console.log("Supabase admin client initialized");
 
     const updateData = {
       title: body.title,
@@ -86,15 +69,11 @@ export async function PUT(request: NextRequest) {
       gallery_images: body.gallery_images || [],
     };
 
-    console.log("Update data:", updateData);
-
     const { data, error } = await supabaseAdmin
       .from("tours")
       .update(updateData)
       .eq("id", tourId)
       .select();
-
-    console.log("Supabase update response - data:", data, "error:", error);
 
     if (error) {
       console.error("Supabase update error:", error);
@@ -108,10 +87,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    console.log("✅ Tour updated successfully:", tourId);
-    console.log("Updated tour data:", data?.[0]);
-    console.log("=== PUT /api/tours/update END (SUCCESS) ===");
-
     return NextResponse.json({
       success: true,
       message: "Tour updated successfully",
@@ -119,7 +94,6 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error("Update tour route error:", error);
-    console.log("=== PUT /api/tours/update END (ERROR) ===");
     return NextResponse.json(
       {
         success: false,

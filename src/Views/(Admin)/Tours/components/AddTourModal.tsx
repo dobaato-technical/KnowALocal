@@ -5,7 +5,7 @@ import Button from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/TagInput";
 import { getPublicImageUrl } from "@/lib/storage-config";
-import { X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import React, { useState } from "react";
 
 interface AddTourModalProps {
@@ -15,6 +15,12 @@ interface AddTourModalProps {
   isLoading?: boolean;
   editingData?: TourFormData;
   readOnly?: boolean;
+}
+
+export interface SpecialtyFormItem {
+  name: string;
+  description: string;
+  price: number;
 }
 
 export interface TourFormData {
@@ -30,7 +36,7 @@ export interface TourFormData {
   maxGroupSize: number;
   isFeatured: boolean;
   itinerary: string[];
-  specialities: string[];
+  specialities: SpecialtyFormItem[];
   included: string[];
   requirements: string[];
   heroImageUrl?: string;
@@ -169,7 +175,7 @@ export default function AddTourModal({
   };
 
   const handleTagsChange = (
-    fieldName: "itinerary" | "specialities" | "included" | "requirements",
+    fieldName: "itinerary" | "included" | "requirements",
     tags: string[],
   ) => {
     setFormData((prev) => ({
@@ -177,7 +183,6 @@ export default function AddTourModal({
       [fieldName]: tags,
     }));
 
-    // Clear error when tags are updated
     if (errors[fieldName]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -185,6 +190,35 @@ export default function AddTourModal({
         return newErrors;
       });
     }
+  };
+
+  const handleAddSpecialty = () => {
+    setFormData((prev) => ({
+      ...prev,
+      specialities: [
+        ...prev.specialities,
+        { name: "", description: "", price: 0 },
+      ],
+    }));
+  };
+
+  const handleRemoveSpecialty = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      specialities: prev.specialities.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSpecialtyChange = (
+    index: number,
+    field: keyof SpecialtyFormItem,
+    value: string | number,
+  ) => {
+    setFormData((prev) => {
+      const updated = [...prev.specialities];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, specialities: updated };
+    });
   };
 
   if (!isOpen) return null;
@@ -337,21 +371,99 @@ export default function AddTourModal({
 
             {/* Specialities and Requirements Row */}
             <div className="grid grid-cols-2 gap-4">
+              {/* Specialities — structured editor */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Specialities
                   <span className="text-gray-500 text-xs ml-2">
-                    (Type and press Enter)
+                    (name + price + description)
                   </span>
                 </label>
-                <TagInput
-                  tags={formData.specialities}
-                  onTagsChange={(tags) =>
-                    handleTagsChange("specialities", tags)
-                  }
-                  placeholder="e.g., Expert guides, Small groups, Photography focus"
-                  disabled={isLoading || readOnly}
-                />
+
+                <div className="space-y-2">
+                  {formData.specialities.map((spec, index) => (
+                    <div
+                      key={index}
+                      className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2"
+                    >
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={spec.name}
+                          onChange={(e) =>
+                            handleSpecialtyChange(index, "name", e.target.value)
+                          }
+                          placeholder="Name *"
+                          disabled={isLoading || readOnly}
+                          className="flex-1 min-w-0 rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
+                        />
+                        <div className="relative w-24 shrink-0">
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                            $
+                          </span>
+                          <input
+                            type="number"
+                            value={spec.price || ""}
+                            onChange={(e) =>
+                              handleSpecialtyChange(
+                                index,
+                                "price",
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
+                            placeholder="0"
+                            min="0"
+                            disabled={isLoading || readOnly}
+                            className="w-full rounded border border-gray-300 pl-5 pr-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
+                          />
+                        </div>
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSpecialty(index)}
+                            disabled={isLoading}
+                            className="shrink-0 text-red-500 hover:text-red-700 disabled:opacity-40 transition-colors"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={spec.description}
+                        onChange={(e) =>
+                          handleSpecialtyChange(
+                            index,
+                            "description",
+                            e.target.value,
+                          )
+                        }
+                        placeholder="Short description (optional)"
+                        disabled={isLoading || readOnly}
+                        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
+                      />
+                    </div>
+                  ))}
+
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={handleAddSpecialty}
+                      disabled={isLoading}
+                      className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-40 transition-colors mt-1"
+                    >
+                      <Plus size={15} />
+                      Add specialty
+                    </button>
+                  )}
+
+                  {formData.specialities.length === 0 && (
+                    <p className="text-xs text-gray-400 italic">
+                      No specialties added yet
+                    </p>
+                  )}
+                </div>
+
                 {errors.specialities && (
                   <p className="mt-1 text-sm text-red-600">
                     {errors.specialities}

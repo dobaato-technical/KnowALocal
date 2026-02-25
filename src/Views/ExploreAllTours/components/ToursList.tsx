@@ -14,16 +14,10 @@ function ToursList() {
   useEffect(() => {
     async function loadTours() {
       try {
-        console.log("🔍 ToursList: Fetching tours...");
         const response = await getToursPreview();
         const data = response.data || [];
-        console.log("✅ ToursList: Fetched", data.length, "tours");
-        if (data.length > 0) {
-          console.log("📋 First tour:", data[0]);
-        }
         setTours(data);
       } catch (error) {
-        console.error("❌ ToursList: Error loading tours:", error);
         setTours([]);
       } finally {
         setIsLoading(false);

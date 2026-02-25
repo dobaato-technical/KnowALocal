@@ -19,9 +19,10 @@ export {
   updateTourWithImages,
 } from "./tours-with-images.service";
 
-// Types
 export type {
   CreateTourWithImagesInput,
+  SelectedSpecialty,
+  Specialty,
   Tour,
   TourPreview,
   UpdateTourWithImagesInput,

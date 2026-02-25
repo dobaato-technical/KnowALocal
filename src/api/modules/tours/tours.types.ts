@@ -20,6 +20,13 @@ export interface Specialty {
   isClimbing?: boolean;
 }
 
+/** A specialty the user has selected during booking */
+export interface SelectedSpecialty {
+  name: string;
+  price: number;
+  description?: string;
+}
+
 export interface Inclusion {
   title: string;
   description: string;
@@ -59,7 +66,7 @@ export interface TourPreview {
       url: string;
     };
   }>;
-  specialties?: any[];
+  specialties?: Specialty[];
   itinerary?: string[];
   tourInclusions?: string[];
   keyRequirements?: string[];
@@ -79,7 +86,7 @@ export interface Tour extends TourPreview {
       url: string;
     };
   }>;
-  specialties?: any[];
+  specialties?: Specialty[];
   itinerary?: string[];
   tourInclusions?: string[];
   keyRequirements?: string[];

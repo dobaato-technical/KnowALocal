@@ -1,5 +1,6 @@
 import { getTourById } from "@/api";
 import TourDetailsPage from "@/Views/TourDetails/TourDetailsPage";
+import type { Metadata } from "next";
 
 interface TourDetailsPageProps {
   params: Promise<{
@@ -10,6 +11,29 @@ interface TourDetailsPageProps {
 export async function generateStaticParams() {
   // Static generation can be added later by fetching all tour IDs
   return [];
+}
+
+export async function generateMetadata({
+  params,
+}: TourDetailsPageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const tourId = parseInt(resolvedParams.slug, 10);
+
+  if (isNaN(tourId)) {
+    return { title: "Invalid Tour | Know A Local" };
+  }
+
+  const response = await getTourById(tourId);
+
+  if (!response.success || !response.data) {
+    return { title: "Tour Not Found | Know A Local" };
+  }
+
+  const tour = response.data;
+  return {
+    title: `${tour.title} | Know A Local`,
+    description: tour.description || undefined,
+  };
 }
 
 export default async function Page({ params }: TourDetailsPageProps) {

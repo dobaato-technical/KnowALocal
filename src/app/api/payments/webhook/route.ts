@@ -47,17 +47,35 @@ export async function POST(request: Request) {
       if (session.payment_intent) {
         const paymentIntent = await stripe.paymentIntents.retrieve(
           session.payment_intent as string,
+          { expand: ["latest_charge"] },
         );
 
         // Only confirm booking if payment status is succeeded
         if (paymentIntent.status === "succeeded") {
-          // Update booking status to confirmed and mark payment as succeeded
+          const charge = paymentIntent.latest_charge as Stripe.Charge | null;
+          const card = charge?.payment_method_details?.card;
+
+          const paymentInfo = JSON.stringify({
+            brand: card?.brand ?? null,
+            last4: card?.last4 ?? null,
+            exp_month: card?.exp_month ?? null,
+            exp_year: card?.exp_year ?? null,
+            amount: charge?.amount ?? null,
+            currency: charge?.currency ?? null,
+            receipt_url: charge?.receipt_url ?? null,
+          });
+
+          // Update booking to confirmed, store payment intent ID and customer details from Stripe
           const { error: updateError } = await supabase
             .from("bookings")
             .update({
               booking_status: "confirmed",
               payment_status: "succeeded",
               stripe_payment_intent_id: paymentIntent.id,
+              payment_info: paymentInfo,
+              // Stripe customer details as fallback if checkout-session save failed
+              customer_email: session.customer_details?.email ?? undefined,
+              customer_name: session.customer_details?.name ?? undefined,
             })
             .eq("id", bookingId);
 

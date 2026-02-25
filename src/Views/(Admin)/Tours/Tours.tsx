@@ -9,7 +9,38 @@ import { supabase } from "@/lib/supabase";
 import { showToast } from "@/lib/toast-utils";
 import { Edit2, Eye, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import AddTourModal, { TourFormData } from "./components/AddTourModal";
+import AddTourModal, {
+  type SpecialtyFormItem,
+  type TourFormData,
+} from "./components/AddTourModal";
+
+/** Normalize the mixed specialty formats from Supabase into admin form items */
+function normalizeSpecialtiesForAdmin(raw: any[]): SpecialtyFormItem[] {
+  return (raw || [])
+    .map((item) => {
+      if (typeof item === "string") {
+        try {
+          const parsed = JSON.parse(item);
+          return {
+            name: parsed.name || item,
+            description: parsed.description || "",
+            price: typeof parsed.price === "number" ? parsed.price : 0,
+          };
+        } catch {
+          return { name: item, description: "", price: 0 };
+        }
+      }
+      if (typeof item === "object" && item !== null) {
+        return {
+          name: item.name || "",
+          description: item.description || "",
+          price: typeof item.price === "number" ? item.price : 0,
+        };
+      }
+      return null;
+    })
+    .filter((s): s is SpecialtyFormItem => s !== null && s.name.trim() !== "");
+}
 
 interface Tour {
   id: string;
@@ -18,7 +49,7 @@ interface Tour {
   duration: string;
   price: number;
   availability: number;
-  status: "active" | "inactive" | "draft";
+  isFeatured: boolean;
   createdAt: string;
   heroImage?: string;
 }
@@ -72,7 +103,7 @@ export default function Tours() {
         duration: tour.duration || "",
         price: tour.price || 0,
         availability: tour.group_size || 0,
-        status: tour.featured ? "active" : "draft",
+        isFeatured: tour.featured || false,
         createdAt: tour.created_at
           ? new Date(tour.created_at).toISOString().split("T")[0]
           : "",
@@ -96,26 +127,8 @@ export default function Tours() {
     fetchTours();
   }, [fetchTours]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "inactive":
-        return "bg-red-100 text-red-800";
-      case "draft":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const handleEditTour = async (tour: Tour) => {
-    console.log("=== handleEditTour START ===");
-    console.log("Selected tour:", tour);
-
     try {
-      console.log("Fetching full tour details for ID:", tour.id);
-
       // Fetch full tour details from Supabase
       const { data, error: fetchError } = await supabase
         .from("tours")
@@ -125,15 +138,11 @@ export default function Tours() {
         .eq("id", tour.id)
         .single();
 
-      console.log("Fetch response - data:", data, "error:", fetchError);
-
       if (fetchError || !data) {
-        console.error("Failed to fetch tour details - error:", fetchError);
+        console.error("Failed to fetch tour details:", fetchError);
         showToast("Failed to fetch tour details", "error");
         return;
       }
-
-      console.log("Tour details fetched successfully:", data);
 
       // Transform fetched data to TourFormData for editing
       const tourFormData: TourFormData = {
@@ -154,35 +163,24 @@ export default function Tours() {
           : 0,
         isFeatured: data.featured || false,
         itinerary: data.itinerary || [],
-        specialities: data.specialities || [],
+        specialities: normalizeSpecialtiesForAdmin(data.specialities || []),
         included: data.included || [],
         requirements: data.requirements || [],
         heroImageUrl: data.hero_image || "",
         galleryImageUrls: data.gallery_images || [],
       };
 
-      console.log("Tour form data prepared:", tourFormData);
-
       setEditingTourData(tourFormData);
       setEditingTourId(tour.id);
       setIsModalOpen(true);
-
-      console.log("Modal opened with editingTourId:", tour.id);
-      console.log("=== handleEditTour END (SUCCESS) ===");
     } catch (err) {
       console.error("Error fetching tour details:", err);
-      console.log("=== handleEditTour END (ERROR) ===");
       showToast("An error occurred while fetching tour details", "error");
     }
   };
 
   const handleViewTour = async (tour: Tour) => {
-    console.log("=== handleViewTour START ===");
-    console.log("Viewing tour:", tour);
-
     try {
-      console.log("Fetching full tour details for ID:", tour.id);
-
       // Fetch full tour details from Supabase
       const { data, error: fetchError } = await supabase
         .from("tours")
@@ -192,15 +190,11 @@ export default function Tours() {
         .eq("id", tour.id)
         .single();
 
-      console.log("Fetch response - data:", data, "error:", fetchError);
-
       if (fetchError || !data) {
-        console.error("Failed to fetch tour details - error:", fetchError);
+        console.error("Failed to fetch tour details:", fetchError);
         showToast("Failed to fetch tour details", "error");
         return;
       }
-
-      console.log("Tour details fetched successfully:", data);
 
       // Transform fetched data to TourFormData for viewing
       const tourFormData: TourFormData = {
@@ -221,24 +215,18 @@ export default function Tours() {
           : 0,
         isFeatured: data.featured || false,
         itinerary: data.itinerary || [],
-        specialities: data.specialities || [],
+        specialities: normalizeSpecialtiesForAdmin(data.specialities || []),
         included: data.included || [],
         requirements: data.requirements || [],
-        heroImageUrl: data.hero_image ? getHeroImageUrl(data.hero_image) : "",
+        heroImageUrl: data.hero_image || "",
         galleryImageUrls: data.gallery_images || [],
       };
-
-      console.log("Tour form data prepared for viewing:", tourFormData);
 
       setViewingTourData(tourFormData);
       setIsViewingTourId(tour.id);
       setIsModalOpen(true);
-
-      console.log("Modal opened in view mode with isViewingTourId:", tour.id);
-      console.log("=== handleViewTour END (SUCCESS) ===");
     } catch (err) {
       console.error("Error fetching tour details:", err);
-      console.log("=== handleViewTour END (ERROR) ===");
       showToast("An error occurred while fetching tour details", "error");
     }
   };
@@ -256,11 +244,9 @@ export default function Tours() {
 
     setIsDeleting(true);
     try {
-      console.log("Deleting tour with ID:", deleteConfirmDialog.tourId);
       const response = await deleteTour(deleteConfirmDialog.tourId);
 
       if (response.success) {
-        console.log("Tour deleted successfully");
         setTours(tours.filter((t) => t.id !== deleteConfirmDialog.tourId));
         showToast("Tour deleted successfully", "success");
       } else {
@@ -311,15 +297,15 @@ export default function Tours() {
       ),
     },
     {
-      key: "status",
-      label: "Status",
+      key: "isFeatured",
+      label: "Featured",
       render: (value) => (
         <span
-          className={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${getStatusColor(
-            value,
-          )}`}
+          className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+            value ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"
+          }`}
         >
-          {value}
+          {value ? "Featured" : "Standard"}
         </span>
       ),
     },
@@ -358,26 +344,13 @@ export default function Tours() {
     },
   ];
 
-  const handleRowClick = (row: Tour) => {
-    console.log("Row clicked:", row);
-    // Navigate to tour details or edit page
-  };
-
   const handleAddTour = async (tourData: TourFormData) => {
-    console.log("=== handleAddTour START ===");
-    console.log("editingTourId:", editingTourId);
-    console.log("tourData:", tourData);
-
     setIsLoading(true);
     try {
       // Determine if we're updating or creating BEFORE we modify state
       const isUpdating = !!editingTourId;
       const endpoint = isUpdating ? "/api/tours/update" : "/api/tours/create";
       const method = isUpdating ? "PUT" : "POST";
-
-      console.log("isUpdating:", isUpdating);
-      console.log("endpoint:", endpoint);
-      console.log("method:", method);
 
       const payload: any = {
         title: tourData.title,
@@ -402,10 +375,7 @@ export default function Tours() {
       // Add tourId if updating
       if (isUpdating) {
         payload.tourId = editingTourId;
-        console.log("tourId to update:", editingTourId);
       }
-
-      console.log("Full payload:", payload);
 
       // Call backend API route to create or update the tour
       const response = await fetch(endpoint, {
@@ -414,10 +384,7 @@ export default function Tours() {
         body: JSON.stringify(payload),
       });
 
-      console.log("Response status:", response.status);
-
       const result = await response.json();
-      console.log("Response result:", result);
 
       if (!response.ok || !result.success) {
         console.error("Failed to save tour:", result.message);
@@ -426,7 +393,6 @@ export default function Tours() {
       }
 
       // Refresh tours list
-      console.log("Fetching tours...");
       await fetchTours();
 
       // Clear state
@@ -435,13 +401,9 @@ export default function Tours() {
       setEditingTourData(undefined);
 
       const action = isUpdating ? "updated" : "created";
-      console.log(`Tour ${action} successfully!`, result.data?.id);
       showToast(`Tour ${action} successfully!`, "success");
-
-      console.log("=== handleAddTour END (SUCCESS) ===");
     } catch (error) {
       console.error("Error saving tour:", error);
-      console.log("=== handleAddTour END (ERROR) ===");
       showToast("An error occurred while saving the tour", "error");
     } finally {
       setIsLoading(false);
@@ -486,7 +448,6 @@ export default function Tours() {
           columns={columns}
           data={tours}
           itemsPerPage={10}
-          onRowClick={handleRowClick}
           emptyMessage="No tours found. Create your first tour to get started."
         />
       )}

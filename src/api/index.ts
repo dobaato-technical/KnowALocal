@@ -41,6 +41,8 @@ export {
 } from "./modules/tours";
 export type {
   CreateTourWithImagesInput,
+  SelectedSpecialty,
+  Specialty,
   Tour,
   TourPreview,
   UpdateTourWithImagesInput,
@@ -71,7 +73,11 @@ export {
   getWholeDayBookingsForDate,
   updateBookingStatus,
 } from "./modules/bookings";
-export type { Booking, BookingWithDetails } from "./modules/bookings";
+export type {
+  Booking,
+  SelectedSpecialty as BookingSelectedSpecialty,
+  BookingWithDetails,
+} from "./modules/bookings";
 
 // Shifts Module
 export {

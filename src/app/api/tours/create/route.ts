@@ -15,13 +15,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    console.log("Creating tour with data:", {
-      title: body.title,
-      price: body.price,
-      hasHeroImage: !!body.hero_image,
-      galleryImageCount: body.gallery_images?.length || 0,
-    });
-
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
       console.warn("Service role key not configured");
       return NextResponse.json(
@@ -88,8 +81,6 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-
-    console.log("✅ Tour created successfully:", data?.[0]?.id);
 
     return NextResponse.json({
       success: true,

@@ -43,7 +43,6 @@ export default function BookingsPage() {
     try {
       setIsLoading(true);
       setError(null);
-      console.log("=== fetchBookings START ===");
 
       const response = await getAllBookings();
 
@@ -54,15 +53,11 @@ export default function BookingsPage() {
         return;
       }
 
-      console.log("Bookings fetched successfully:", response.data);
       setBookings(response.data || []);
-
-      console.log("=== fetchBookings END (SUCCESS) ===");
     } catch (err) {
       console.error("Error fetching bookings:", err);
       setError("An error occurred while fetching bookings");
       setBookings([]);
-      console.log("=== fetchBookings END (ERROR) ===");
     } finally {
       setIsLoading(false);
     }
@@ -73,9 +68,6 @@ export default function BookingsPage() {
   }, [fetchBookings]);
 
   const handleViewDetails = async (booking: BookingWithDetails) => {
-    console.log("=== handleViewDetails START ===");
-    console.log("Selected booking:", booking);
-
     try {
       // OPTIMIZED: Use cached booking data from list instead of making another API call
       // The booking from getAllBookings already has all details we need
@@ -85,42 +77,24 @@ export default function BookingsPage() {
         booking.shiftStartTime &&
         booking.shiftEndTime
       ) {
-        console.log("Using cached booking details from list");
         setSelectedBooking(booking);
         setShowDetails(true);
-        console.log("=== handleViewDetails END (SUCCESS - CACHED) ===");
         return;
       }
 
       // Fallback: Only fetch if details are missing (shouldn't happen with optimized getAllBookings)
-      console.log("Fetching full booking details for ID:", booking.id);
-
       const response = await getBookingById(booking.id);
-
-      console.log(
-        "Fetch response - data:",
-        response.data,
-        "error:",
-        response.success ? "none" : response.message,
-      );
 
       if (!response.success || !response.data) {
         console.error("Failed to fetch booking details");
         showToast("Failed to fetch booking details", "error");
-        console.log("=== handleViewDetails END (ERROR) ===");
         return;
       }
 
-      console.log("Booking details fetched successfully:", response.data);
-
       setSelectedBooking(response.data);
       setShowDetails(true);
-
-      console.log("Modal opened with booking ID:", booking.id);
-      console.log("=== handleViewDetails END (SUCCESS) ===");
     } catch (err) {
       console.error("Error fetching booking details:", err);
-      console.log("=== handleViewDetails END (ERROR) ===");
       showToast("An error occurred while fetching booking details", "error");
     }
   };
@@ -129,25 +103,16 @@ export default function BookingsPage() {
     bookingId: number,
     newStatus: "pending" | "confirmed" | "cancelled" | "completed",
   ) => {
-    console.log("=== handleStatusChange START ===");
-    console.log("Booking ID:", bookingId);
-    console.log("New status:", newStatus);
-
     try {
       setStatusBeingUpdated(newStatus);
 
       const response = await updateBookingStatus(bookingId, newStatus);
 
-      console.log("Update response - success:", response.success);
-
       if (!response.success) {
         console.error("Failed to update booking status:", response.message);
         showToast(`Failed to update booking: ${response.message}`, "error");
-        console.log("=== handleStatusChange END (ERROR) ===");
         return;
       }
-
-      console.log("Booking status updated successfully");
 
       // Update bookings list
       setBookings(
@@ -173,10 +138,8 @@ export default function BookingsPage() {
       }
 
       showToast("Booking status updated successfully", "success");
-      console.log("=== handleStatusChange END (SUCCESS) ===");
     } catch (err) {
       console.error("Error updating booking status:", err);
-      console.log("=== handleStatusChange END (ERROR) ===");
       showToast("An error occurred while updating booking status", "error");
     } finally {
       setStatusBeingUpdated(null);
@@ -195,18 +158,13 @@ export default function BookingsPage() {
     if (!deleteConfirmDialog.bookingId) return;
 
     setIsDeleting(true);
-    console.log("=== handleDelete START ===");
-    console.log("Deleting booking with ID:", deleteConfirmDialog.bookingId);
 
     try {
       const response = await deleteBooking(deleteConfirmDialog.bookingId);
 
-      console.log("Delete response - success:", response.success);
-
       if (!response.success) {
         console.error("Failed to delete booking:", response.message);
         showToast(`Failed to delete booking: ${response.message}`, "error");
-        console.log("=== handleDelete END (ERROR) ===");
         setDeleteConfirmDialog({
           isOpen: false,
           bookingId: null,
@@ -214,8 +172,6 @@ export default function BookingsPage() {
         });
         return;
       }
-
-      console.log("Booking deleted successfully");
 
       setBookings(
         bookings.filter((b) => b.id !== deleteConfirmDialog.bookingId),
@@ -227,7 +183,6 @@ export default function BookingsPage() {
       }
 
       showToast("Booking deleted successfully", "success");
-      console.log("=== handleDelete END (SUCCESS) ===");
       setDeleteConfirmDialog({
         isOpen: false,
         bookingId: null,
@@ -235,7 +190,6 @@ export default function BookingsPage() {
       });
     } catch (err) {
       console.error("Error deleting booking:", err);
-      console.log("=== handleDelete END (ERROR) ===");
       showToast("An error occurred while deleting the booking", "error");
       setDeleteConfirmDialog({
         isOpen: false,
@@ -256,12 +210,13 @@ export default function BookingsPage() {
   };
 
   const handleAddBooking = async (bookingData: BookingFormData) => {
-    console.log("=== handleAddBooking START ===");
-    console.log("booking data:", bookingData);
-
     setIsLoadingModal(true);
     try {
-      console.log("Creating booking...");
+      const specialtiesTotal = (bookingData.selected_specialties || []).reduce(
+        (sum, s) => sum + (s.price || 0),
+        0,
+      );
+      const totalPrice = bookingData.tour_price + specialtiesTotal;
 
       const payload = {
         tour_id: bookingData.tour_id,
@@ -274,36 +229,33 @@ export default function BookingsPage() {
           | "cancelled"
           | "completed",
         additional_info: bookingData.additional_info,
+        customer_name: bookingData.customer_name.trim(),
+        customer_email: bookingData.customer_email.trim().toLowerCase(),
+        guest_number: bookingData.guest_number,
+        tour_price: totalPrice,
+        selected_specialties:
+          bookingData.selected_specialties.length > 0
+            ? bookingData.selected_specialties
+            : null,
       };
 
-      console.log("Payload:", payload);
-
       const response = await createBooking(payload);
-
-      console.log("Response:", response);
 
       if (!response.success) {
         console.error("Failed to create booking:", response.message);
         showToast(`Failed to create booking: ${response.message}`, "error");
-        console.log("=== handleAddBooking END (ERROR) ===");
         return;
       }
 
-      console.log("Booking created successfully!");
-
       // Refresh bookings list
-      console.log("Fetching bookings...");
       await fetchBookings();
 
       // Close modal
       setIsModalOpen(false);
 
       showToast("Booking created successfully!", "success");
-
-      console.log("=== handleAddBooking END (SUCCESS) ===");
     } catch (error) {
       console.error("Error creating booking:", error);
-      console.log("=== handleAddBooking END (ERROR) ===");
       showToast("An error occurred while creating the booking", "error");
     } finally {
       setIsLoadingModal(false);
@@ -529,7 +481,77 @@ export default function BookingsPage() {
                       )}
                   </p>
                 </div>
+
+                {selectedBooking.customer_name && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Customer
+                    </label>
+                    <p className="text-gray-900 font-medium">
+                      {selectedBooking.customer_name}
+                    </p>
+                  </div>
+                )}
+
+                {selectedBooking.customer_email && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Email
+                    </label>
+                    <p className="text-gray-900 text-sm break-all">
+                      {selectedBooking.customer_email}
+                    </p>
+                  </div>
+                )}
+
+                {selectedBooking.guest_number && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Guests
+                    </label>
+                    <p className="text-gray-900 font-medium">
+                      {selectedBooking.guest_number}{" "}
+                      {selectedBooking.guest_number === 1 ? "person" : "people"}
+                    </p>
+                  </div>
+                )}
+
+                {selectedBooking.tour_price != null && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Total Paid
+                    </label>
+                    <p className="text-gray-900 font-bold text-base">
+                      ${selectedBooking.tour_price}
+                    </p>
+                  </div>
+                )}
               </div>
+
+              {/* Add-ons / specialties */}
+              {Array.isArray((selectedBooking as any).selected_specialties) &&
+                (selectedBooking as any).selected_specialties.length > 0 && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Add-ons Selected
+                    </label>
+                    <div className="mt-2 space-y-1">
+                      {(selectedBooking as any).selected_specialties.map(
+                        (s: any) => (
+                          <div
+                            key={s.name}
+                            className="flex items-center justify-between text-sm bg-gray-50 border border-gray-200 rounded px-3 py-1.5"
+                          >
+                            <span className="text-gray-800">{s.name}</span>
+                            <span className="font-semibold text-gray-700">
+                              {s.price > 0 ? `$${s.price}` : "Free"}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                )}
 
               <div>
                 <label className="text-sm font-semibold text-gray-600">

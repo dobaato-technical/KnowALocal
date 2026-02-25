@@ -8,6 +8,7 @@ import {
   toggleAvailability,
   type Availability,
 } from "@/api";
+import Calendar from "@/components/Calendar/Calendar";
 import Button from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, CheckCircle } from "lucide-react";
@@ -217,101 +218,19 @@ export default function AvailabilityPage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Date Input */}
+          {/* Calendar View */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg border border-secondary/10 p-6">
-              <h3 className="text-lg font-bold text-primary mb-4">
-                Select a Date
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-semibold text-primary mb-2 block">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    value={selectedDate || ""}
-                    onChange={(e) => handleDateClick(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-secondary/20 rounded-lg focus:border-accent focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-secondary/70 uppercase block mb-2">
-                    Month View
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      value={currentMonth}
-                      onChange={(e) =>
-                        setCurrentMonth(parseInt(e.target.value))
-                      }
-                      className="flex-1 px-3 py-2 border border-secondary/20 rounded-lg focus:border-accent focus:outline-none"
-                    >
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {new Date(2000, i).toLocaleDateString("en-US", {
-                            month: "long",
-                          })}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={currentYear}
-                      onChange={(e) => setCurrentYear(parseInt(e.target.value))}
-                      className="px-3 py-2 border border-secondary/20 rounded-lg focus:border-accent focus:outline-none"
-                    >
-                      {Array.from({ length: 5 }, (_, i) => {
-                        const year = new Date().getFullYear() - 2 + i;
-                        return (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="bg-secondary/5 rounded-lg p-4">
-                  <p className="text-xs font-semibold text-secondary/70 mb-2">
-                    📊 Unavailable dates in {currentMonth}/{currentYear}:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {unavailableDates
-                      .filter((date) =>
-                        date.startsWith(
-                          `${currentYear}-${String(currentMonth).padStart(
-                            2,
-                            "0",
-                          )}`,
-                        ),
-                      )
-                      .map((date) => (
-                        <span
-                          key={date}
-                          className="px-2 py-1 bg-red-200 text-red-800 text-xs rounded cursor-pointer hover:bg-red-300"
-                          onClick={() => handleDateClick(date)}
-                        >
-                          {new Date(date).getDate()}
-                        </span>
-                      ))}
-                    {unavailableDates.filter((date) =>
-                      date.startsWith(
-                        `${currentYear}-${String(currentMonth).padStart(
-                          2,
-                          "0",
-                        )}`,
-                      ),
-                    ).length === 0 && (
-                      <p className="text-xs text-secondary/70">
-                        No unavailable dates
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Calendar
+              unavailableDates={unavailableDates}
+              onDateClick={handleDateClick}
+              selectedDate={selectedDate || undefined}
+              currentYear={currentYear}
+              currentMonth={currentMonth}
+              onMonthChange={(year, month) => {
+                setCurrentYear(year);
+                setCurrentMonth(month);
+              }}
+            />
           </div>
 
           {/* Sidebar - Date Details */}

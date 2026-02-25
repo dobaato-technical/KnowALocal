@@ -3,119 +3,185 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
+interface SelectedSpecialty {
+  name: string;
+  price: number;
+  description?: string;
+}
+
 interface CheckoutRequest {
   tour_id: number;
   shift_id: number;
   date: string;
   tour_price: number;
   tour_title: string;
+  customer_name: string;
+  customer_email: string;
+  guest_number: number;
+  additional_info?: string;
+  selected_specialties?: SelectedSpecialty[];
 }
 
 export async function POST(request: Request) {
   try {
     const body: CheckoutRequest = await request.json();
-    const { tour_id, shift_id, date, tour_price, tour_title } = body;
-
-    console.log("Checkout request received:", {
+    const {
       tour_id,
       shift_id,
       date,
       tour_price,
       tour_title,
-    });
+      customer_name,
+      customer_email,
+      guest_number,
+      additional_info,
+      selected_specialties,
+    } = body;
 
-    // Validate input
-    if (!tour_id || !shift_id || !date || !tour_price || tour_price <= 0) {
+    // Compute total price: base tour price + sum of valid specialty prices
+    const validSpecialties: SelectedSpecialty[] = (
+      selected_specialties || []
+    ).filter(
+      (s) =>
+        s &&
+        typeof s.name === "string" &&
+        s.name.trim() &&
+        typeof s.price === "number" &&
+        s.price >= 0,
+    );
+    const specialtiesTotal = validSpecialties.reduce(
+      (sum, s) => sum + s.price,
+      0,
+    );
+    const totalPrice = tour_price + specialtiesTotal;
+
+    // Validate required fields
+    if (
+      !tour_id ||
+      !shift_id ||
+      !date ||
+      !tour_price ||
+      tour_price <= 0 ||
+      !customer_name?.trim() ||
+      !customer_email?.trim() ||
+      !guest_number ||
+      guest_number < 1
+    ) {
       return Response.json(
         { error: "Missing or invalid booking details" },
         { status: 400 },
       );
     }
 
-    // Initialize Supabase with service role key for server-side operations
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || "",
       process.env.SUPABASE_SERVICE_ROLE_KEY || "",
     );
 
-    // Check shift availability
-    const { data: bookings, error: bookingCheckError } = await supabase
-      .from("bookings")
-      .select("id")
-      .eq("shift_id", shift_id)
-      .eq("date", date)
-      .eq("booking_status", "confirmed")
-      .limit(1);
-
-    if (bookingCheckError) {
-      console.error("Booking check error:", bookingCheckError);
-      return Response.json(
-        { error: "Failed to check availability" },
-        { status: 500 },
-      );
-    }
-
-    // Get shift details (just validate it exists)
+    // Validate shift exists and get its type
     const { data: shift, error: shiftError } = await supabase
       .from("Shifts")
-      .select("id, name")
+      .select("id, name, type")
       .eq("id", shift_id)
       .single();
 
     if (shiftError || !shift) {
       console.error("Shift error:", shiftError);
-      console.error("Shift ID queried:", shift_id);
       return Response.json({ error: "Shift not found" }, { status: 404 });
     }
 
-    console.log("Shift found:", shift);
+    // Availability check:
+    // whole_day shift — blocked if ANY booking exists on this date
+    // hourly shift — blocked if (a) a whole_day booking exists OR (b) this shift is already booked
+    if (shift.type === "whole_day") {
+      const { data: anyBooking } = await supabase
+        .from("bookings")
+        .select("id")
+        .eq("date", date)
+        .eq("is_deleted", false)
+        .in("booking_status", ["confirmed", "pending"])
+        .limit(1);
 
-    // Check shift availability using conflict checking (built-in availability system)
-    // Your system uses 1 slot per shift per day
-    const { data: existingBooking, error: checkError } = await supabase
-      .from("bookings")
-      .select("id")
-      .eq("shift_id", shift_id)
-      .eq("date", date)
-      .in("booking_status", ["confirmed", "pending"])
-      .limit(1);
+      if (anyBooking && anyBooking.length > 0) {
+        return Response.json(
+          {
+            error:
+              "This date already has a booking. Whole day cannot be booked.",
+          },
+          { status: 400 },
+        );
+      }
+    } else {
+      // Hourly: check if a whole_day shift is booked on this date
+      const { data: wholeDayShifts } = await supabase
+        .from("Shifts")
+        .select("id")
+        .eq("type", "whole_day")
+        .eq("is_active", true);
 
-    if (checkError) {
-      console.error("Availability check error:", checkError);
-      return Response.json(
-        { error: "Failed to check availability" },
-        { status: 500 },
-      );
+      if (wholeDayShifts && wholeDayShifts.length > 0) {
+        const wholeDayIds = wholeDayShifts.map((s: { id: number }) => s.id);
+        const { data: wholeDayBooking } = await supabase
+          .from("bookings")
+          .select("id")
+          .eq("date", date)
+          .in("shift_id", wholeDayIds)
+          .eq("is_deleted", false)
+          .in("booking_status", ["confirmed", "pending"])
+          .limit(1);
+
+        if (wholeDayBooking && wholeDayBooking.length > 0) {
+          return Response.json(
+            {
+              error:
+                "This date has a whole-day booking. No other shifts can be added.",
+            },
+            { status: 400 },
+          );
+        }
+      }
+
+      // Hourly: check if this specific shift is already booked
+      const { data: shiftBooking } = await supabase
+        .from("bookings")
+        .select("id")
+        .eq("shift_id", shift_id)
+        .eq("date", date)
+        .eq("is_deleted", false)
+        .in("booking_status", ["confirmed", "pending"])
+        .limit(1);
+
+      if (shiftBooking && shiftBooking.length > 0) {
+        return Response.json(
+          { error: "This shift is already fully booked" },
+          { status: 400 },
+        );
+      }
     }
 
-    // If there's already a confirmed/pending booking for this shift on this date, it's fully booked
-    if (existingBooking && existingBooking.length > 0) {
-      console.log(`Shift ${shift_id} on ${date} is fully booked`);
-      return Response.json(
-        { error: "This shift is fully booked" },
-        { status: 400 },
-      );
-    }
-
-    console.log(`Shift ${shift_id} on ${date} is available`);
-
-    // Create temporary booking (status: pending - will be confirmed after payment)
-    const { data: tempBooking, error: bookingInsertError } = await supabase
+    // Create booking record with all customer info immediately
+    const { data: newBooking, error: bookingInsertError } = await supabase
       .from("bookings")
       .insert({
         tour_id,
         shift_id,
         date,
         booking_status: "pending",
-        tour_price: Math.round(tour_price * 100), // Store in cents
         payment_status: "pending",
+        tour_price: totalPrice,
+        customer_name: customer_name.trim(),
+        customer_email: customer_email.trim().toLowerCase(),
+        guest_number,
+        additional_info: additional_info?.trim() || null,
+        selected_specialties:
+          validSpecialties.length > 0 ? validSpecialties : null,
+        is_deleted: false,
         created_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 min expiry
       })
       .select()
       .single();
 
-    if (bookingInsertError || !tempBooking) {
+    if (bookingInsertError || !newBooking) {
       console.error("Booking insert error:", bookingInsertError);
       return Response.json(
         { error: "Failed to create booking" },
@@ -123,44 +189,60 @@ export async function POST(request: Request) {
       );
     }
 
+    // Build Stripe line items: base tour + one per paid specialty
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: tour_title,
+            description: `${tour_title} — ${date} | Guests: ${guest_number}`,
+          },
+          unit_amount: Math.round(tour_price * 100),
+        },
+        quantity: 1,
+      },
+      ...validSpecialties
+        .filter((s) => s.price > 0)
+        .map((s) => ({
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: s.name,
+              description: s.description || `Add-on for ${tour_title}`,
+            },
+            unit_amount: Math.round(s.price * 100),
+          },
+          quantity: 1,
+        })),
+    ];
+
     // Create Stripe Checkout Session
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/booking-success?bookingId=${tempBooking.id}&tourId=${tour_id}&session_id={CHECKOUT_SESSION_ID}`,
+      customer_email: customer_email.trim().toLowerCase(),
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/booking-success?bookingId=${newBooking.id}&tourId=${tour_id}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/explore-all-tours`,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: tour_title,
-              description: `${tour_title} - ${date}`,
-            },
-            unit_amount: Math.round(tour_price * 100), // In cents
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       metadata: {
-        booking_id: tempBooking.id,
-        tour_id,
-        shift_id,
+        booking_id: String(newBooking.id),
+        tour_id: String(tour_id),
+        shift_id: String(shift_id),
         date,
+        guest_number: String(guest_number),
       },
     });
 
-    // Store checkout session ID on the booking for webhook verification
+    // Store checkout session ID on the booking
     await supabase
       .from("bookings")
-      .update({
-        stripe_checkout_session_id: checkoutSession.id,
-      })
-      .eq("id", tempBooking.id);
+      .update({ stripe_checkout_session_id: checkoutSession.id })
+      .eq("id", newBooking.id);
 
     return Response.json({
       url: checkoutSession.url,
-      bookingId: tempBooking.id,
+      bookingId: newBooking.id,
       sessionId: checkoutSession.id,
     });
   } catch (error) {

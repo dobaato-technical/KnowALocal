@@ -11,7 +11,6 @@ export default function AdminLogin() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -54,7 +53,6 @@ export default function AdminLogin() {
       }
 
       // Login successful - redirect to tours page
-      console.log("Admin logged in:", result.data?.email);
       router.push("/admin/tours");
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -145,20 +143,6 @@ export default function AdminLogin() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-            </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  disabled={isLoading}
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600 transition-colors focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
-                />
-                <span className="text-sm text-gray-600">Remember me</span>
-              </label>
             </div>
 
             {/* Sign In Button */}

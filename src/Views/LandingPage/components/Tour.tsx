@@ -15,22 +15,12 @@ function Tours() {
   useEffect(() => {
     async function loadTours() {
       try {
-        console.log("🔍 LandingPage Tours: Fetching featured tours...");
         const response = await getFeaturedTours();
         const data = response.data || [];
-        console.log(
-          "✅ LandingPage Tours: Fetched",
-          data.length,
-          "featured tours",
-        );
-        if (data.length > 0) {
-          console.log("📋 First tour:", data[0]);
-        }
         // Shuffle and pick up to 4 random featured tours
         const shuffled = [...data].sort(() => Math.random() - 0.5).slice(0, 4);
         setTours(shuffled);
       } catch (error) {
-        console.error("❌ LandingPage Tours: Error loading tours:", error);
         setTours([]);
       } finally {
         setIsLoading(false);

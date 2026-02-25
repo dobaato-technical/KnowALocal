@@ -7,7 +7,45 @@ import { ApiResponse } from "@/api/types";
 import { apiCache } from "@/lib/api-cache";
 import { getGalleryImageUrl, getHeroImageUrl } from "@/lib/storage-urls";
 import { supabase } from "@/lib/supabase";
-import type { Tour, TourPreview } from "./tours.types";
+import type { Specialty, Tour, TourPreview } from "./tours.types";
+
+/**
+ * Normalize the mixed specialty format stored in Supabase:
+ * - JSON strings → parse to object
+ * - Plain strings → { name, description: '', price: 0 }
+ * - Already objects → pass through
+ */
+function normalizeSpecialties(raw: any[]): Specialty[] {
+  return raw
+    .map((item) => {
+      if (typeof item === "string") {
+        try {
+          const parsed = JSON.parse(item);
+          return {
+            name: parsed.name || item,
+            description: parsed.description || "",
+            price: typeof parsed.price === "number" ? parsed.price : 0,
+            icon: parsed.icon,
+            isClimbing: parsed.isClimbing,
+          };
+        } catch {
+          // plain string like "Expert guidance"
+          return { name: item, description: "", price: 0 };
+        }
+      }
+      if (typeof item === "object" && item !== null) {
+        return {
+          name: item.name || "",
+          description: item.description || "",
+          price: typeof item.price === "number" ? item.price : 0,
+          icon: item.icon,
+          isClimbing: item.isClimbing,
+        };
+      }
+      return null;
+    })
+    .filter((item): item is Specialty => item !== null);
+}
 
 /**
  * Get all tours (preview data for list views)
@@ -621,7 +659,9 @@ function transformTourToPreview(tour: any): TourPreview {
           }
         })
         .filter((img: any) => img.asset.url),
-      specialties: Array.isArray(tour.specialities) ? tour.specialities : [],
+      specialties: normalizeSpecialties(
+        Array.isArray(tour.specialities) ? tour.specialities : [],
+      ),
       itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
       tourInclusions: Array.isArray(tour.included) ? tour.included : [],
       keyRequirements: Array.isArray(tour.requirements)
