@@ -23,6 +23,8 @@ interface BookingPdfData {
   paymentExpYear?: number | null;
   paymentCurrency?: string | null;
   receiptUrl?: string | null;
+  /** Base tour price (before add-ons) */
+  baseTourPrice?: number | null;
   /** Base-64 data URL of the logo image (e.g. data:image/png;base64,...) */
   logoDataUrl?: string | null;
 }
@@ -209,8 +211,36 @@ export function generateBookingPdf(data: BookingPdfData): Blob {
   doc.setTextColor(...primary);
   doc.text("Payment", margin, y);
 
-  if (data.tourPrice != null) {
-    const currency = (data.paymentCurrency ?? "usd").toUpperCase();
+  const currency = (data.paymentCurrency ?? "usd").toUpperCase();
+
+  // Show breakdown only when we have both base price and a different total
+  const hasBreakdown =
+    data.baseTourPrice != null &&
+    data.tourPrice != null &&
+    data.tourPrice !== data.baseTourPrice;
+
+  if (hasBreakdown) {
+    drawRow("Base Tour", `${currency} $${data.baseTourPrice!.toFixed(2)}`);
+
+    // Add-ons subtotal
+    const addonsTotal = data.tourPrice! - data.baseTourPrice!;
+    if (addonsTotal > 0) {
+      drawRow("Add-ons", `+ ${currency} $${addonsTotal.toFixed(2)}`, {
+        color: accent,
+      });
+    }
+
+    // Divider line before total
+    y += 4;
+    doc.setDrawColor(220, 220, 220);
+    doc.setLineWidth(0.3);
+    doc.line(margin + 50, y, pageW - margin, y);
+
+    drawRow("Total Paid", `${currency} $${data.tourPrice!.toFixed(2)}`, {
+      bold: true,
+      color: accent,
+    });
+  } else if (data.tourPrice != null) {
     drawRow("Amount Paid", `${currency} $${data.tourPrice.toFixed(2)}`, {
       bold: true,
       color: accent,
