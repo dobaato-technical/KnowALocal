@@ -1,18 +1,9 @@
 "use client";
 
 import { logoutAdmin } from "@/api";
-import {
-  BookOpen,
-  Calendar,
-  Clock,
-  Compass,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react";
+import { BookOpen, Calendar, Clock, Compass, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
 
 interface SidebarItem {
   label: string;
@@ -21,7 +12,6 @@ interface SidebarItem {
 }
 
 export default function AdminSidebar() {
-  const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -70,33 +60,19 @@ export default function AdminSidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed left-4 top-4 z-50 rounded-lg bg-blue-600 p-2 text-white lg:hidden"
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed left-0 top-0 z-40 h-screen w-64 transform bg-gray-900 text-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
+      {/* ── Desktop Sidebar (lg and above) ── */}
+      <aside className="hidden lg:flex lg:flex-col h-screen w-64 flex-shrink-0 bg-gray-900 text-white">
         <div className="flex h-full flex-col">
-          {/* Logo/Header */}
-          <div className="flex items-center justify-between border-b border-gray-700 px-6 py-6">
-            <div>
-              <h1 className="text-xl font-bold">Admin Panel</h1>
-              <p className="text-xs text-gray-400">Know A Local</p>
-            </div>
+          {/* Logo */}
+          <div className="border-b border-gray-700 px-6 py-6">
+            <h1 className="text-xl font-bold">Admin Panel</h1>
+            <p className="text-xs text-gray-400">Know A Local</p>
           </div>
 
-          {/* User Profile Header */}
+          {/* User */}
           <div className="border-b border-gray-700 px-6 py-4">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
                 <span className="text-sm font-bold text-white">A</span>
               </div>
               <div className="flex-1">
@@ -106,29 +82,28 @@ export default function AdminSidebar() {
             </div>
           </div>
 
-          {/* Navigation Items */}
+          {/* Nav */}
           <nav className="flex-1 space-y-2 px-4 py-6">
             {sidebarItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setIsOpen(false)}
                 className={`flex items-center space-x-3 rounded-lg px-4 py-3 transition-all duration-200 ${
                   isActive(item.href)
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? "bg-primary text-white shadow-lg"
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>
                 {isActive(item.href) && (
-                  <div className="ml-auto h-2 w-2 rounded-full bg-white"></div>
+                  <div className="ml-auto h-2 w-2 rounded-full bg-white" />
                 )}
               </Link>
             ))}
           </nav>
 
-          {/* Footer - Logout */}
+          {/* Logout */}
           <div className="border-t border-gray-700 px-4 py-4">
             <button
               onClick={handleLogout}
@@ -141,13 +116,49 @@ export default function AdminSidebar() {
         </div>
       </aside>
 
-      {/* Mobile Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      {/* ── Mobile Bottom Nav (below lg) ── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-gray-900 border-t border-gray-700/60">
+        <div className="flex items-stretch justify-around h-16">
+          {sidebarItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 transition-colors duration-200 ${
+                  active ? "text-white" : "text-gray-400 hover:text-gray-200"
+                }`}
+              >
+                {/* Accent bar at top of active item */}
+                {active && (
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-accent" />
+                )}
+                <span
+                  className={`p-1.5 rounded-lg transition-colors ${
+                    active ? "bg-white/10" : ""
+                  }`}
+                >
+                  {item.icon}
+                </span>
+                <span className="text-[10px] font-medium leading-none">
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="relative flex flex-1 flex-col items-center justify-center gap-0.5 text-gray-400 hover:text-red-400 transition-colors duration-200"
+          >
+            <span className="p-1.5 rounded-lg">
+              <LogOut size={20} />
+            </span>
+            <span className="text-[10px] font-medium leading-none">Logout</span>
+          </button>
+        </div>
+      </nav>
     </>
   );
 }

@@ -2,7 +2,6 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import Button from "./button";
 
 export interface Column<T> {
   key: keyof T | string;
@@ -107,38 +106,44 @@ export default function Table<T extends Record<string, any>>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-6 py-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 sm:px-6 py-3 sm:py-4">
         {/* Info */}
-        <div className="text-sm text-gray-600">
-          Showing <span className="font-semibold">{startIndex + 1}</span> to{" "}
-          <span className="font-semibold">
+        <p className="text-xs sm:text-sm text-gray-500 order-2 sm:order-1">
+          Showing{" "}
+          <span className="font-semibold text-gray-700">{startIndex + 1}</span>{" "}
+          to{" "}
+          <span className="font-semibold text-gray-700">
             {Math.min(endIndex, data.length)}
           </span>{" "}
-          of <span className="font-semibold">{data.length}</span> results
-        </div>
+          of <span className="font-semibold text-gray-700">{data.length}</span>{" "}
+          results
+        </p>
 
         {/* Controls */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-1.5 order-1 sm:order-2">
           {/* Previous Button */}
-          <Button
+          <button
             onClick={handlePrevPage}
             disabled={currentPage === 1}
-            className="flex items-center space-x-2"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-all
+              disabled:opacity-40 disabled:cursor-not-allowed
+              border-gray-200 text-secondary hover:border-primary hover:text-primary
+              disabled:hover:border-gray-200 disabled:hover:text-secondary"
           >
-            <ChevronLeft size={18} />
-            <span>Previous</span>
-          </Button>
+            <ChevronLeft size={15} />
+            <span className="hidden sm:inline">Previous</span>
+          </button>
 
           {/* Page Numbers */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`h-9 w-9 rounded-lg text-sm font-medium transition-all ${
+                className={`h-8 w-8 rounded-lg text-sm font-medium transition-all ${
                   currentPage === page
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-secondary hover:bg-gray-100"
                 }`}
               >
                 {page}
@@ -147,14 +152,17 @@ export default function Table<T extends Record<string, any>>({
           </div>
 
           {/* Next Button */}
-          <Button
+          <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className="flex items-center space-x-2"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-all
+              disabled:opacity-40 disabled:cursor-not-allowed
+              border-gray-200 text-secondary hover:border-primary hover:text-primary
+              disabled:hover:border-gray-200 disabled:hover:text-secondary"
           >
-            <span>Next</span>
-            <ChevronRight size={18} />
-          </Button>
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight size={15} />
+          </button>
         </div>
       </div>
     </div>

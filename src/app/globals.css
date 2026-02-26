@@ -52,10 +52,6 @@
   --color-surface: #bcd2c2;
   --color-text: #774738;
   --color-dark: #774738;
-
-  /* CUSTOM FONT FAMILIES */
-  --font-heading: Arial, Helvetica, sans-serif;
-  --font-body: Arial, Helvetica, sans-serif;
 }
 
 @layer base {
@@ -238,6 +234,7 @@
   }
 }
 
+/* shadcn leftovers removed */
 /* @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

@@ -1,55 +1,28 @@
-"use client";
-
+import BelowFoldSections from "@/Views/LandingPage/components/BelowFoldSections";
 import dynamic from "next/dynamic";
-import FAQ from "./components/FAQ";
 
-/* ---------------- Dynamic Imports ---------------- */
+/* ---------------- Dynamic Imports (above-fold, SSR) ---------------- */
 
 const Header = dynamic(() => import("@/components/common/navbar"), {
   ssr: true,
 });
 
 const Hero = dynamic(() => import("@/Views/LandingPage/components/hero"), {
-  ssr: false,
+  ssr: true, // LCP element — keep SSR for fast Lighthouse score
 });
 
 const About = dynamic(
   () => import("@/Views/LandingPage/components/AboutCompany"),
-  {
-    ssr: false,
-  },
+  { ssr: true },
 );
 
 const Tours = dynamic(() => import("@/Views/LandingPage/components/Tour"), {
-  ssr: false,
+  ssr: true,
 });
 
 const CTAPlanJourney = dynamic(
   () => import("@/components/molecules/CTA-PlanJourney"),
-  { ssr: false },
-);
-
-const CTALocalExpert = dynamic(
-  () => import("@/components/molecules/CTA-localexp"),
-  { ssr: false },
-);
-
-const Footer = dynamic(() => import("@/components/common/footer"), {
-  ssr: true,
-});
-
-const ParnterCompanies = dynamic(
-  () => import("@/Views/LandingPage/components/ParnterCompanies"),
-  {
-    ssr: true,
-  },
-);
-
-const TestimonialSlider = dynamic(
-  () => import("@/Views/LandingPage/components/Testimonial"),
-  {
-    ssr: true,
-  },
+  { ssr: true },
 );
 
 /* ---------------- Page ---------------- */
@@ -79,29 +52,8 @@ export default function LandingPage() {
         <Tours />
       </section>
 
-      <section>
-        <CTALocalExpert />
-      </section>
-
-      <section>
-        <ParnterCompanies />
-      </section>
-
-      <section id="faq" className="section scroll-mt-24">
-        <FAQ />
-      </section>
-
-      <section>
-        <TestimonialSlider />
-      </section>
-
-      {/* <section className="section">
-        <CTANewsletter />
-      </section> */}
-
-      <section>
-        <Footer />
-      </section>
+      {/* Below-fold sections deferred via BelowFoldSections (Client Component with ssr:false) */}
+      <BelowFoldSections />
     </main>
   );
 }

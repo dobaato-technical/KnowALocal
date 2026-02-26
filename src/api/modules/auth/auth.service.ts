@@ -13,15 +13,15 @@ import type { LoginCredentials, StoredSession, User } from "./auth.types";
 // Session storage constants
 const SESSION_STORAGE_KEY = "admin_session";
 const TOKEN_STORAGE_KEY = "admin_token";
-const SESSION_EXPIRY_DAYS = 30; // 1 month
+const SESSION_EXPIRY_DAYS = 7; // 7 days
 
 /**
- * Store session in localStorage with 1-month expiry
+ * Store session in localStorage with 7-day expiry and set auth cookie for middleware
  */
 function storeSession(user: User, token: string): void {
   if (typeof window === "undefined") return;
 
-  const expiresAt = Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+  const expiresAt = Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
   const session: StoredSession = {
     user,
@@ -32,16 +32,22 @@ function storeSession(user: User, token: string): void {
 
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
   localStorage.setItem(TOKEN_STORAGE_KEY, token);
+
+  // Set a cookie so Next.js middleware can verify auth on admin routes
+  document.cookie = `admin_authenticated=true; Path=/; Max-Age=${SESSION_EXPIRY_DAYS * 24 * 60 * 60}; SameSite=Lax`;
 }
 
 /**
- * Clear session from localStorage
+ * Clear session from localStorage and remove auth cookie
  */
 function clearSession(): void {
   if (typeof window === "undefined") return;
 
   localStorage.removeItem(SESSION_STORAGE_KEY);
   localStorage.removeItem(TOKEN_STORAGE_KEY);
+
+  // Clear the middleware auth cookie
+  document.cookie = "admin_authenticated=; Path=/; Max-Age=0; SameSite=Lax";
 }
 
 /**
@@ -87,7 +93,7 @@ export async function loginAdmin(
       };
     }
 
-    // Store session locally with 1-month expiry
+    // Store session locally with 7-day expiry
     const token = result.user?.id || ""; // Use user ID as token
     storeSession(result.user, token);
 

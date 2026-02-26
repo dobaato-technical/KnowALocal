@@ -70,6 +70,7 @@ export async function GET(
           booking_status: booking.booking_status,
           payment_status: booking.payment_status,
           tour_price: booking.tour_price,
+          total_price: booking.total_price ?? null,
           date: booking.date,
           stripe_payment_intent_id: booking.stripe_payment_intent_id,
           customer_email: booking.customer_email,

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
       .select(
-        "id, tour_id, shift_id, date, booking_status, payment_status, customer_name, customer_email, tour_price, guest_number, additional_info, payment_info, created_at, stripe_payment_intent_id, selected_specialties",
+        "id, tour_id, shift_id, date, booking_status, payment_status, customer_name, customer_email, tour_price, total_price, guest_number, additional_info, payment_info, created_at, stripe_payment_intent_id, selected_specialties",
       )
       .eq("id", bookingId)
       .single();
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
             .update(updatePayload)
             .eq("id", bookingId)
             .select(
-              "id, tour_id, shift_id, date, booking_status, payment_status, customer_name, customer_email, tour_price, guest_number, additional_info, payment_info, created_at, stripe_payment_intent_id, selected_specialties",
+              "id, tour_id, shift_id, date, booking_status, payment_status, customer_name, customer_email, tour_price, total_price, guest_number, additional_info, payment_info, created_at, stripe_payment_intent_id, selected_specialties",
             )
             .single();
 
@@ -134,6 +134,7 @@ export async function GET(request: NextRequest) {
           customer_name: booking.customer_name,
           customer_email: booking.customer_email,
           tour_price: booking.tour_price,
+          total_price: booking.total_price ?? null,
           guest_number: booking.guest_number,
           additional_info: booking.additional_info,
           payment_info: booking.payment_info ?? null,

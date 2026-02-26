@@ -1,35 +1,29 @@
 "use client";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import Image from "next/image";
-import { useRef } from "react";
 import { SearchBar } from "./search-bar";
 
 export default function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll();
-
-  // Parallax effect: background moves slower than scroll
-  const bgY = useTransform(scrollY, [0, 400], [0, -100], { clamp: false });
-
   return (
     <section
-      ref={ref}
       id="hero"
       className="relative h-screen w-full overflow-hidden scroll-mt-24"
     >
-      {/* Parallax Background Image */}
-      <motion.div className="absolute inset-0" style={{ y: bgY }}>
+      {/* Background Image — CSS parallax via scale trick, no JS scroll listener */}
+      <div className="absolute inset-0 scale-110">
         <Image
           src="/drive-images/Cape_Forchu_Lighthouse-DaveyandSky.jpg"
           alt="Cape Forchu Lighthouse"
           fill
           className="object-cover"
           priority
-          quality={100}
+          quality={75}
+          sizes="100vw"
         />
         {/* Overlay for text readability */}
         <div className="absolute inset-0 bg-black/40" />
-      </motion.div>
+      </div>
 
       {/* Content - Centered */}
       <div className="relative h-full flex items-center justify-center px-4 sm:px-6 lg:px-16">
@@ -68,6 +62,21 @@ export default function Hero() {
           </motion.div>
         </div>
       </div>
+
+      {/* Scroll Indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.7 }}
+        transition={{ duration: 0.6, delay: 1 }}
+        className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none"
+      >
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <ChevronDown className="w-7 h-7 text-white" />
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

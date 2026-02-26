@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { MapPinned, Mountain, Waves } from "lucide-react";
+import Image from "next/image";
 
 const values = [
   {
@@ -37,14 +38,19 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, rotate: 0 }}
               whileInView={{ opacity: 1, rotate: 6 }}
+              whileHover={{ zIndex: 20, scale: 1.02 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="absolute top-8 right-0 w-[75%] h-[65%] bg-[#69836a] rounded-2xl  overflow-hidden"
+              style={{ zIndex: 1 }}
+              className="absolute top-8 right-0 w-[75%] h-[65%] bg-[#69836a] rounded-2xl overflow-hidden cursor-pointer shadow-xl"
             >
-              <img
+              <Image
                 src="/drive-images/Town-of-Yarmouth-DaveyandSky.jpg"
                 alt="Town of Yarmouth"
-                className="w-full h-full object-cover rounded-2xl"
+                fill
+                className="object-cover rounded-2xl"
+                quality={75}
+                sizes="(max-width: 768px) 75vw, 37vw"
               />
             </motion.div>
 
@@ -52,14 +58,19 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, rotate: 0 }}
               whileInView={{ opacity: 1, rotate: -6 }}
+              whileHover={{ zIndex: 20, scale: 1.02 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="absolute bottom-8 left-0 w-[75%] h-[65%] bg-[#335358] rounded-2xl overflow-hidden"
+              style={{ zIndex: 2 }}
+              className="absolute bottom-8 left-0 w-[75%] h-[65%] bg-[#335358] rounded-2xl overflow-hidden cursor-pointer shadow-xl"
             >
-              <img
+              <Image
                 src="/drive-images/Trout-Point-Lodge-Hot-Tub-DaveyandSky.jpg"
                 alt="Trout Point Lodge Hot Tub"
-                className="w-full h-full object-cover rounded-2xl"
+                fill
+                className="object-cover rounded-2xl"
+                quality={75}
+                sizes="(max-width: 768px) 75vw, 37vw"
               />
             </motion.div>
 

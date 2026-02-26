@@ -53,15 +53,12 @@ export async function POST(request: Request) {
       (sum, s) => sum + s.price,
       0,
     );
-    const totalPrice = tour_price + specialtiesTotal;
 
     // Validate required fields
     if (
       !tour_id ||
       !shift_id ||
       !date ||
-      !tour_price ||
-      tour_price <= 0 ||
       !customer_name?.trim() ||
       !customer_email?.trim() ||
       !guest_number ||
@@ -77,6 +74,25 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_URL || "",
       process.env.SUPABASE_SERVICE_ROLE_KEY || "",
     );
+
+    // Fetch tour base price from DB (server-side — prevents client-side price manipulation)
+    const { data: tourData, error: tourFetchError } = await supabase
+      .from("tours")
+      .select("price")
+      .eq("id", tour_id)
+      .single();
+
+    if (tourFetchError || !tourData) {
+      return Response.json({ error: "Tour not found" }, { status: 404 });
+    }
+
+    const tourBasePrice = tourData.price as number;
+    // Specialties are charged per person — multiply each by guest_number server-side
+    const specialtiesTotalPerHead = validSpecialties.reduce(
+      (sum, s) => sum + s.price * guest_number,
+      0,
+    );
+    const totalPrice = tourBasePrice + specialtiesTotalPerHead;
 
     // Validate shift exists and get its type
     const { data: shift, error: shiftError } = await supabase
@@ -168,7 +184,8 @@ export async function POST(request: Request) {
         date,
         booking_status: "pending",
         payment_status: "pending",
-        tour_price: totalPrice,
+        tour_price: tourBasePrice,
+        total_price: totalPrice,
         customer_name: customer_name.trim(),
         customer_email: customer_email.trim().toLowerCase(),
         guest_number,
@@ -189,7 +206,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build Stripe line items: base tour + one per paid specialty
+    // Build Stripe line items: base tour + one per specialty (quantity = guest count)
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
@@ -198,7 +215,7 @@ export async function POST(request: Request) {
             name: tour_title,
             description: `${tour_title} — ${date} | Guests: ${guest_number}`,
           },
-          unit_amount: Math.round(tour_price * 100),
+          unit_amount: Math.round(tourBasePrice * 100),
         },
         quantity: 1,
       },
@@ -213,7 +230,8 @@ export async function POST(request: Request) {
             },
             unit_amount: Math.round(s.price * 100),
           },
-          quantity: 1,
+          // quantity = guest_number so Stripe shows per-person multiplication
+          quantity: guest_number,
         })),
     ];
 

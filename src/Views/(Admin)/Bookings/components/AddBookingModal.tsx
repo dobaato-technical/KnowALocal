@@ -5,10 +5,12 @@ import {
   checkShiftConflicts,
   getAllShifts,
   getToursPreview,
+  getUnavailableDatesForMonth,
   type SelectedSpecialty,
   type Shift,
   type TourPreview,
 } from "@/api";
+import Calendar from "@/components/Calendar/Calendar";
 import Button from "@/components/ui/button";
 import {
   AlertCircle,
@@ -76,14 +78,41 @@ export default function AddBookingModal({
     isAvailable: boolean;
     reason?: string;
   }>({ isChecking: false, isAvailable: true });
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
 
-  // Fetch tours and shifts when modal opens
+  const todayDate = new Date();
+  const [calendarYear, setCalendarYear] = useState(todayDate.getFullYear());
+  const [calendarMonth, setCalendarMonth] = useState(todayDate.getMonth() + 1);
+
+  // Fetch tours + shifts on open; reset calendar to today on close
   useEffect(() => {
     if (isOpen) {
       fetchTours();
       fetchShifts();
+    } else {
+      // Reset to current month so next open always starts at today
+      const now = new Date();
+      setCalendarYear(now.getFullYear());
+      setCalendarMonth(now.getMonth() + 1);
     }
   }, [isOpen]);
+
+  // Fetch unavailable dates for the current month.
+  // cancelled flag prevents React StrictMode double-invoke from overwriting state.
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    getUnavailableDatesForMonth(calendarYear, calendarMonth)
+      .then((response) => {
+        if (!cancelled && response.success) {
+          setUnavailableDates(response.data || []);
+        }
+      })
+      .catch((err) => console.error("Error fetching unavailable dates:", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, calendarYear, calendarMonth]);
 
   const fetchTours = async () => {
     setLoadingTours(true);
@@ -258,12 +287,16 @@ export default function AddBookingModal({
     } else {
       setFormData({ ...formData, [name]: value });
     }
+  };
 
-    if (name === "date") {
-      checkAvailability(value);
-      if (formData.shift_id) {
-        checkShiftAvailability(value, formData.shift_id);
-      }
+  const handleDateClick = (date: string) => {
+    if (errors.date) {
+      setErrors({ ...errors, date: "" });
+    }
+    setFormData((prev) => ({ ...prev, date }));
+    checkAvailability(date);
+    if (formData.shift_id) {
+      checkShiftAvailability(date, formData.shift_id);
     }
   };
 
@@ -401,15 +434,20 @@ export default function AddBookingModal({
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Date *
             </label>
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.date ? "border-red-500" : "border-gray-300"
-              }`}
-            />
+            <div>
+              <Calendar
+                compact
+                unavailableDates={unavailableDates}
+                onDateClick={handleDateClick}
+                selectedDate={formData.date}
+                currentYear={calendarYear}
+                currentMonth={calendarMonth}
+                onMonthChange={(year, month) => {
+                  setCalendarYear(year);
+                  setCalendarMonth(month);
+                }}
+              />
+            </div>
 
             {/* Availability Status */}
             {formData.date && (
@@ -524,7 +562,7 @@ export default function AddBookingModal({
           </div>
 
           {/* Customer Info */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Customer Name *

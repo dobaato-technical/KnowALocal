@@ -266,7 +266,7 @@ export default function AddTourModal({
         <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[85vh]">
           <div className="space-y-6 px-6 py-6">
             {/* Title and Location Row */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Tour Title *
@@ -370,7 +370,7 @@ export default function AddTourModal({
             </div>
 
             {/* Specialities and Requirements Row */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Specialities — structured editor */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">

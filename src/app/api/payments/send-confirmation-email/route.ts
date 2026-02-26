@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
               <div style="display:inline-block;background:#edf7ee;border-radius:50%;padding:14px;margin-bottom:12px;">
                 <span style="font-size:32px;">✓</span>
               </div>
-              <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#335358;">You're all set!</h1>
+              <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#335358;">Booking Confirmed!</h1>
               <p style="margin:0;font-size:15px;color:#69836a;">
                 Hi <strong style="color:#335358;">${customerName || "there"}</strong>, your booking is confirmed and ready to go.
               </p>
@@ -169,13 +169,21 @@ export async function POST(request: NextRequest) {
                 ${
                   selectedSpecialties && selectedSpecialties.length > 0
                     ? selectedSpecialties
-                        .map((s) =>
-                          row(
+                        .map((s) => {
+                          const guests = guestNumber ?? 1;
+                          const lineTotal = s.price * guests;
+                          const priceLabel =
+                            s.price > 0
+                              ? guests > 1
+                                ? `$${s.price.toFixed(2)} &times; ${guests} = <strong style="color:#16a34a;">$${lineTotal.toFixed(2)}</strong>`
+                                : `+$${s.price.toFixed(2)}`
+                              : "Free";
+                          return row(
                             s.name,
-                            s.price > 0 ? `+$${s.price.toFixed(2)}` : "Free",
+                            priceLabel,
                             s.price > 0 ? "color:#16a34a;" : "",
-                          ),
-                        )
+                          );
+                        })
                         .join("")
                     : row("Add-ons", "None selected")
                 }
@@ -190,8 +198,18 @@ export async function POST(request: NextRequest) {
                 ${cardLine ? row("Card", cardLine) : ""}
                 ${row("Payment Status", '<span style="display:inline-block;background:#edf7ee;color:#16a34a;padding:2px 10px;border-radius:20px;font-size:12px;">Paid ✓</span>')}
                 ${row("Booking Status", '<span style="display:inline-block;background:#edf7ee;color:#16a34a;padding:2px 10px;border-radius:20px;font-size:12px;">Confirmed ✓</span>')}
-                ${receiptUrl ? row("Stripe Receipt", `<a href="${receiptUrl}" style="color:#335358;font-weight:600;text-decoration:underline;">View Receipt →</a>`) : ""}
               </table>
+              ${
+                receiptUrl
+                  ? `
+              <div style="margin-top:14px;">
+                <a href="${receiptUrl}" target="_blank" rel="noreferrer"
+                  style="display:inline-block;background:#335358;color:#f8f1dd;text-decoration:none;font-size:13px;font-weight:700;padding:10px 22px;border-radius:8px;letter-spacing:0.3px;">
+                  View Stripe Receipt &rarr;
+                </a>
+              </div>`
+                  : ""
+              }
             </td>
           </tr>
 
@@ -261,10 +279,17 @@ export async function POST(request: NextRequest) {
       ``,
       `── Add-ons ──`,
       ...(selectedSpecialties && selectedSpecialties.length > 0
-        ? selectedSpecialties.map(
-            (s) =>
-              `${s.name}: ${s.price > 0 ? `+$${s.price.toFixed(2)}` : "Free"}`,
-          )
+        ? selectedSpecialties.map((s) => {
+            const guests = guestNumber ?? 1;
+            const lineTotal = s.price * guests;
+            const priceText =
+              s.price > 0
+                ? guests > 1
+                  ? `$${s.price.toFixed(2)} x ${guests} = $${lineTotal.toFixed(2)}`
+                  : `+$${s.price.toFixed(2)}`
+                : "Free";
+            return `${s.name}: ${priceText}`;
+          })
         : ["None selected"]),
       ``,
       `── Payment ──`,
@@ -272,7 +297,7 @@ export async function POST(request: NextRequest) {
       cardLine ? `Card: ${cardLine}` : "",
       `Payment Status: Paid ✓`,
       `Booking Status: Confirmed ✓`,
-      receiptUrl ? `Stripe Receipt: ${receiptUrl}` : "",
+      receiptUrl ? `View Stripe Receipt: ${receiptUrl}` : "",
       ``,
       `Your booking confirmation PDF is attached to this email.`,
       ``,

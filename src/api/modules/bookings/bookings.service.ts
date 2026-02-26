@@ -475,6 +475,7 @@ export async function createBooking(
           customer_email: booking.customer_email?.trim().toLowerCase() || null,
           guest_number: booking.guest_number || 1,
           tour_price: booking.tour_price || null,
+          total_price: booking.total_price || null,
           selected_specialties: booking.selected_specialties?.length
             ? booking.selected_specialties
             : null,

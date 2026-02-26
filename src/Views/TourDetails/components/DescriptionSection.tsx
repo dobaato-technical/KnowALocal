@@ -30,7 +30,7 @@ export default function DescriptionSection({ tour }: any) {
             initial={{ width: 0 }}
             whileInView={{ width: 80 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="h-1.5 rounded-full mb-8 shadow-lg bg-gradient-to-r from-accent to-orange-400"
+            className="h-1.5 rounded-full mb-8 shadow-lg bg-gradient-to-r from-accent to-accent/40"
           />
         </motion.div>
 
@@ -43,7 +43,7 @@ export default function DescriptionSection({ tour }: any) {
           className="max-w-3xl"
         >
           <div className="backdrop-blur-sm rounded-xl border border-accent/20 p-6 md:p-8 transition-all duration-300 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10">
-            <p className="text-secondary text-lg md:text-base leading-relaxed font-body font-medium whitespace-pre-wrap">
+            <p className="text-secondary text-base md:text-lg leading-relaxed font-body font-medium whitespace-pre-wrap">
               {tour.fullDescription}
             </p>
           </div>

@@ -52,8 +52,8 @@ export default function AdminLogin() {
         return;
       }
 
-      // Login successful - redirect to tours page
-      router.push("/admin/tours");
+      // Login successful - redirect to admin panel
+      router.push("/admin");
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
       console.error("Login error:", err);

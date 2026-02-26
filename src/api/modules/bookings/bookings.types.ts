@@ -22,6 +22,7 @@ export interface Booking {
   stripe_checkout_session_id?: string;
   payment_status?: "pending" | "succeeded" | "failed" | "canceled";
   tour_price?: number;
+  total_price?: number;
   customer_email?: string;
   customer_name?: string;
   guest_number?: number;

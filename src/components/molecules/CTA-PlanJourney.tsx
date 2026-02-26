@@ -19,7 +19,8 @@ export default function CTAPlanJourney() {
             alt="Luxury journey experience at Trout Point Lodge"
             fill
             className="object-cover"
-            quality={100}
+            quality={75}
+            sizes="100vw"
           />
           {/* Dark overlay gradient for optimal text readability on image */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/65 to-black/70" />

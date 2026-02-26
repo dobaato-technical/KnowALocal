@@ -67,7 +67,7 @@ interface TourDetailsPageProps {
 
 export default function TourDetailsPage({ tour }: TourDetailsPageProps) {
   return (
-    <main className="bg-bg min-h-screen overflow-x-hidden">
+    <main className="bg-bg min-h-screen overflow-x-hidden pb-20 md:pb-0">
       <Header />
       <TourDetailHero tour={tour} />
       <BookingSidebar tour={tour} />

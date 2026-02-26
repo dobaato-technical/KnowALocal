@@ -57,20 +57,28 @@ export default function TourDetailHero({ tour }: any) {
           <div className="absolute inset-0 bg-black/40" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-          {/* Enhanced Dots */}
+          {/* Dots — Testimonial-style pulsing circles */}
           <div className="absolute bottom-10 left-0 right-0 flex justify-center gap-2">
             {images.map((_: string, index: number) => (
               <motion.button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                whileHover={{ scale: 1.2 }}
-                className={`rounded-full transition-all duration-300 ${
-                  currentIndex === index
-                    ? "bg-accent w-8 h-3 shadow-lg"
-                    : "bg-white/40 w-2 h-2 hover:bg-white/60"
-                }`}
+                className="relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-full p-1"
                 aria-label={`Go to slide ${index + 1}`}
-              />
+              >
+                <motion.div
+                  className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-colors duration-300 ${
+                    currentIndex === index ? "bg-accent" : "bg-white/40"
+                  }`}
+                />
+                {currentIndex === index && (
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-accent/30"
+                    animate={{ scale: [1, 1.8, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                )}
+              </motion.button>
             ))}
           </div>
         </>
@@ -97,7 +105,7 @@ export default function TourDetailHero({ tour }: any) {
               initial={{ width: 0 }}
               animate={{ width: 96 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="h-1.5 bg-gradient-to-r from-accent to-orange-400 mx-auto mb-8 rounded-full shadow-lg"
+              className="h-1.5 bg-gradient-to-r from-accent to-accent/40 mx-auto mb-8 rounded-full shadow-lg"
             />
             <motion.p
               initial={{ opacity: 0 }}

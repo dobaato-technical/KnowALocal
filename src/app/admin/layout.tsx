@@ -17,7 +17,7 @@ export default function AdminLayout({
       <div className="flex flex-1 flex-col overflow-hidden">
         <AdminHeader />
         <main className="flex-1 overflow-auto">
-          <div className="p-6">{children}</div>
+          <div className="p-3 sm:p-6 pb-20 lg:pb-6">{children}</div>
         </main>
       </div>
     </div>

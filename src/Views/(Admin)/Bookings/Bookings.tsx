@@ -212,8 +212,9 @@ export default function BookingsPage() {
   const handleAddBooking = async (bookingData: BookingFormData) => {
     setIsLoadingModal(true);
     try {
+      const guestCount = bookingData.guest_number || 1;
       const specialtiesTotal = (bookingData.selected_specialties || []).reduce(
-        (sum, s) => sum + (s.price || 0),
+        (sum, s) => sum + (s.price || 0) * guestCount,
         0,
       );
       const totalPrice = bookingData.tour_price + specialtiesTotal;
@@ -232,7 +233,8 @@ export default function BookingsPage() {
         customer_name: bookingData.customer_name.trim(),
         customer_email: bookingData.customer_email.trim().toLowerCase(),
         guest_number: bookingData.guest_number,
-        tour_price: totalPrice,
+        tour_price: bookingData.tour_price,
+        total_price: totalPrice,
         selected_specialties:
           bookingData.selected_specialties.length > 0
             ? bookingData.selected_specialties
@@ -375,9 +377,9 @@ export default function BookingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             Bookings Management
           </h1>
           <p className="text-gray-600">View and manage all tour bookings</p>
@@ -424,13 +426,13 @@ export default function BookingsPage() {
       {/* Details Modal */}
       {showDetails && selectedBooking && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Booking Details
             </h2>
 
             <div className="space-y-4 mb-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-gray-600">
                     Booking ID
@@ -516,7 +518,21 @@ export default function BookingsPage() {
                   </div>
                 )}
 
-                {selectedBooking.tour_price != null && (
+                {(selectedBooking as any).total_price != null ? (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Total Paid
+                    </label>
+                    <p className="text-gray-900 font-bold text-base">
+                      ${(selectedBooking as any).total_price}
+                    </p>
+                    {selectedBooking.tour_price != null && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Base tour: ${selectedBooking.tour_price}
+                      </p>
+                    )}
+                  </div>
+                ) : selectedBooking.tour_price != null ? (
                   <div>
                     <label className="text-sm font-semibold text-gray-600">
                       Total Paid
@@ -525,7 +541,7 @@ export default function BookingsPage() {
                       ${selectedBooking.tour_price}
                     </p>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Add-ons / specialties */}
@@ -557,7 +573,7 @@ export default function BookingsPage() {
                 <label className="text-sm font-semibold text-gray-600">
                   Status
                 </label>
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {["pending", "confirmed", "completed", "cancelled"].map(
                     (status) => (
                       <button

@@ -1,29 +1,16 @@
-import ScrollProgressBar from "@/components/common/ScrollProgressBar";
+import ScrollProgressBarClient from "@/components/common/ScrollProgressBarClient";
 import Providers from "@/lib/providers";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Merriweather, Roboto_Slab } from "next/font/google";
+import { Merriweather } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const robotoSlab = Roboto_Slab({
-  variable: "--ff-heading",
-  subsets: ["latin"],
-  weight: "400",
-});
-
+// Only load Merriweather — it's the only font actively used via --font-merriweather CSS variable.
+// Geist, Geist_Mono, Roboto_Slab were unused (body/heading fall back to Arial in globals.css).
 const merriweather = Merriweather({
   variable: "--font-merriweather",
   subsets: ["latin"],
-  weight: ["300", "400", "700", "900"],
+  weight: ["400", "700"], // 300 & 900 had minimal usage; trim to reduce font payload
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -40,9 +27,6 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`
-          ${geistSans.variable}
-          ${geistMono.variable}
-          ${robotoSlab.variable}
           ${merriweather.variable}
           antialiased
           min-h-screen
@@ -53,7 +37,7 @@ export default function RootLayout({
         `}
       >
         <Providers>
-          <ScrollProgressBar />
+          <ScrollProgressBarClient />
           {children}
         </Providers>
       </body>
