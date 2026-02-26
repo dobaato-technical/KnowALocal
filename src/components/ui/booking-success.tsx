@@ -1,5 +1,7 @@
 "use client";
 
+import Footer from "@/components/common/footer";
+import Header from "@/components/common/navbar";
 import {
   downloadBookingPdf,
   generateBookingPdf,
@@ -9,12 +11,12 @@ import { showToast } from "@/lib/toast-utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
-  ArrowLeft,
   Calendar,
   CheckCircle,
   ChevronRight,
   Clock,
   CreditCard,
+  DollarSign,
   Download,
   ExternalLink,
   FileText,
@@ -41,6 +43,7 @@ interface BookingDetailsData {
   customer_name: string | null;
   customer_email: string | null;
   tour_price: number | null;
+  total_price: number | null;
   guest_number: number | null;
   additional_info: string | null;
   payment_info: string | null;
@@ -147,7 +150,7 @@ export default function BookingSuccess() {
       shiftStartTime: bookingDetails.shift_start_time,
       shiftEndTime: bookingDetails.shift_end_time,
       guestNumber: bookingDetails.guest_number,
-      tourPrice: bookingDetails.tour_price,
+      tourPrice: bookingDetails.total_price ?? bookingDetails.tour_price,
       additionalInfo: bookingDetails.additional_info,
       selectedSpecialties: bookingDetails.selected_specialties ?? undefined,
       paymentBrand,
@@ -226,7 +229,7 @@ export default function BookingSuccess() {
           shiftName: bookingDetails.shift_name,
           shiftTime,
           guestNumber: bookingDetails.guest_number,
-          tourPrice: bookingDetails.tour_price,
+          tourPrice: bookingDetails.total_price ?? bookingDetails.tour_price,
           selectedSpecialties: bookingDetails.selected_specialties ?? undefined,
           paymentBrand,
           paymentLast4,
@@ -273,18 +276,24 @@ export default function BookingSuccess() {
   })();
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-slate-50 to-white">
-      {/* ── Top nav bar ── */}
-      <div className="border-b border-slate-100 bg-white/80 backdrop-blur-sm sticky top-0 z-20">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors no-underline"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
-        </div>
+    <div className="min-h-screen bg-neutral-light">
+      {/* ── Solid bg behind transparent fixed navbar ── */}
+      <div className="fixed top-0 left-0 right-0 h-16 md:h-[70px] bg-primary z-40 pointer-events-none" />
+      <Header />
+
+      {/* ── Slim pattern banner (navbar backing) ── */}
+      <div className="bg-primary relative overflow-hidden h-24 md:h-28">
+        {/* dot grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(248,241,221,0.07) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        />
+        {/* diagonal rule accent */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
       </div>
 
       <AnimatePresence>
@@ -294,7 +303,7 @@ export default function BookingSuccess() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="max-w-3xl mx-auto px-4 py-10 pb-16"
+            className="max-w-3xl mx-auto px-4 py-8 pb-16"
           >
             {isLoading ? (
               /* ─── Loading ─── */
@@ -349,9 +358,8 @@ export default function BookingSuccess() {
               <div className="space-y-4">
                 {/* ── Hero card ── */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                  {/* Green header band */}
+                  {/* Emerald header band */}
                   <div className="bg-linear-to-br from-emerald-500 to-emerald-600 px-8 pt-10 pb-8 text-center relative overflow-hidden">
-                    {/* subtle decorative rings */}
                     <div className="absolute inset-0 opacity-10">
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border-2 border-white" />
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-white" />
@@ -402,7 +410,7 @@ export default function BookingSuccess() {
                     </div>
                   </div>
 
-                  {/* Tour name summary */}
+                  {/* Tour name + quick chips */}
                   {bookingDetails.tour_title && (
                     <div className="px-6 pt-5 pb-2 text-center">
                       <p className="text-lg font-bold text-slate-800 leading-tight">
@@ -463,6 +471,14 @@ export default function BookingSuccess() {
                         value={`${bookingDetails.guest_number} ${bookingDetails.guest_number === 1 ? "person" : "people"}`}
                       />
                     )}
+                    {bookingDetails.tour_price != null && (
+                      <InfoRow
+                        icon={<DollarSign className="w-4 h-4" />}
+                        label="Tour Price"
+                        value={`$${bookingDetails.tour_price.toFixed(2)}`}
+                        valueClassName="text-sm font-extrabold text-emerald-600"
+                      />
+                    )}
                     {bookingDetails.customer_name && (
                       <InfoRow
                         icon={<Mail className="w-4 h-4" />}
@@ -497,19 +513,27 @@ export default function BookingSuccess() {
                           </span>
                         </div>
                         <div className="ml-7 space-y-1.5">
-                          {bookingDetails.selected_specialties.map((s) => (
-                            <div
-                              key={s.name}
-                              className="flex items-center justify-between text-sm"
-                            >
-                              <span className="text-slate-700 font-medium">
-                                {s.name}
-                              </span>
-                              <span className="font-semibold text-emerald-600">
-                                {s.price > 0 ? `+$${s.price}` : "Free"}
-                              </span>
-                            </div>
-                          ))}
+                          {bookingDetails.selected_specialties.map((s) => {
+                            const guests = bookingDetails.guest_number ?? 1;
+                            const lineTotal = s.price * guests;
+                            return (
+                              <div
+                                key={s.name}
+                                className="flex items-center justify-between text-sm"
+                              >
+                                <span className="text-slate-700 font-medium">
+                                  {s.name}
+                                </span>
+                                <span className="font-semibold text-emerald-600">
+                                  {s.price > 0
+                                    ? guests > 1
+                                      ? `$${s.price} × ${guests} = $${lineTotal.toFixed(2)}`
+                                      : `+$${s.price.toFixed(2)}`
+                                    : "Free"}
+                                </span>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     ) : (
@@ -532,11 +556,12 @@ export default function BookingSuccess() {
                     </h2>
                   </div>
                   <div className="px-6 py-4 space-y-0 divide-y divide-slate-50">
-                    {bookingDetails.tour_price != null && (
+                    {(bookingDetails.total_price ??
+                      bookingDetails.tour_price) != null && (
                       <InfoRow
                         icon={<CreditCard className="w-4 h-4" />}
                         label="Amount Paid"
-                        value={`$${bookingDetails.tour_price.toFixed(2)}`}
+                        value={`$${(bookingDetails.total_price ?? bookingDetails.tour_price)!.toFixed(2)}`}
                         valueClassName="text-base font-extrabold text-emerald-600"
                       />
                     )}
@@ -746,6 +771,8 @@ export default function BookingSuccess() {
           </motion.div>
         )}
       </AnimatePresence>
+      {/* ── Site Footer ── */}
+      <Footer />
     </div>
   );
 }

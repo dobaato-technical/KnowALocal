@@ -54,6 +54,7 @@ export default function BookingModal({
   const [selectedSpecialties, setSelectedSpecialties] = useState<
     SelectedSpecialty[]
   >([]);
+  const [guestNumber, setGuestNumber] = useState(1);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -140,7 +141,8 @@ export default function BookingModal({
   const handleTourChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const tour = tours.find((t) => t._id === e.target.value) || null;
     setSelectedTour(tour);
-    setSelectedSpecialties([]); // reset specialties when tour changes
+    setSelectedSpecialties([]);
+    setGuestNumber(1);
   };
 
   const handleSpecialtyToggle = (specialty: SelectedSpecialty) => {
@@ -207,6 +209,7 @@ export default function BookingModal({
         selectedShift={selectedShift}
         selectedTour={selectedTour}
         selectedSpecialties={selectedSpecialties}
+        guestNumber={guestNumber}
         onClose={onClose}
         onBack={() => setShowCustomerModal(false)}
       />
@@ -334,23 +337,65 @@ export default function BookingModal({
                       </option>
                     ))}
                   </select>
-
-                  {selectedTour && (
-                    <div className="mt-2 px-4 py-2.5 bg-accent/5 border border-accent/20 rounded-lg flex items-center justify-between">
-                      <span className="text-sm font-semibold text-primary">
-                        {selectedTour.title}
-                      </span>
-                      {selectedTour.basePrice && (
-                        <span className="text-accent font-bold">
-                          ${selectedTour.basePrice}
-                        </span>
-                      )}
-                    </div>
-                  )}
                 </div>
               )}
 
-              {/* Step 4 — Specialties (optional) */}
+              {/* Step 4 — Number of Guests */}
+              {selectedTour && selectedShift && (
+                <div>
+                  <p className="text-xs font-bold text-accent uppercase tracking-wide mb-3">
+                    Step 4 — Number of Guests
+                  </p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setGuestNumber((n) => Math.max(1, n - 1))}
+                      disabled={guestNumber <= 1}
+                      className="w-10 h-10 rounded-lg border-2 border-secondary/20 bg-white text-primary font-bold text-lg flex items-center justify-center hover:border-accent hover:text-accent transition-colors disabled:opacity-40"
+                    >
+                      −
+                    </button>
+                    <span className="w-10 text-center text-xl font-bold text-primary tabular-nums">
+                      {guestNumber}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setGuestNumber((n) =>
+                          selectedTour.maxGroupSize
+                            ? Math.min(selectedTour.maxGroupSize, n + 1)
+                            : n + 1,
+                        )
+                      }
+                      disabled={
+                        !!(
+                          selectedTour.maxGroupSize &&
+                          guestNumber >= selectedTour.maxGroupSize
+                        )
+                      }
+                      className="w-10 h-10 rounded-lg border-2 border-secondary/20 bg-white text-primary font-bold text-lg flex items-center justify-center hover:border-accent hover:text-accent transition-colors disabled:opacity-40"
+                    >
+                      +
+                    </button>
+                    <span className="text-sm text-secondary/60">
+                      {guestNumber === 1 ? "person" : "people"}
+                    </span>
+                  </div>
+                  {!!selectedTour.maxGroupSize && (
+                    <p className="mt-2 text-xs text-secondary/40">
+                      Max {selectedTour.maxGroupSize} guests for this tour
+                    </p>
+                  )}
+                  {selectedTour.specialties &&
+                    selectedTour.specialties.length > 0 && (
+                      <p className="mt-1 text-xs text-secondary/50">
+                        Add-on prices are multiplied by the number of guests
+                      </p>
+                    )}
+                </div>
+              )}
+
+              {/* Step 5 — Specialties (optional) */}
               {selectedTour &&
                 selectedShift &&
                 Array.isArray(selectedTour.specialties) &&
@@ -358,7 +403,7 @@ export default function BookingModal({
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-xs font-bold text-accent uppercase tracking-wide">
-                        Step 4 — Add-ons{" "}
+                        Step 5 — Add-ons{" "}
                         <span className="text-secondary/50 font-normal normal-case">
                           (optional)
                         </span>

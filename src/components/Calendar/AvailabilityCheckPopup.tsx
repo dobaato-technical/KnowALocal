@@ -19,7 +19,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { showToast } from "@/lib/toast-utils";
-import { CheckCircle2, Circle, Clock, Loader2, Lock, X } from "lucide-react";
+import {
+  CheckCircle2,
+  Circle,
+  Clock,
+  Loader2,
+  Lock,
+  Minus,
+  Plus,
+  Users,
+  X,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import Calendar from "./Calendar";
 
@@ -66,6 +76,7 @@ export default function AvailabilityCheckPopup({
     shift: null,
     tour: preSelectedTour || null,
   });
+  const [guestNumber, setGuestNumber] = useState(1);
   const [selectedSpecialties, setSelectedSpecialties] = useState<
     SelectedSpecialty[]
   >([]);
@@ -202,6 +213,7 @@ export default function AvailabilityCheckPopup({
     if (tour) {
       setSelectedBooking((prev) => ({ ...prev, tour }));
       setSelectedSpecialties([]); // reset add-ons when tour changes
+      setGuestNumber(1); // reset guest count when tour changes
     }
   };
 
@@ -272,8 +284,9 @@ export default function AvailabilityCheckPopup({
     setCurrentMonth(month);
   };
 
+  const maxGuests = selectedBooking.tour?.maxGroupSize || 99;
   const specialtiesTotal = selectedSpecialties.reduce(
-    (sum, s) => sum + (s.price || 0),
+    (sum, s) => sum + (s.price || 0) * guestNumber,
     0,
   );
   const totalPrice = (selectedBooking.tour?.basePrice || 0) + specialtiesTotal;
@@ -293,6 +306,7 @@ export default function AvailabilityCheckPopup({
         selectedShift={selectedBooking.shift}
         selectedTour={selectedBooking.tour}
         selectedSpecialties={selectedSpecialties}
+        guestNumber={guestNumber}
         onClose={onClose}
         onBack={() => setShowCustomerModal(false)}
       />
@@ -551,6 +565,47 @@ export default function AvailabilityCheckPopup({
                 </div>
               )}
 
+              {/* Guest Counter */}
+              {selectedBooking.tour && selectedBooking.shift && (
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-primary">
+                    <Users className="w-4 h-4 text-accent" />
+                    Number of Guests
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setGuestNumber((n) => Math.max(1, n - 1))}
+                      disabled={guestNumber <= 1}
+                      className="w-9 h-9 rounded-full border-2 border-secondary/20 flex items-center justify-center hover:border-accent hover:text-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="text-xl font-bold text-primary w-8 text-center">
+                      {guestNumber}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setGuestNumber((n) => Math.min(maxGuests, n + 1))
+                      }
+                      disabled={guestNumber >= maxGuests}
+                      className="w-9 h-9 rounded-full border-2 border-secondary/20 flex items-center justify-center hover:border-accent hover:text-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                    <span className="text-sm text-secondary/60">
+                      {guestNumber === 1 ? "person" : "people"}
+                    </span>
+                  </div>
+                  {maxGuests < 99 && (
+                    <p className="text-xs text-secondary/40">
+                      Max {maxGuests} guests for this tour
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Specialties / Add-ons */}
               {selectedBooking.tour &&
                 selectedBooking.shift &&
@@ -616,7 +671,9 @@ export default function AvailabilityCheckPopup({
                                       : "text-secondary/70"
                                   }`}
                                 >
-                                  {spec.price > 0 ? `+$${spec.price}` : "Free"}
+                                  {spec.price > 0
+                                    ? `+$${spec.price}${guestNumber > 1 ? ` × ${guestNumber}` : ""}`
+                                    : "Free"}
                                 </span>
                               </div>
                               {spec.description && (
@@ -680,9 +737,14 @@ export default function AvailabilityCheckPopup({
                             >
                               <span className="text-secondary/60 truncate max-w-[60%]">
                                 {s.name}
+                                {guestNumber > 1 && s.price > 0 && (
+                                  <span className="text-[10px] ml-1 text-secondary/40">
+                                    ${s.price} × {guestNumber}
+                                  </span>
+                                )}
                               </span>
                               <span className="font-semibold text-accent">
-                                +${s.price}
+                                +${s.price * guestNumber}
                               </span>
                             </div>
                           ))}

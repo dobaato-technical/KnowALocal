@@ -169,7 +169,15 @@ export function generateBookingPdf(data: BookingPdfData): Blob {
     doc.text("Add-ons Selected", margin, y);
 
     data.selectedSpecialties.forEach((s) => {
-      drawRow(s.name, s.price > 0 ? `+$${s.price.toFixed(2)}` : "Free", {
+      const guests = data.guestNumber ?? 1;
+      const lineTotal = s.price * guests;
+      const priceLabel =
+        s.price > 0
+          ? guests > 1
+            ? `$${s.price.toFixed(2)} x ${guests} = $${lineTotal.toFixed(2)}`
+            : `+$${s.price.toFixed(2)}`
+          : "Free";
+      drawRow(s.name, priceLabel, {
         color: accent,
       });
       if (s.description) {

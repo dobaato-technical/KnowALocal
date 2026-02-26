@@ -212,8 +212,9 @@ export default function BookingsPage() {
   const handleAddBooking = async (bookingData: BookingFormData) => {
     setIsLoadingModal(true);
     try {
+      const guestCount = bookingData.guest_number || 1;
       const specialtiesTotal = (bookingData.selected_specialties || []).reduce(
-        (sum, s) => sum + (s.price || 0),
+        (sum, s) => sum + (s.price || 0) * guestCount,
         0,
       );
       const totalPrice = bookingData.tour_price + specialtiesTotal;
@@ -232,7 +233,8 @@ export default function BookingsPage() {
         customer_name: bookingData.customer_name.trim(),
         customer_email: bookingData.customer_email.trim().toLowerCase(),
         guest_number: bookingData.guest_number,
-        tour_price: totalPrice,
+        tour_price: bookingData.tour_price,
+        total_price: totalPrice,
         selected_specialties:
           bookingData.selected_specialties.length > 0
             ? bookingData.selected_specialties
@@ -516,7 +518,21 @@ export default function BookingsPage() {
                   </div>
                 )}
 
-                {selectedBooking.tour_price != null && (
+                {(selectedBooking as any).total_price != null ? (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600">
+                      Total Paid
+                    </label>
+                    <p className="text-gray-900 font-bold text-base">
+                      ${(selectedBooking as any).total_price}
+                    </p>
+                    {selectedBooking.tour_price != null && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Base tour: ${selectedBooking.tour_price}
+                      </p>
+                    )}
+                  </div>
+                ) : selectedBooking.tour_price != null ? (
                   <div>
                     <label className="text-sm font-semibold text-gray-600">
                       Total Paid
@@ -525,7 +541,7 @@ export default function BookingsPage() {
                       ${selectedBooking.tour_price}
                     </p>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Add-ons / specialties */}
