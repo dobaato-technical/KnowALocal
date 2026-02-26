@@ -9,6 +9,7 @@ interface CalendarProps {
   currentYear: number;
   currentMonth: number;
   onMonthChange: (year: number, month: number) => void;
+  compact?: boolean;
 }
 
 export default function Calendar({
@@ -18,6 +19,7 @@ export default function Calendar({
   currentYear,
   currentMonth,
   onMonthChange,
+  compact = false,
 }: CalendarProps) {
   const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month, 0).getDate();
@@ -89,32 +91,62 @@ export default function Calendar({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-secondary/10 p-6">
+    <div
+      className={`bg-white rounded-lg border border-secondary/10 ${
+        compact ? "p-3" : "p-6"
+      }`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div
+        className={`flex items-center justify-between ${
+          compact ? "mb-3" : "mb-6"
+        }`}
+      >
         <button
           onClick={handlePrevMonth}
-          className="p-2 hover:bg-secondary/10 rounded-lg transition-colors"
+          className={`hover:bg-secondary/10 rounded-lg transition-colors ${
+            compact ? "p-1" : "p-2"
+          }`}
         >
-          <ChevronLeft className="w-5 h-5 text-secondary" />
+          <ChevronLeft
+            className={
+              compact ? "w-4 h-4 text-secondary" : "w-5 h-5 text-secondary"
+            }
+          />
         </button>
 
-        <h3 className="font-bold text-lg text-primary">{monthName}</h3>
+        <h3
+          className={`font-bold text-primary ${
+            compact ? "text-sm" : "text-lg"
+          }`}
+        >
+          {monthName}
+        </h3>
 
         <button
           onClick={handleNextMonth}
-          className="p-2 hover:bg-secondary/10 rounded-lg transition-colors"
+          className={`hover:bg-secondary/10 rounded-lg transition-colors ${
+            compact ? "p-1" : "p-2"
+          }`}
         >
-          <ChevronRight className="w-5 h-5 text-secondary" />
+          <ChevronRight
+            className={
+              compact ? "w-4 h-4 text-secondary" : "w-5 h-5 text-secondary"
+            }
+          />
         </button>
       </div>
 
       {/* Days of week header */}
-      <div className="grid grid-cols-7 gap-2 mb-4">
+      <div
+        className={`grid grid-cols-7 ${compact ? "gap-1 mb-2" : "gap-2 mb-4"}`}
+      >
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div
             key={day}
-            className="text-center text-xs font-semibold text-secondary/70 py-2"
+            className={`text-center font-semibold text-secondary/70 ${
+              compact ? "text-[10px] py-1" : "text-xs py-2"
+            }`}
           >
             {day}
           </div>
@@ -122,7 +154,7 @@ export default function Calendar({
       </div>
 
       {/* Calendar days */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className={`grid grid-cols-7 ${compact ? "gap-1" : "gap-2"}`}>
         {days.map((day, index) => {
           if (day === null) {
             return <div key={`empty-${index}`} className="aspect-square"></div>;
@@ -143,7 +175,9 @@ export default function Calendar({
                 }
               }}
               disabled={unavailable || past}
-              className={`aspect-square rounded-lg font-semibold text-sm transition-all flex items-center justify-center ${
+              className={`aspect-square rounded-lg font-semibold transition-all flex items-center justify-center ${
+                compact ? "text-xs" : "text-sm"
+              } ${
                 selected
                   ? "bg-accent text-white border-2 border-accent"
                   : unavailable
@@ -162,17 +196,21 @@ export default function Calendar({
       </div>
 
       {/* Legend */}
-      <div className="mt-6 pt-4 border-t border-secondary/10 space-y-2">
-        <div className="flex items-center gap-2 text-xs">
-          <div className="w-3 h-3 rounded bg-accent"></div>
+      <div
+        className={`border-t border-secondary/10 flex flex-wrap gap-x-4 gap-y-1 ${
+          compact ? "mt-3 pt-2" : "mt-6 pt-4 space-y-2"
+        }`}
+      >
+        <div className="flex items-center gap-1.5 text-xs">
+          <div className="w-2.5 h-2.5 rounded bg-accent"></div>
           <span className="text-secondary/70">Selected</span>
         </div>
-        <div className="flex items-center gap-2 text-xs">
-          <div className="w-3 h-3 rounded bg-red-100 border border-red-300"></div>
+        <div className="flex items-center gap-1.5 text-xs">
+          <div className="w-2.5 h-2.5 rounded bg-red-100 border border-red-300"></div>
           <span className="text-secondary/70">Unavailable</span>
         </div>
-        <div className="flex items-center gap-2 text-xs">
-          <div className="w-3 h-3 rounded border border-primary"></div>
+        <div className="flex items-center gap-1.5 text-xs">
+          <div className="w-2.5 h-2.5 rounded border border-primary"></div>
           <span className="text-secondary/70">Today</span>
         </div>
       </div>

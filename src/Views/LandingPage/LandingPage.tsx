@@ -1,5 +1,3 @@
-"use client";
-
 import dynamic from "next/dynamic";
 import FAQ from "./components/FAQ";
 
@@ -10,28 +8,28 @@ const Header = dynamic(() => import("@/components/common/navbar"), {
 });
 
 const Hero = dynamic(() => import("@/Views/LandingPage/components/hero"), {
-  ssr: false,
+  ssr: true, // LCP element - must SSR for fast Lighthouse score
 });
 
 const About = dynamic(
   () => import("@/Views/LandingPage/components/AboutCompany"),
   {
-    ssr: false,
+    ssr: true,
   },
 );
 
 const Tours = dynamic(() => import("@/Views/LandingPage/components/Tour"), {
-  ssr: false,
+  ssr: true,
 });
 
 const CTAPlanJourney = dynamic(
   () => import("@/components/molecules/CTA-PlanJourney"),
-  { ssr: false },
+  { ssr: true },
 );
 
 const CTALocalExpert = dynamic(
   () => import("@/components/molecules/CTA-localexp"),
-  { ssr: false },
+  { ssr: true },
 );
 
 const Footer = dynamic(() => import("@/components/common/footer"), {

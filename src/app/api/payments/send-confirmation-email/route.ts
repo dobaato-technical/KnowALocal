@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
               <div style="display:inline-block;background:#edf7ee;border-radius:50%;padding:14px;margin-bottom:12px;">
                 <span style="font-size:32px;">✓</span>
               </div>
-              <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#335358;">You're all set!</h1>
+              <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#335358;">Booking Confirmed!</h1>
               <p style="margin:0;font-size:15px;color:#69836a;">
                 Hi <strong style="color:#335358;">${customerName || "there"}</strong>, your booking is confirmed and ready to go.
               </p>

@@ -122,9 +122,9 @@ export default function CustomerInfoModal({
       />
 
       {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-60 bg-neutral-light rounded-2xl shadow-2xl w-full max-w-xl max-h-[92vh] overflow-hidden flex flex-col">
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-60 bg-neutral-light rounded-2xl shadow-2xl w-[calc(100%-2rem)] max-w-xl max-h-[92vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-secondary/10 bg-white">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-secondary/10 bg-white">
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
@@ -152,7 +152,7 @@ export default function CustomerInfoModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
           {/* Booking Summary — compact card */}
           <div className="bg-white rounded-xl border border-secondary/15 overflow-hidden">
             <div className="px-4 py-2.5 bg-primary/5 border-b border-secondary/10">

@@ -319,14 +319,14 @@ export default function AvailabilityCheckPopup({
       />
 
       {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-[calc(100%-2rem)] max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-linear-to-r from-primary/5 to-accent/5">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-linear-to-r from-primary/5 to-accent/5">
           <div>
-            <h2 className="text-xl font-bold text-primary leading-tight">
+            <h2 className="text-lg sm:text-xl font-bold text-primary leading-tight">
               Book Your Tour
             </h2>
-            <p className="text-xs text-secondary/60 mt-0.5">
+            <p className="text-xs text-secondary/60 mt-0.5 hidden sm:block">
               Pick a date &rarr; choose a shift &rarr; confirm details
             </p>
           </div>
@@ -339,8 +339,8 @@ export default function AvailabilityCheckPopup({
         </div>
 
         {/* Modal Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
             {/* Calendar - Left Column */}
             <div className="lg:col-span-2">
               <Calendar
@@ -354,7 +354,7 @@ export default function AvailabilityCheckPopup({
             </div>
 
             {/* Right Sidebar - Shifts & Tours */}
-            <div className="lg:col-span-2 flex flex-col gap-5 min-h-105">
+            <div className="lg:col-span-2 flex flex-col gap-4 sm:gap-5">
               {/* Empty state — prompt user to pick a date */}
               {!selectedDate && (
                 <div className="flex-1 flex flex-col items-center justify-center text-center py-10 px-4">

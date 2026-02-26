@@ -33,7 +33,7 @@ function ToursList() {
           <h2 className="font-heading font-bold text-3xl mb-4">
             All Available Tours
           </h2>
-          <div className="mt-16 grid gap-12 md:grid-cols-4">
+          <div className="mt-16 grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
@@ -77,7 +77,7 @@ function ToursList() {
 
         {/* Cards Grid */}
         {tours.length > 0 && (
-          <div className="mt-16 grid gap-12 md:grid-cols-4">
+          <div className="mt-16 grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {tours.map((tour) => (
               <motion.div
                 key={tour._id}

@@ -56,7 +56,7 @@ export default function ContactForm({ onSuccess }: ContactFormProps) {
   };
 
   return (
-    <div className="bg-primary/5 rounded-xl p-8 shadow-2xl border border-primary/10">
+    <div className="bg-primary/5 rounded-xl p-5 sm:p-8 shadow-2xl border border-primary/10">
       <h2 className="text-2xl font-heading font-semibold text-primary mb-6">
         Send us a Message
       </h2>

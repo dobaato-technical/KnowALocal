@@ -375,9 +375,9 @@ export default function BookingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             Bookings Management
           </h1>
           <p className="text-gray-600">View and manage all tour bookings</p>
@@ -424,13 +424,13 @@ export default function BookingsPage() {
       {/* Details Modal */}
       {showDetails && selectedBooking && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Booking Details
             </h2>
 
             <div className="space-y-4 mb-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-gray-600">
                     Booking ID
@@ -557,7 +557,7 @@ export default function BookingsPage() {
                 <label className="text-sm font-semibold text-gray-600">
                   Status
                 </label>
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {["pending", "confirmed", "completed", "cancelled"].map(
                     (status) => (
                       <button

@@ -147,7 +147,7 @@ export default function ShiftsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg p-6">
+      <div className="min-h-screen bg-bg">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <p className="text-secondary/70">Loading shifts...</p>
@@ -158,12 +158,12 @@ export default function ShiftsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-primary mb-2">
+            <h1 className="text-2xl sm:text-4xl font-bold text-primary mb-1 sm:mb-2">
               Manage Shifts
             </h1>
             <p className="text-secondary/70">

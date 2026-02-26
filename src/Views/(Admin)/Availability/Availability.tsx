@@ -181,11 +181,11 @@ export default function AvailabilityPage() {
     selectedDate && allAvailability.find((a) => a.date === selectedDate);
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-primary mb-2">
             Manage Availability
           </h1>
           <p className="text-secondary/70 mb-4">

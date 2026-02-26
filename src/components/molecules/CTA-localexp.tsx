@@ -119,6 +119,8 @@ export default function CTALocalExpert() {
                 alt="Local travel expert providing personalized guidance"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
+                quality={75}
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
               {/* Overlay gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
