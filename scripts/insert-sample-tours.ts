@@ -1,9 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = "https://nmbcunlrijwkvqoakqkr.supabase.co";
-const serviceRoleKey =
-  "YDRtflkkLw6XRtCE";
-
+const supabaseUrl = "https://akqkr";
+const serviceRoleKey = "YDRtflkkLw6XRtCE";
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 const tours = [

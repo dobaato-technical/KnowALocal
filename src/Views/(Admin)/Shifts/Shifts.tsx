@@ -1,17 +1,11 @@
 "use client";
 
-import {
-  createShift,
-  deleteShift,
-  getAllShifts,
-  updateShift,
-  type Shift,
-} from "@/api";
+import { deleteShift, getAllShifts, updateShift, type Shift } from "@/api";
 import Button from "@/components/ui/button";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { Input } from "@/components/ui/input";
 import { showToast } from "@/lib/toast-utils";
-import { Edit2, Plus, Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function ShiftsPage() {
@@ -96,29 +90,14 @@ export default function ShiftsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim()) {
-      showToast("Please enter a shift name", "error");
-      return;
-    }
+    if (!editingId) return; // only updates allowed
 
-    if (editingId) {
-      // Update existing shift
-      const response = await updateShift(editingId, formData);
-      if (response.success && response.data) {
-        setShifts(shifts.map((s) => (s.id === editingId ? response.data! : s)));
-        showToast("Shift updated successfully", "success");
-      } else {
-        showToast("Failed to update shift", "error");
-      }
+    const response = await updateShift(editingId, formData);
+    if (response.success && response.data) {
+      setShifts(shifts.map((s) => (s.id === editingId ? response.data! : s)));
+      showToast("Shift updated successfully", "success");
     } else {
-      // Create new shift
-      const response = await createShift(formData);
-      if (response.success && response.data) {
-        setShifts([response.data, ...shifts]);
-        showToast("Shift created successfully", "success");
-      } else {
-        showToast("Failed to create shift", "error");
-      }
+      showToast("Failed to update shift", "error");
     }
 
     // Reset form
@@ -167,24 +146,16 @@ export default function ShiftsPage() {
               Manage Shifts
             </h1>
             <p className="text-secondary/70">
-              Create and manage work shifts for your team
+              Update shift timings. To add or remove shifts, use Supabase
+              directly.
             </p>
           </div>
-          <Button
-            onClick={() => (showForm ? resetForm() : setShowForm(true))}
-            className="flex items-center gap-2 bg-accent hover:bg-accent/90"
-          >
-            <Plus className="w-4 h-4" />
-            {showForm ? "Cancel" : "Add Shift"}
-          </Button>
         </div>
 
         {/* Form */}
         {showForm && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-[#bcd2c2]/30">
-            <h2 className="text-2xl font-bold text-primary mb-6">
-              {editingId ? "Edit Shift" : "Create New Shift"}
-            </h2>
+            <h2 className="text-2xl font-bold text-primary mb-6">Edit Shift</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -270,7 +241,7 @@ export default function ShiftsPage() {
 
               <div className="flex gap-3">
                 <Button type="submit" className="bg-accent hover:bg-accent/90">
-                  {editingId ? "Update Shift" : "Create Shift"}
+                  Update Shift
                 </Button>
                 <Button
                   type="button"
@@ -288,12 +259,9 @@ export default function ShiftsPage() {
         {shifts.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center border border-[#bcd2c2]/30">
             <p className="text-secondary/70 text-lg mb-4">No shifts found</p>
-            <Button
-              onClick={() => setShowForm(true)}
-              className="bg-accent hover:bg-accent/90"
-            >
-              Create First Shift
-            </Button>
+            <p className="text-sm text-secondary/50">
+              Add shifts directly in Supabase to get started.
+            </p>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-md overflow-hidden border border-[#bcd2c2]/30">

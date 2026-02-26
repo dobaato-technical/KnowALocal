@@ -497,15 +497,12 @@ export default function AddTourModal({
             {/* Included Services */}
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
-                Included Services (Optional Additional Charges)
-                <span className="text-gray-500 text-xs ml-2">
-                  (Type and press Enter)
-                </span>
+                What's Included
               </label>
               <TagInput
                 tags={formData.included}
                 onTagsChange={(tags) => handleTagsChange("included", tags)}
-                placeholder="e.g., Hotel pickup (+$20), Meals included, Photography service"
+                placeholder="e.g., Guided coastal drive, Hotel pickup & drop-off, Moon Mist ice cream treat"
                 disabled={isLoading || readOnly}
               />
               {errors.included && (

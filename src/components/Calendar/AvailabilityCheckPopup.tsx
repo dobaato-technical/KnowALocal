@@ -64,6 +64,8 @@ export default function AvailabilityCheckPopup({
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [tours, setTours] = useState<TourPreview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [shiftAvailabilityLoading, setShiftAvailabilityLoading] =
+    useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [disabledShiftIds, setDisabledShiftIds] = useState<number[]>([]);
@@ -130,29 +132,40 @@ export default function AvailabilityCheckPopup({
   const checkShiftAvailability = useCallback(
     async (date: string) => {
       try {
-        const disabledResponse = await getDisabledShiftsForDate(date);
+        setShiftAvailabilityLoading(true);
+        setShiftAvailability(new Map()); // clear stale data
+
+        const [disabledResponse, ...availabilityResponses] = await Promise.all([
+          getDisabledShiftsForDate(date),
+          ...shifts.map((s) => checkShiftSlotAvailability(date, s.id)),
+        ]);
+
         if (disabledResponse.success) {
           setDisabledShiftIds(disabledResponse.data || []);
         }
 
         const availabilityMap = new Map<number, ShiftAvailability>();
-
-        for (const shift of shifts) {
-          const response = await checkShiftSlotAvailability(date, shift.id);
-          if (response.success && response.data) {
-            availabilityMap.set(shift.id, {
-              shiftId: shift.id,
-              hasSlots: response.data.hasSlots,
-              bookedCount: response.data.bookedCount,
-              availableSlots: response.data.availableSlots,
-            });
-          }
-        }
+        availabilityResponses.forEach((response, i) => {
+          const shift = shifts[i];
+          if (!shift) return;
+          // Always add to map — default to no slots on error so shift is disabled
+          availabilityMap.set(shift.id, {
+            shiftId: shift.id,
+            hasSlots:
+              response.success && response.data
+                ? response.data.hasSlots
+                : false,
+            bookedCount: response.data?.bookedCount ?? 1,
+            availableSlots: response.data?.availableSlots ?? 0,
+          });
+        });
 
         setShiftAvailability(availabilityMap);
       } catch (error) {
         console.error("Error checking shift availability:", error);
         showToast("Failed to check shift availability", "error");
+      } finally {
+        setShiftAvailabilityLoading(false);
       }
     },
     [shifts],
@@ -413,7 +426,11 @@ export default function AvailabilityCheckPopup({
                     <Clock className="w-4 h-4 text-accent" />
                     Choose a Shift
                   </label>
-                  {shifts.length > 0 ? (
+                  {shiftAvailabilityLoading ? (
+                    <p className="text-sm text-secondary/60 py-3 text-center">
+                      Checking shift availability…
+                    </p>
+                  ) : shifts.length > 0 ? (
                     <>
                       <Select
                         value={
@@ -432,12 +449,14 @@ export default function AvailabilityCheckPopup({
                               shift.id,
                             );
                             const avail = shiftAvailability.get(shift.id);
-                            const noSlots = avail && !avail.hasSlots;
+                            // treat unknown avail (not in map) as no slots after load completes
+                            const noSlots =
+                              avail === undefined || !avail.hasSlots;
                             return (
                               <SelectItem
                                 key={shift.id}
                                 value={String(shift.id)}
-                                disabled={isDisabled || !!noSlots}
+                                disabled={isDisabled || noSlots}
                                 className="py-2.5"
                               >
                                 <span className="flex flex-col">
@@ -489,8 +508,8 @@ export default function AvailabilityCheckPopup({
                               }`}
                             >
                               {avail.hasSlots
-                                ? `✓ ${avail.availableSlots} slot${avail.availableSlots === 1 ? "" : "s"} available`
-                                : "✗ No slots available — shift is fully booked"}
+                                ? "✓ Available"
+                                : "✗ Fully booked"}
                             </p>
                           );
                         })()}

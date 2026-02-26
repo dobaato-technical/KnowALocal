@@ -279,7 +279,7 @@ export default function BookingModal({
                           const avail = shiftAvailability.get(shift.id);
                           const isDisabled =
                             disabledShiftIds.includes(shift.id) ||
-                            (avail ? !avail.hasSlots : false);
+                            (avail !== undefined ? !avail.hasSlots : true);
                           const isSelected = selectedShift?.id === shift.id;
                           return (
                             <button

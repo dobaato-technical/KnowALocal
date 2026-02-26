@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
       shiftTime,
       guestNumber,
       tourPrice,
+      baseTourPrice,
       paymentBrand,
       paymentLast4,
       paymentExpMonth,
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
       shiftTime?: string;
       guestNumber?: number;
       tourPrice?: number;
+      baseTourPrice?: number;
       paymentBrand?: string;
       paymentLast4?: string;
       paymentExpMonth?: number;
@@ -88,8 +90,16 @@ export async function POST(request: NextRequest) {
         : null;
 
     const currency = (paymentCurrency ?? "USD").toUpperCase();
+    const hasBreakdown =
+      baseTourPrice != null && tourPrice != null && tourPrice !== baseTourPrice;
+    const addonsSubtotal =
+      hasBreakdown && baseTourPrice != null && tourPrice != null
+        ? tourPrice - baseTourPrice
+        : 0;
     const amountFormatted =
       tourPrice != null ? `${currency} $${tourPrice.toFixed(2)}` : null;
+    const basePriceFormatted =
+      baseTourPrice != null ? `${currency} $${baseTourPrice.toFixed(2)}` : null;
 
     // ── Row builder helper ────────────────────────────────────────────────────
     const row = (label: string, value: string, valueStyle = "") => `
@@ -194,7 +204,14 @@ export async function POST(request: NextRequest) {
             <td style="padding:24px 36px 0;">
               <p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#d69850;">Payment Summary</p>
               <table width="100%" cellpadding="0" cellspacing="0">
-                ${amountFormatted ? row("Amount Paid", amountFormatted, "color:#16a34a;") : ""}
+                ${
+                  hasBreakdown
+                    ? `${basePriceFormatted ? row("Base Tour", basePriceFormatted) : ""}
+                     ${addonsSubtotal > 0 ? row("Add-ons", `+ ${currency} $${addonsSubtotal.toFixed(2)}`, "color:#d69850;") : ""}
+                     <tr><td colspan="2" style="padding:4px 0;"><hr style="border:none;border-top:1px solid #ede8db;margin:0" /></td></tr>
+                     ${amountFormatted ? row("Total Paid", amountFormatted, "color:#16a34a;font-size:16px;") : ""}`
+                    : `${amountFormatted ? row("Amount Paid", amountFormatted, "color:#16a34a;") : ""}`
+                }
                 ${cardLine ? row("Card", cardLine) : ""}
                 ${row("Payment Status", '<span style="display:inline-block;background:#edf7ee;color:#16a34a;padding:2px 10px;border-radius:20px;font-size:12px;">Paid ✓</span>')}
                 ${row("Booking Status", '<span style="display:inline-block;background:#edf7ee;color:#16a34a;padding:2px 10px;border-radius:20px;font-size:12px;">Confirmed ✓</span>')}
@@ -293,7 +310,15 @@ export async function POST(request: NextRequest) {
         : ["None selected"]),
       ``,
       `── Payment ──`,
-      amountFormatted ? `Amount Paid: ${amountFormatted}` : "",
+      ...(hasBreakdown
+        ? [
+            basePriceFormatted ? `Base Tour: ${basePriceFormatted}` : "",
+            addonsSubtotal > 0
+              ? `Add-ons: + ${currency} $${addonsSubtotal.toFixed(2)}`
+              : "",
+            amountFormatted ? `Total Paid: ${amountFormatted}` : "",
+          ]
+        : [amountFormatted ? `Amount Paid: ${amountFormatted}` : ""]),
       cardLine ? `Card: ${cardLine}` : "",
       `Payment Status: Paid ✓`,
       `Booking Status: Confirmed ✓`,
