@@ -1,7 +1,13 @@
 "use client";
 
-import AvailabilityCheckPopup from "@/components/Calendar/AvailabilityCheckPopup";
+import dynamic from "next/dynamic";
 import { useState } from "react";
+
+// Lazy-load the heavy popup — 730-line component with Calendar + API imports
+const AvailabilityCheckPopup = dynamic(
+  () => import("@/components/Calendar/AvailabilityCheckPopup"),
+  { ssr: false },
+);
 
 interface SearchBarProps {}
 

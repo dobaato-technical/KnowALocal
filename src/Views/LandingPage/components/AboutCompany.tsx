@@ -38,9 +38,11 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, rotate: 0 }}
               whileInView={{ opacity: 1, rotate: 6 }}
+              whileHover={{ zIndex: 20, scale: 1.02 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="absolute top-8 right-0 w-[75%] h-[65%] bg-[#69836a] rounded-2xl  overflow-hidden"
+              style={{ zIndex: 1 }}
+              className="absolute top-8 right-0 w-[75%] h-[65%] bg-[#69836a] rounded-2xl overflow-hidden cursor-pointer shadow-xl"
             >
               <Image
                 src="/drive-images/Town-of-Yarmouth-DaveyandSky.jpg"
@@ -56,9 +58,11 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, rotate: 0 }}
               whileInView={{ opacity: 1, rotate: -6 }}
+              whileHover={{ zIndex: 20, scale: 1.02 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="absolute bottom-8 left-0 w-[75%] h-[65%] bg-[#335358] rounded-2xl overflow-hidden"
+              style={{ zIndex: 2 }}
+              className="absolute bottom-8 left-0 w-[75%] h-[65%] bg-[#335358] rounded-2xl overflow-hidden cursor-pointer shadow-xl"
             >
               <Image
                 src="/drive-images/Trout-Point-Lodge-Hot-Tub-DaveyandSky.jpg"

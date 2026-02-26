@@ -2,6 +2,7 @@
 
 import { getFeaturedTours, type TourPreview } from "@/api";
 import Button from "@/components/ui/button";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -95,13 +96,16 @@ function Tours() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="mt-16 grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="h-100 bg-neutral-medium/30 rounded-2xl animate-pulse"
-              />
-            ))}
+          <div className="mt-16">
+            <LoadingSpinner label="Loading tours..." className="mb-8" />
+            <div className="grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[280px] bg-neutral-medium/30 rounded-2xl animate-pulse"
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -132,7 +136,7 @@ function Tours() {
                         alt={tour.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-300 to-gray-400">

@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { SearchBar } from "./search-bar";
 
@@ -61,6 +62,21 @@ export default function Hero() {
           </motion.div>
         </div>
       </div>
+
+      {/* Scroll Indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.7 }}
+        transition={{ duration: 0.6, delay: 1 }}
+        className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none"
+      >
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <ChevronDown className="w-7 h-7 text-white" />
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

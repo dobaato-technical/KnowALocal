@@ -340,7 +340,15 @@ export default function Footer({
             </h3>
             <ul className="hidden md:block space-y-3">
               {isLoading ? (
-                <li className="text-sm text-bg/60">Loading tours...</li>
+                <>
+                  {[...Array(3)].map((_, i) => (
+                    <li
+                      key={i}
+                      className="h-3 bg-bg/20 rounded-full animate-pulse"
+                      style={{ width: `${55 + i * 15}%` }}
+                    />
+                  ))}
+                </>
               ) : featuredTours.length > 0 ? (
                 featuredTours.map((tour) => (
                   <li key={tour._id}>

@@ -1,4 +1,4 @@
-import ScrollProgressBar from "@/components/common/ScrollProgressBar";
+import ScrollProgressBarClient from "@/components/common/ScrollProgressBarClient";
 import Providers from "@/lib/providers";
 import type { Metadata } from "next";
 import { Merriweather } from "next/font/google";
@@ -37,7 +37,7 @@ export default function RootLayout({
         `}
       >
         <Providers>
-          <ScrollProgressBar />
+          <ScrollProgressBarClient />
           {children}
         </Providers>
       </body>

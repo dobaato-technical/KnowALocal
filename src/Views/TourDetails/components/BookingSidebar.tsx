@@ -30,7 +30,7 @@ export default function BookingSidebar({ tour }: BookingSidebarProps) {
       `}</style>
       <button
         onClick={() => setShowAvailabilityPopup(true)}
-        className="floating-btn fixed bottom-0 left-0 right-0 md:bottom-8 md:right-8 md:left-auto z-40 px-6 md:px-8 py-4 rounded-none md:rounded-2xl bg-accent text-neutral-light font-bold text-sm md:text-base shadow-2xl hover:shadow-3xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center md:justify-start gap-3 border-t-2 md:border-2 border-accent/50 backdrop-blur-sm hover:border-white"
+        className="floating-btn fixed bottom-0 left-0 right-0 md:bottom-8 md:right-8 md:left-auto z-40 px-6 md:px-8 py-4 rounded-none md:rounded-2xl bg-accent text-neutral-light font-bold text-sm md:text-base shadow-2xl hover:shadow-3xl md:hover:scale-110 active:scale-95 transition-all flex items-center justify-center gap-3 border-t-2 md:border-2 border-accent/50 backdrop-blur-sm hover:border-white"
       >
         <BookOpen className="w-5 md:w-6 h-5 md:h-6 animate-pulse" />
         <span>Book Now</span>

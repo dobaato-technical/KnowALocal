@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Tree-shake large icon/animation libraries at build time
+    optimizePackageImports: ["lucide-react", "framer-motion"],
+  },
   images: {
     // Image optimization enabled (removed unoptimized: true)
     formats: ["image/avif", "image/webp"],

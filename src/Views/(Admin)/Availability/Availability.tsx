@@ -376,29 +376,33 @@ export default function AvailabilityPage() {
         </div>
 
         {/* Summary Section */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600" />
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-5">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-4 h-4 text-primary/60" />
+              </div>
               <div>
-                <p className="text-xs font-semibold text-red-700 uppercase">
+                <p className="text-xs font-semibold text-secondary/60 uppercase tracking-wide mb-1">
                   Unavailable Dates
                 </p>
-                <p className="text-2xl font-bold text-red-800">
+                <p className="text-2xl font-bold text-primary leading-none">
                   {unavailableDates.length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-blue-600" />
+          <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-5">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-4 h-4 text-primary/60" />
+              </div>
               <div>
-                <p className="text-xs font-semibold text-blue-700 uppercase">
+                <p className="text-xs font-semibold text-secondary/60 uppercase tracking-wide mb-1">
                   Current Month
                 </p>
-                <p className="text-2xl font-bold text-blue-800">
+                <p className="text-2xl font-bold text-primary leading-none">
                   {new Date(currentYear, currentMonth - 1).toLocaleDateString(
                     "en-US",
                     { month: "short", year: "numeric" },
@@ -408,14 +412,16 @@ export default function AvailabilityPage() {
             </div>
           </div>
 
-          <div className="bg-secondary/5 border border-secondary/10 rounded-lg p-6">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-secondary" />
+          <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-5">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-4 h-4 text-primary/60" />
+              </div>
               <div>
-                <p className="text-xs font-semibold text-secondary uppercase">
-                  Available Dates This Month
+                <p className="text-xs font-semibold text-secondary/60 uppercase tracking-wide mb-1">
+                  Available This Month
                 </p>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-2xl font-bold text-primary leading-none">
                   {new Date(currentYear, currentMonth, 0).getDate() -
                     unavailableDates.filter((date) =>
                       date.startsWith(

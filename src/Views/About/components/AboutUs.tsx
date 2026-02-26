@@ -110,9 +110,11 @@ export default function AboutUs() {
             <motion.div
               initial={{ opacity: 0, rotate: 0 }}
               whileInView={{ opacity: 1, rotate: -8 }}
+              whileHover={{ zIndex: 20, scale: 1.02 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="absolute top-12 left-0 w-[70%] h-[60%] bg-secondary rounded-3xl overflow-hidden shadow-lg"
+              style={{ zIndex: 1 }}
+              className="absolute top-12 left-0 w-[70%] h-[60%] bg-secondary rounded-3xl overflow-hidden shadow-lg cursor-pointer"
             >
               <img
                 src="/LandingImages/cape-forchu.jpg"
@@ -125,9 +127,11 @@ export default function AboutUs() {
             <motion.div
               initial={{ opacity: 0, rotate: 0 }}
               whileInView={{ opacity: 1, rotate: 8 }}
+              whileHover={{ zIndex: 20, scale: 1.02 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="absolute bottom-12 right-0 w-[70%] h-[60%] bg-accent/90 rounded-3xl overflow-hidden shadow-xl"
+              style={{ zIndex: 2 }}
+              className="absolute bottom-12 right-0 w-[70%] h-[60%] bg-accent/90 rounded-3xl overflow-hidden shadow-xl cursor-pointer"
             >
               <img
                 src="/LandingImages/brier-island-whale-tours.jpg"

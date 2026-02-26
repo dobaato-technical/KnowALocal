@@ -76,31 +76,6 @@ export default function CTALocalExpert() {
               </Button>
             </Link>
           </motion.div>
-
-          {/* Social proof */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex items-center gap-4 pt-4 border-t border-bg/20"
-            style={{ display: "none" }}
-          >
-            <div className="flex -space-x-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="w-8 h-8 rounded-full bg-accent/20 border-2 border-primary flex items-center justify-center text-xs"
-                >
-                  👤
-                </div>
-              ))}
-            </div>
-            <div className="text-sm">
-              <p className="text-bg font-medium">500+ travelers helped</p>
-              <p className="text-bg/70">this month</p>
-            </div>
-          </motion.div>
         </motion.div>
 
         {/* Image Side */}
@@ -129,16 +104,9 @@ export default function CTALocalExpert() {
 
           {/* Decorative floating element */}
           <motion.div
-            animate={{
-              y: [0, -10, 0],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute -top-6 -right-6 w-24 h-24 bg-accent/20 backdrop-blur-sm rounded-2xl rotate-12 hidden md:block"
-            style={{ display: "none" }}
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-6 -right-6 w-24 h-24 bg-accent/20 backdrop-blur-sm rounded-2xl rotate-12 hidden md:flex"
           />
         </motion.div>
       </div>

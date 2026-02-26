@@ -35,7 +35,7 @@ export default function Header() {
           transition-colors duration-300
           ${
             isScrolled
-              ? "bg-bg/80 backdrop-blur-xl border border-dark/10 shadow-lg max-w-[78rem]"
+              ? "bg-bg/50 backdrop-blur-xl border border-dark/10 shadow-lg max-w-[78rem]"
               : "bg-transparent max-w-full"
           }
         `}
@@ -129,15 +129,11 @@ export default function Header() {
               </Link>
             ))}
 
-            <Link
-              href="/contact-us"
-              className="relative font-body text-sm text-accent transition-colors after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-1/2"
-            >
-              Contact Us
+            <Link href="/contact-us" onClick={() => setIsMobileMenuOpen(false)}>
+              <Button variant="primary" className="w-full">
+                Book a Tour
+              </Button>
             </Link>
-            <Button variant="primary" className="mt-4">
-              Book a Tour
-            </Button>
           </div>
         </motion.nav>
       )}
