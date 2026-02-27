@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CalendarProps {
   unavailableDates: string[];
+  fullyBookedDates?: string[];
   onDateClick: (date: string) => void;
   selectedDate?: string;
   currentYear: number;
@@ -14,6 +15,7 @@ interface CalendarProps {
 
 export default function Calendar({
   unavailableDates,
+  fullyBookedDates = [],
   onDateClick,
   selectedDate,
   currentYear,
@@ -67,6 +69,11 @@ export default function Calendar({
   const isUnavailable = (day: number) => {
     const dateStr = `${currentYear}-${String(currentMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return unavailableDates.includes(dateStr);
+  };
+
+  const isFullyBooked = (day: number) => {
+    const dateStr = `${currentYear}-${String(currentMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return fullyBookedDates.includes(dateStr);
   };
 
   const isSelected = (day: number) => {
@@ -161,6 +168,7 @@ export default function Calendar({
           }
 
           const unavailable = isUnavailable(day);
+          const fullyBooked = isFullyBooked(day);
           const selected = isSelected(day);
           const today = isToday(day);
           const past = isPastDate(day);
@@ -169,19 +177,19 @@ export default function Calendar({
             <button
               key={day}
               onClick={() => {
-                if (!unavailable && !past) {
+                if (!past) {
                   const dateStr = `${currentYear}-${String(currentMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                   onDateClick(dateStr);
                 }
               }}
-              disabled={unavailable || past}
+              disabled={past}
               className={`aspect-square rounded-lg font-semibold transition-all flex items-center justify-center ${
                 compact ? "text-xs" : "text-sm"
               } ${
                 selected
                   ? "bg-accent text-white border-2 border-accent"
-                  : unavailable
-                    ? "bg-red-100 text-red-600 opacity-60 cursor-not-allowed border-2 border-red-300"
+                  : fullyBooked || unavailable
+                    ? "bg-rose-100 text-rose-500 border-2 border-rose-200 hover:bg-rose-200"
                     : past
                       ? "bg-secondary/5 text-secondary/40 cursor-not-allowed"
                       : today
@@ -206,8 +214,8 @@ export default function Calendar({
           <span className="text-secondary/70">Selected</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs">
-          <div className="w-2.5 h-2.5 rounded bg-red-100 border border-red-300"></div>
-          <span className="text-secondary/70">Unavailable</span>
+          <div className="w-2.5 h-2.5 rounded bg-rose-100 border border-rose-200"></div>
+          <span className="text-secondary/70">Unavailable / Fully Booked</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs">
           <div className="w-2.5 h-2.5 rounded border border-primary"></div>

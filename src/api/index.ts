@@ -70,6 +70,7 @@ export {
   getBookingById,
   getBookingsForDateAndShift,
   getDisabledShiftsForDate,
+  getFullyBookedDatesForMonth,
   getWholeDayBookingsForDate,
   updateBookingStatus,
 } from "./modules/bookings";

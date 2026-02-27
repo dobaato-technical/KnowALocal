@@ -2,6 +2,7 @@
 
 import {
   getAllAvailability,
+  getFullyBookedDatesForMonth,
   getUnavailableDatesForMonth,
   setAvailable,
   setUnavailable,
@@ -16,6 +17,7 @@ import { useCallback, useEffect, useState } from "react";
 
 export default function AvailabilityPage() {
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [fullyBookedDates, setFullyBookedDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -34,19 +36,25 @@ export default function AvailabilityPage() {
   const fetchUnavailableDates = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getUnavailableDatesForMonth(
-        currentYear,
-        currentMonth,
-      );
-      if (response.success) {
-        setUnavailableDates(response.data || []);
+      const [unavailableResponse, fullyBookedResponse] = await Promise.all([
+        getUnavailableDatesForMonth(currentYear, currentMonth),
+        getFullyBookedDatesForMonth(currentYear, currentMonth),
+      ]);
+      if (unavailableResponse.success) {
+        setUnavailableDates(unavailableResponse.data || []);
       } else {
-        console.error("Failed to fetch unavailable dates:", response.message);
+        console.error(
+          "Failed to fetch unavailable dates:",
+          unavailableResponse.message,
+        );
         setMessage({
           type: "error",
-          text: `Failed to load dates: ${response.message}`,
+          text: `Failed to load dates: ${unavailableResponse.message}`,
         });
         setTimeout(() => setMessage(null), 5000);
+      }
+      if (fullyBookedResponse.success) {
+        setFullyBookedDates(fullyBookedResponse.data || []);
       }
     } catch (err) {
       console.error("Error fetching unavailable dates:", err);
@@ -222,6 +230,7 @@ export default function AvailabilityPage() {
           <div className="lg:col-span-3">
             <Calendar
               unavailableDates={unavailableDates}
+              fullyBookedDates={fullyBookedDates}
               onDateClick={handleDateClick}
               selectedDate={selectedDate || undefined}
               currentYear={currentYear}
