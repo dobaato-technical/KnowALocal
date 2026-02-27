@@ -8,6 +8,7 @@
  */
 
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest) {
@@ -86,6 +87,11 @@ export async function PUT(request: NextRequest) {
         { status: 400 },
       );
     }
+
+    // Purge Next.js Full Route Cache and Data Cache for this tour and all listing pages
+    revalidatePath(`/tour-details/${tourId}`);
+    revalidatePath("/explore-all-tours");
+    revalidatePath("/");
 
     return NextResponse.json({
       success: true,

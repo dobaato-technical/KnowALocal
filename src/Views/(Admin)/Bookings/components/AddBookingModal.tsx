@@ -299,6 +299,8 @@ export default function AddBookingModal({
       newErrors.customer_email = "Valid email is required";
     if (formData.guest_number < 1)
       newErrors.guest_number = "At least 1 guest required";
+    if (formData.guest_number > maxGuests)
+      newErrors.guest_number = `Maximum ${maxGuests} guests allowed for this tour`;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -361,6 +363,7 @@ export default function AddBookingModal({
   const selectedTour = tours.find((t) => t._id === formData.tour_id.toString());
   const tourSpecialties =
     selectedTour?.specialties?.filter((s) => s.name?.trim()) || [];
+  const maxGuests = selectedTour?.maxGroupSize || 99;
 
   const handleSpecialtyToggle = (spec: SelectedSpecialty) => {
     setFormData((prev) => {
@@ -377,7 +380,7 @@ export default function AddBookingModal({
   };
 
   const specialtiesTotal = formData.selected_specialties.reduce(
-    (sum, s) => sum + (s.price || 0),
+    (sum, s) => sum + (s.price || 0) * formData.guest_number,
     0,
   );
   const totalPrice = formData.tour_price + specialtiesTotal;
@@ -742,16 +745,22 @@ export default function AddBookingModal({
                 onClick={() =>
                   setFormData((p) => ({
                     ...p,
-                    guest_number: p.guest_number + 1,
+                    guest_number: Math.min(maxGuests, p.guest_number + 1),
                   }))
                 }
-                className="w-10 h-10 rounded-lg border border-gray-300 text-gray-700 font-bold text-lg hover:border-blue-400"
+                disabled={formData.guest_number >= maxGuests}
+                className="w-10 h-10 rounded-lg border border-gray-300 text-gray-700 font-bold text-lg hover:border-blue-400 disabled:opacity-40"
               >
                 +
               </button>
               <span className="text-sm text-gray-500">
                 {formData.guest_number === 1 ? "person" : "people"}
               </span>
+              {selectedTour?.maxGroupSize && (
+                <span className="text-xs text-gray-400 ml-1">
+                  (max {maxGuests})
+                </span>
+              )}
             </div>
             {errors.guest_number && (
               <p className="text-red-500 text-sm mt-1">{errors.guest_number}</p>
@@ -797,8 +806,17 @@ export default function AddBookingModal({
               </div>
               {formData.selected_specialties.map((s) => (
                 <div key={s.name} className="flex justify-between text-sm">
-                  <span className="text-gray-600">+ {s.name}</span>
-                  <span className="font-medium">${s.price}</span>
+                  <span className="text-gray-600">
+                    + {s.name}
+                    {formData.guest_number > 1 && (
+                      <span className="text-gray-400 ml-1">
+                        (${s.price} × {formData.guest_number})
+                      </span>
+                    )}
+                  </span>
+                  <span className="font-medium">
+                    ${(s.price || 0) * formData.guest_number}
+                  </span>
                 </div>
               ))}
               <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-2 mt-2">

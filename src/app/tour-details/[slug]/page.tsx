@@ -2,6 +2,10 @@ import { getTourById } from "@/api";
 import TourDetailsPage from "@/Views/TourDetails/TourDetailsPage";
 import type { Metadata } from "next";
 
+// Never serve a statically-cached version of this page — always fetch fresh data
+// so changes made in the admin panel (e.g. specialties) are reflected immediately.
+export const revalidate = 0;
+
 interface TourDetailsPageProps {
   params: Promise<{
     slug: string;
