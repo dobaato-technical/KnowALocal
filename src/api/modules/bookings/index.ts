@@ -12,6 +12,7 @@ export {
   getBookingById,
   getBookingsForDateAndShift,
   getDisabledShiftsForDate,
+  getFullyBookedDatesForMonth,
   getWholeDayBookingsForDate,
   updateBookingStatus,
 } from "./bookings.service";

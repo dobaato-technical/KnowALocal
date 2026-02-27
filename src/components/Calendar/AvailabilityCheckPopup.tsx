@@ -4,6 +4,7 @@ import {
   checkShiftSlotAvailability,
   getAllShifts,
   getDisabledShiftsForDate,
+  getFullyBookedDatesForMonth,
   getToursPreview,
   getUnavailableDatesForMonth,
   type SelectedSpecialty,
@@ -58,6 +59,7 @@ export default function AvailabilityCheckPopup({
   preSelectedTour,
 }: AvailabilityCheckPopupProps) {
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [fullyBookedDates, setFullyBookedDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
@@ -86,12 +88,15 @@ export default function AvailabilityCheckPopup({
   // Fetch unavailable dates
   const fetchUnavailableDates = useCallback(async () => {
     try {
-      const response = await getUnavailableDatesForMonth(
-        currentYear,
-        currentMonth,
-      );
-      if (response.success) {
-        setUnavailableDates(response.data || []);
+      const [unavailableResponse, fullyBookedResponse] = await Promise.all([
+        getUnavailableDatesForMonth(currentYear, currentMonth),
+        getFullyBookedDatesForMonth(currentYear, currentMonth),
+      ]);
+      if (unavailableResponse.success) {
+        setUnavailableDates(unavailableResponse.data || []);
+      }
+      if (fullyBookedResponse.success) {
+        setFullyBookedDates(fullyBookedResponse.data || []);
       }
     } catch (error) {
       console.error("Error fetching unavailable dates:", error);
@@ -207,14 +212,21 @@ export default function AvailabilityCheckPopup({
     if (!shift) return;
     if (disabledShiftIds.includes(shift.id)) {
       showToast(
-        "This shift is disabled because a whole day booking exists",
+        "This shift is unavailable — a whole day booking exists for this date.",
         "error",
       );
       return;
     }
     const avail = shiftAvailability.get(shift.id);
     if (avail && !avail.hasSlots) {
-      showToast("This shift is already fully booked", "error");
+      if (shift.type === "whole_day" && disabledShiftIds.length === 0) {
+        showToast(
+          "Whole day booking is unavailable — individual shifts are already booked.",
+          "error",
+        );
+      } else {
+        showToast("This shift is already fully booked.", "error");
+      }
       return;
     }
     setSelectedBooking((prev) => ({ ...prev, shift }));
@@ -326,8 +338,23 @@ export default function AvailabilityCheckPopup({
     );
   }
 
+  const isAdminBlocked =
+    !!selectedDate && unavailableDates.includes(selectedDate);
+
+  // True only after shift-availability has finished loading and every shift has no slots
+  const allShiftsFullyBooked =
+    !shiftAvailabilityLoading &&
+    !!selectedDate &&
+    shifts.length > 0 &&
+    shifts.every(
+      (shift) =>
+        disabledShiftIds.includes(shift.id) ||
+        shiftAvailability.get(shift.id)?.hasSlots === false,
+    );
+
+  // Show the shifts section when: not admin-blocked AND (still loading OR at least one shift free)
   const isDateAvailable =
-    selectedDate && !unavailableDates.includes(selectedDate);
+    !!selectedDate && !isAdminBlocked && !allShiftsFullyBooked;
   const dateFormatted = selectedDate
     ? new Date(selectedDate).toLocaleDateString("en-US", {
         weekday: "long",
@@ -372,6 +399,7 @@ export default function AvailabilityCheckPopup({
             <div className="lg:col-span-2">
               <Calendar
                 unavailableDates={unavailableDates}
+                fullyBookedDates={fullyBookedDates}
                 onDateClick={handleDateClick}
                 selectedDate={selectedDate || undefined}
                 currentYear={currentYear}
@@ -407,15 +435,21 @@ export default function AvailabilityCheckPopup({
                   <p className="text-xl font-bold text-primary">
                     {dateFormatted}
                   </p>
-                  <p
-                    className={`text-xs font-semibold mt-2 ${
-                      isDateAvailable
-                        ? "text-green-700 bg-green-100 px-2 py-1 rounded w-fit"
-                        : "text-red-700 bg-red-100 px-2 py-1 rounded w-fit"
-                    }`}
-                  >
-                    {isDateAvailable ? "✓ Available" : "✗ Unavailable"}
-                  </p>
+                  {!shiftAvailabilityLoading && (
+                    <p
+                      className={`text-xs font-semibold mt-2 px-2 py-1 rounded w-fit ${
+                        isAdminBlocked || allShiftsFullyBooked
+                          ? "text-red-700 bg-red-100"
+                          : "text-green-700 bg-green-100"
+                      }`}
+                    >
+                      {isAdminBlocked
+                        ? "✗ Unavailable"
+                        : allShiftsFullyBooked
+                          ? "✗ All shifts fully booked"
+                          : "✓ Available"}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -449,9 +483,29 @@ export default function AvailabilityCheckPopup({
                               shift.id,
                             );
                             const avail = shiftAvailability.get(shift.id);
-                            // treat unknown avail (not in map) as no slots after load completes
+                            // Only treat as no-slots once loading is done and the slot data confirms it
                             const noSlots =
-                              avail === undefined || !avail.hasSlots;
+                              !shiftAvailabilityLoading &&
+                              (avail === undefined || !avail.hasSlots);
+
+                            // Determine label for unavailable shifts
+                            let unavailableLabel: string | null = null;
+                            if (isDisabled) {
+                              // Hourly shift blocked because whole-day is booked
+                              unavailableLabel = "Unavailable";
+                            } else if (noSlots) {
+                              if (shift.type === "whole_day") {
+                                // Whole-day blocked because hourly shifts were booked first
+                                // vs whole-day itself already booked (disabledShiftIds > 0 means whole-day is booked)
+                                unavailableLabel =
+                                  disabledShiftIds.length > 0
+                                    ? "Fully Booked"
+                                    : "Unavailable";
+                              } else {
+                                unavailableLabel = "Fully Booked";
+                              }
+                            }
+
                             return (
                               <SelectItem
                                 key={shift.id}
@@ -463,14 +517,9 @@ export default function AvailabilityCheckPopup({
                                   <span className="font-medium">
                                     {shift.name} — {shift.startTime} →{" "}
                                     {shift.endTime}
-                                    {isDisabled && (
-                                      <span className="ml-2 text-xs text-red-500">
-                                        (Whole Day Booked)
-                                      </span>
-                                    )}
-                                    {!isDisabled && noSlots && (
-                                      <span className="ml-2 text-xs text-red-500">
-                                        (Fully Booked)
+                                    {unavailableLabel && (
+                                      <span className="ml-2 text-xs text-rose-500">
+                                        ({unavailableLabel})
                                       </span>
                                     )}
                                   </span>
@@ -481,7 +530,7 @@ export default function AvailabilityCheckPopup({
                         </SelectContent>
                       </Select>
 
-                      {/* Availability helper text */}
+                      {/* Availability helper text — only show errors */}
                       {selectedBooking.shift &&
                         (() => {
                           const avail = shiftAvailability.get(
@@ -492,26 +541,25 @@ export default function AvailabilityCheckPopup({
                           );
                           if (isDisabled) {
                             return (
-                              <p className="text-xs font-semibold text-red-600 bg-red-50 px-3 py-2 rounded-md border border-red-200">
-                                ✗ Whole day is booked — please pick another
-                                date.
+                              <p className="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-2 rounded-md border border-rose-200">
+                                ✗ Unavailable — a whole day booking exists for
+                                this date.
                               </p>
                             );
                           }
-                          if (!avail) return null;
-                          return (
-                            <p
-                              className={`text-xs font-semibold px-3 py-2 rounded-md border ${
-                                avail.hasSlots
-                                  ? "text-green-700 bg-green-50 border-green-200"
-                                  : "text-red-600 bg-red-50 border-red-200"
-                              }`}
-                            >
-                              {avail.hasSlots
-                                ? "✓ Available"
-                                : "✗ Fully booked"}
-                            </p>
-                          );
+                          if (avail && !avail.hasSlots) {
+                            const isWholeDayBlockedByHourly =
+                              selectedBooking.shift.type === "whole_day" &&
+                              disabledShiftIds.length === 0;
+                            return (
+                              <p className="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-2 rounded-md border border-rose-200">
+                                {isWholeDayBlockedByHourly
+                                  ? "✗ Unavailable — individual shifts are already booked."
+                                  : "✗ Fully booked"}
+                              </p>
+                            );
+                          }
+                          return null;
                         })()}
                     </>
                   ) : (

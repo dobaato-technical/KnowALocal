@@ -801,3 +801,93 @@ export async function getDisabledShiftsForDate(
     };
   }
 }
+
+/**
+ * Get dates in a given month where every active shift is fully booked
+ * @param year  - Full year (e.g. 2026)
+ * @param month - 1-based month (1 = January)
+ * @returns API response with array of YYYY-MM-DD strings
+ */
+export async function getFullyBookedDatesForMonth(
+  year: number,
+  month: number,
+): Promise<ApiResponse<string[]>> {
+  try {
+    const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const endDate = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+    // Fetch all active shifts (with type) in parallel with bookings for the month
+    const [shiftsResult, bookingsResult] = await Promise.all([
+      supabase.from("Shifts").select("id, type").eq("is_active", true),
+      supabase
+        .from("bookings")
+        .select("date, shift_id")
+        .gte("date", startDate)
+        .lte("date", endDate)
+        .eq("is_deleted", false)
+        .in("booking_status", ["pending", "confirmed"]),
+    ]);
+
+    if (shiftsResult.error || bookingsResult.error) {
+      console.error(
+        "Supabase error:",
+        shiftsResult.error || bookingsResult.error,
+      );
+      return {
+        success: false,
+        message: "Failed to fetch booking data",
+        error: "FETCH_ERROR",
+        data: [],
+      };
+    }
+
+    const allShifts = shiftsResult.data || [];
+    const totalActiveShifts = allShifts.length;
+    if (totalActiveShifts === 0) {
+      return { success: true, message: "No active shifts", data: [] };
+    }
+
+    // Collect whole-day shift IDs — any booking using these blocks the entire day
+    const wholeDayShiftIds = new Set(
+      allShifts.filter((s) => s.type === "whole_day").map((s) => s.id),
+    );
+
+    // Group bookings by date → collect distinct shift_ids booked
+    const shiftsByDate = new Map<string, Set<number>>();
+    for (const row of bookingsResult.data || []) {
+      if (!shiftsByDate.has(row.date)) {
+        shiftsByDate.set(row.date, new Set());
+      }
+      shiftsByDate.get(row.date)!.add(row.shift_id);
+    }
+
+    const fullyBookedDates: string[] = [];
+    for (const [date, shiftSet] of shiftsByDate.entries()) {
+      // Whole-day booking → entire day is blocked (show red)
+      const hasWholeDayBooking = [...shiftSet].some((id) =>
+        wholeDayShiftIds.has(id),
+      );
+      // All active shifts individually booked → also fully booked
+      const allShiftsBooked = shiftSet.size >= totalActiveShifts;
+
+      if (hasWholeDayBooking || allShiftsBooked) {
+        fullyBookedDates.push(date);
+      }
+    }
+
+    return {
+      success: true,
+      message: "Fully booked dates fetched successfully",
+      data: fullyBookedDates,
+    };
+  } catch (error) {
+    console.error("Bookings API error:", error);
+    return {
+      success: false,
+      message: "Failed to get fully booked dates",
+      error: "FETCH_ERROR",
+      data: [],
+    };
+  }
+}
