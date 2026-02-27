@@ -115,7 +115,7 @@ export async function POST(request: Request) {
         .select("id")
         .eq("date", date)
         .eq("is_deleted", false)
-        .in("booking_status", ["confirmed", "pending"])
+        .eq("booking_status", "confirmed")
         .limit(1);
 
       if (anyBooking && anyBooking.length > 0) {
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
           .eq("date", date)
           .in("shift_id", wholeDayIds)
           .eq("is_deleted", false)
-          .in("booking_status", ["confirmed", "pending"])
+          .eq("booking_status", "confirmed")
           .limit(1);
 
         if (wholeDayBooking && wholeDayBooking.length > 0) {
@@ -164,7 +164,7 @@ export async function POST(request: Request) {
         .eq("shift_id", shift_id)
         .eq("date", date)
         .eq("is_deleted", false)
-        .in("booking_status", ["confirmed", "pending"])
+        .eq("booking_status", "confirmed")
         .limit(1);
 
       if (shiftBooking && shiftBooking.length > 0) {

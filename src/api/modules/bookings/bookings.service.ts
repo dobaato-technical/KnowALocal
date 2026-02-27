@@ -305,14 +305,14 @@ export async function checkShiftConflicts(
       wholeDayResponse.data &&
       wholeDayResponse.data.length > 0;
 
-    // If checking whole day — blocked if ANY booking exists on this date
+    // If checking whole day — blocked if ANY confirmed booking exists on this date
     if (shift.type === "whole_day") {
       const { data: allBookings, error: bookingsError } = await supabase
         .from("bookings")
         .select("*")
         .eq("date", date)
         .eq("is_deleted", false)
-        .in("booking_status", ["pending", "confirmed"])
+        .eq("booking_status", "confirmed")
         .limit(1);
 
       if (bookingsError) {
@@ -353,14 +353,14 @@ export async function checkShiftConflicts(
         };
       }
 
-      // (b) this specific shift already has a booking on this date
+      // (b) this specific shift already has a confirmed booking on this date
       const { data: shiftBookings, error: shiftBookingsError } = await supabase
         .from("bookings")
         .select("*")
         .eq("date", date)
         .eq("shift_id", shiftId)
         .eq("is_deleted", false)
-        .in("booking_status", ["pending", "confirmed"])
+        .eq("booking_status", "confirmed")
         .limit(1);
 
       if (shiftBookingsError) {
@@ -717,7 +717,7 @@ export async function getWholeDayBookingsForDate(
       .eq("date", date)
       .in("shift_id", wholeShiftIds)
       .eq("is_deleted", false)
-      .in("booking_status", ["pending", "confirmed"]);
+      .eq("booking_status", "confirmed");
 
     if (error) {
       console.error("Supabase error:", error);
@@ -826,7 +826,7 @@ export async function getFullyBookedDatesForMonth(
         .gte("date", startDate)
         .lte("date", endDate)
         .eq("is_deleted", false)
-        .in("booking_status", ["pending", "confirmed"]),
+        .eq("booking_status", "confirmed"),
     ]);
 
     if (shiftsResult.error || bookingsResult.error) {
