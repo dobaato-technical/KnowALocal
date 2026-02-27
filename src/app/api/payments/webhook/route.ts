@@ -113,6 +113,35 @@ export async function POST(request: Request) {
       }
     }
 
+    // Handle checkout session expired (user abandoned payment mid-way)
+    // This frees the blocked slot so other users can book
+    if (event.type === "checkout.session.expired") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const bookingId = session.metadata?.booking_id;
+
+      if (bookingId) {
+        const { error: cancelError } = await supabase
+          .from("bookings")
+          .update({
+            booking_status: "cancelled",
+            payment_status: "expired",
+          })
+          .eq("id", bookingId)
+          .eq("booking_status", "pending"); // Only cancel if still pending (not already confirmed)
+
+        if (cancelError) {
+          console.error(
+            `Failed to cancel expired booking ${bookingId}:`,
+            cancelError,
+          );
+        } else {
+          console.log(
+            `Booking ${bookingId} auto-cancelled — Stripe checkout session expired`,
+          );
+        }
+      }
+    }
+
     return Response.json({ received: true });
   } catch (error) {
     console.error("Webhook processing error:", error);
