@@ -3,7 +3,10 @@
 import {
   checkDateAvailability,
   checkShiftConflicts,
+  checkShiftSlotAvailability,
   getAllShifts,
+  getDisabledShiftsForDate,
+  getFullyBookedDatesForMonth,
   getToursPreview,
   getUnavailableDatesForMonth,
   type SelectedSpecialty,
@@ -12,6 +15,13 @@ import {
 } from "@/api";
 import Calendar from "@/components/Calendar/Calendar";
 import Button from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertCircle,
   CheckCircle,
@@ -79,6 +89,12 @@ export default function AddBookingModal({
     reason?: string;
   }>({ isChecking: false, isAvailable: true });
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [fullyBookedDates, setFullyBookedDates] = useState<string[]>([]);
+  const [shiftSlotAvailability, setShiftSlotAvailability] = useState<
+    Map<number, { shiftId: number; hasSlots: boolean }>
+  >(new Map());
+  const [disabledShiftIds, setDisabledShiftIds] = useState<number[]>([]);
+  const [shiftSlotLoading, setShiftSlotLoading] = useState(false);
 
   const todayDate = new Date();
   const [calendarYear, setCalendarYear] = useState(todayDate.getFullYear());
@@ -97,18 +113,23 @@ export default function AddBookingModal({
     }
   }, [isOpen]);
 
-  // Fetch unavailable dates for the current month.
+  // Fetch unavailable + fully-booked dates for the current month in parallel.
   // cancelled flag prevents React StrictMode double-invoke from overwriting state.
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
-    getUnavailableDatesForMonth(calendarYear, calendarMonth)
-      .then((response) => {
-        if (!cancelled && response.success) {
-          setUnavailableDates(response.data || []);
-        }
+    Promise.all([
+      getUnavailableDatesForMonth(calendarYear, calendarMonth),
+      getFullyBookedDatesForMonth(calendarYear, calendarMonth),
+    ])
+      .then(([unavailableRes, fullyBookedRes]) => {
+        if (cancelled) return;
+        if (unavailableRes.success)
+          setUnavailableDates(unavailableRes.data || []);
+        if (fullyBookedRes.success)
+          setFullyBookedDates(fullyBookedRes.data || []);
       })
-      .catch((err) => console.error("Error fetching unavailable dates:", err));
+      .catch((err) => console.error("Error fetching dates:", err));
     return () => {
       cancelled = true;
     };
@@ -133,7 +154,7 @@ export default function AddBookingModal({
     try {
       const response = await getAllShifts();
       if (response.success) {
-        setShifts(response.data || []);
+        setShifts((response.data || []).filter((s: Shift) => s.isActive));
       }
     } catch (err) {
       console.error("Error fetching shifts:", err);
@@ -220,6 +241,43 @@ export default function AddBookingModal({
     }
   };
 
+  const checkPerShiftAvailability = async (date: string) => {
+    if (!date || shifts.length === 0) return;
+    setShiftSlotLoading(true);
+    setShiftSlotAvailability(new Map());
+    setDisabledShiftIds([]);
+    try {
+      const [disabledRes, ...slotResponses] = await Promise.all([
+        getDisabledShiftsForDate(date),
+        ...shifts.map((s) => checkShiftSlotAvailability(date, s.id)),
+      ]);
+      if (disabledRes.success) setDisabledShiftIds(disabledRes.data || []);
+      const map = new Map<number, { shiftId: number; hasSlots: boolean }>();
+      slotResponses.forEach((res, i) => {
+        const shift = shifts[i];
+        if (!shift) return;
+        map.set(shift.id, {
+          shiftId: shift.id,
+          hasSlots: res.success && res.data ? res.data.hasSlots : false,
+        });
+      });
+      setShiftSlotAvailability(map);
+    } catch (err) {
+      console.error("Error checking per-shift availability:", err);
+    } finally {
+      setShiftSlotLoading(false);
+    }
+  };
+
+  const handleShiftSelect = (shiftIdStr: string) => {
+    const shiftId = Number(shiftIdStr);
+    if (errors.shift_id) setErrors({ ...errors, shift_id: "" });
+    setFormData((prev) => ({ ...prev, shift_id: shiftId }));
+    if (formData.date && shiftId) {
+      checkShiftAvailability(formData.date, shiftId);
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -293,11 +351,11 @@ export default function AddBookingModal({
     if (errors.date) {
       setErrors({ ...errors, date: "" });
     }
-    setFormData((prev) => ({ ...prev, date }));
+    // Reset selected shift when a new date is picked
+    setFormData((prev) => ({ ...prev, date, shift_id: 0 }));
+    setShiftAvailability({ isChecking: false, isAvailable: true });
     checkAvailability(date);
-    if (formData.shift_id) {
-      checkShiftAvailability(date, formData.shift_id);
-    }
+    checkPerShiftAvailability(date);
   };
 
   const selectedTour = tours.find((t) => t._id === formData.tour_id.toString());
@@ -438,6 +496,7 @@ export default function AddBookingModal({
               <Calendar
                 compact
                 unavailableDates={unavailableDates}
+                fullyBookedDates={fullyBookedDates}
                 onDateClick={handleDateClick}
                 selectedDate={formData.date}
                 currentYear={calendarYear}
@@ -488,47 +547,98 @@ export default function AddBookingModal({
               <div className="p-3 bg-gray-50 rounded-lg text-gray-600">
                 Loading shifts...
               </div>
+            ) : !formData.date ? (
+              <p className="p-3 bg-gray-50 rounded-lg text-gray-500 text-sm">
+                Select a date first to see available shifts.
+              </p>
             ) : (
-              <select
-                name="shift_id"
-                value={formData.shift_id}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.shift_id ? "border-red-500" : "border-gray-300"
-                }`}
-              >
-                <option value={0}>Select a shift...</option>
-                {shifts.map((shift) => (
-                  <option key={shift.id} value={shift.id}>
-                    {shift.name} ({shift.startTime} - {shift.endTime})
-                  </option>
-                ))}
-              </select>
-            )}
+              <>
+                <Select
+                  value={formData.shift_id ? String(formData.shift_id) : ""}
+                  onValueChange={handleShiftSelect}
+                  disabled={shiftSlotLoading}
+                >
+                  <SelectTrigger
+                    className={`w-full h-11 ${
+                      errors.shift_id
+                        ? "border-red-500"
+                        : "border-gray-300 focus:ring-blue-500"
+                    }`}
+                  >
+                    <SelectValue
+                      placeholder={
+                        shiftSlotLoading
+                          ? "Checking availability…"
+                          : "Select a shift…"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {shifts.map((shift) => {
+                      const isDisabled = disabledShiftIds.includes(shift.id);
+                      const avail = shiftSlotAvailability.get(shift.id);
+                      const noSlots =
+                        !shiftSlotLoading &&
+                        shiftSlotAvailability.size > 0 &&
+                        (avail === undefined || !avail.hasSlots);
+                      let statusLabel: string | null = null;
+                      if (isDisabled) {
+                        statusLabel = "Unavailable";
+                      } else if (noSlots) {
+                        statusLabel =
+                          shift.type === "whole_day" &&
+                          disabledShiftIds.length === 0
+                            ? "Unavailable"
+                            : "Fully Booked";
+                      }
+                      return (
+                        <SelectItem
+                          key={shift.id}
+                          value={String(shift.id)}
+                          disabled={isDisabled || noSlots}
+                          className="py-2.5"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {shift.name} — {shift.startTime} → {shift.endTime}
+                            </span>
+                            {statusLabel && (
+                              <span className="text-xs text-rose-500">
+                                ({statusLabel})
+                              </span>
+                            )}
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
 
-            {/* Shift Availability Status */}
-            {formData.shift_id && formData.date && (
-              <div className="mt-2 flex items-center gap-2">
-                {shiftAvailability.isChecking ? (
-                  <p className="text-gray-600 text-sm">
-                    Checking shift availability...
-                  </p>
-                ) : shiftAvailability.isAvailable ? (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle size={16} className="text-green-600" />
-                    <p className="text-green-600 text-sm font-medium">
-                      ✓ Available for booking
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <AlertCircle size={16} className="text-red-600" />
-                    <p className="text-red-600 text-sm font-medium">
-                      ✗ Not available: {shiftAvailability.reason}
-                    </p>
+                {/* Shift availability feedback after selection */}
+                {formData.shift_id && (
+                  <div className="mt-2 flex items-center gap-2">
+                    {shiftAvailability.isChecking ? (
+                      <p className="text-gray-600 text-sm">
+                        Checking shift availability...
+                      </p>
+                    ) : shiftAvailability.isAvailable ? (
+                      <div className="flex items-center gap-2">
+                        <CheckCircle size={16} className="text-green-600" />
+                        <p className="text-green-600 text-sm font-medium">
+                          ✓ Available for booking
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <AlertCircle size={16} className="text-red-600" />
+                        <p className="text-red-600 text-sm font-medium">
+                          ✗ Not available: {shiftAvailability.reason}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
+              </>
             )}
 
             {errors.shift_id && (
