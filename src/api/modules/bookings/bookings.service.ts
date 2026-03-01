@@ -848,9 +848,12 @@ export async function getFullyBookedDatesForMonth(
       return { success: true, message: "No active shifts", data: [] };
     }
 
-    // Collect whole-day shift IDs — any booking using these blocks the entire day
+    // Collect whole-day and hourly shift IDs separately
     const wholeDayShiftIds = new Set(
       allShifts.filter((s) => s.type === "whole_day").map((s) => s.id),
+    );
+    const hourlyShiftIds = new Set(
+      allShifts.filter((s) => s.type !== "whole_day").map((s) => s.id),
     );
 
     // Group bookings by date → collect distinct shift_ids booked
@@ -864,14 +867,20 @@ export async function getFullyBookedDatesForMonth(
 
     const fullyBookedDates: string[] = [];
     for (const [date, shiftSet] of shiftsByDate.entries()) {
-      // Whole-day booking → entire day is blocked (show red)
+      // A whole-day booking exists → all hourly shifts are blocked too
       const hasWholeDayBooking = [...shiftSet].some((id) =>
         wholeDayShiftIds.has(id),
       );
-      // All active shifts individually booked → also fully booked
-      const allShiftsBooked = shiftSet.size >= totalActiveShifts;
+      // All hourly shifts are individually booked → whole-day shift is also
+      // effectively blocked (can't book whole-day if any hourly booking exists)
+      const allHourlyShiftsBooked =
+        hourlyShiftIds.size > 0 &&
+        [...hourlyShiftIds].every((id) => shiftSet.has(id));
+      // Fallback for setups with no whole-day shifts: all shifts directly booked
+      const allShiftsBooked =
+        wholeDayShiftIds.size === 0 && shiftSet.size >= totalActiveShifts;
 
-      if (hasWholeDayBooking || allShiftsBooked) {
+      if (hasWholeDayBooking || allHourlyShiftsBooked || allShiftsBooked) {
         fullyBookedDates.push(date);
       }
     }
