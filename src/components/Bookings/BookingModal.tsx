@@ -4,6 +4,7 @@ import {
   checkShiftSlotAvailability,
   getAllShifts,
   getDisabledShiftsForDate,
+  getFullyBookedDatesForMonth,
   getToursPreview,
   getUnavailableDatesForMonth,
   type SelectedSpecialty,
@@ -33,6 +34,7 @@ export default function BookingModal({
   preSelectedTour,
 }: BookingModalProps) {
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [fullyBookedDates, setFullyBookedDates] = useState<string[]>([]);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -61,15 +63,19 @@ export default function BookingModal({
     const fetchInitialData = async () => {
       try {
         setLoading(true);
-        const [shiftsRes, toursRes, unavailableRes] = await Promise.all([
-          getAllShifts(),
-          getToursPreview(),
-          getUnavailableDatesForMonth(currentYear, currentMonth),
-        ]);
+        const [shiftsRes, toursRes, unavailableRes, fullyBookedRes] =
+          await Promise.all([
+            getAllShifts(),
+            getToursPreview(),
+            getUnavailableDatesForMonth(currentYear, currentMonth),
+            getFullyBookedDatesForMonth(currentYear, currentMonth),
+          ]);
         if (shiftsRes.success) setShifts(shiftsRes.data || []);
         if (toursRes.success) setTours(toursRes.data || []);
         if (unavailableRes.success)
           setUnavailableDates(unavailableRes.data || []);
+        if (fullyBookedRes.success)
+          setFullyBookedDates(fullyBookedRes.data || []);
       } catch {
         showToast("Failed to load booking data", "error");
       } finally {
@@ -254,6 +260,7 @@ export default function BookingModal({
                 </p>
                 <Calendar
                   unavailableDates={unavailableDates}
+                  fullyBookedDates={fullyBookedDates}
                   onDateClick={handleDateClick}
                   selectedDate={selectedDate || undefined}
                   currentYear={currentYear}
